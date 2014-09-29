@@ -132,6 +132,7 @@ ConstantInfo *visitConstant(ClassBuffer *buffer) {
 		case CONSTANT_METHOD_TYPE: {
 			ConstantMethodTypeInfo *methodTypeInfo;
 			debug_printf("Constant Method Type.\n");
+			methodTypeInfo = zalloc(sizeof(ConstantMethodTypeInfo));
 			methodTypeInfo->tag = tag;
 			methodTypeInfo->descriptor_index = bufferNextShort(buffer);
 			return (ConstantInfo *)methodTypeInfo;
