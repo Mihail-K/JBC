@@ -71,7 +71,7 @@ typedef struct {
 typedef struct {
 	uint8_t		tag;
 	uint16_t	length;
-//	uint8_t		bytes[length];
+	uint8_t		*bytes;
 } ConstantUtf8Info;
 
 typedef struct {
@@ -90,13 +90,5 @@ typedef struct {
 	uint16_t	bootstrap_method_attr_index;
 	uint16_t	name_and_type_index;
 } ConstantInvokeDynamicInfo;
-
-typedef struct {
-	uint32_t		magic;
-	uint16_t		major_version;
-	uint16_t		minor_version;
-	uint16_t		contant_pool_count;
-	ConstantInfo	*contant_pool;
-} ClassFile;
 
 # endif /* Types.h */
