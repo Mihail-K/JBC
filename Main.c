@@ -140,6 +140,7 @@ ConstantInfo *visitConstant(ClassBuffer *buffer) {
 		case CONSTANT_INVOKE_DYNAMIC: {
 			ConstantInvokeDynamicInfo *invokeDynamicInfo;
 			debug_printf("Constant Invoke Dynamic.\n");
+			invokeDynamicInfo = zalloc(sizeof(ConstantInvokeDynamicInfo));
 			invokeDynamicInfo->tag = tag;
 			invokeDynamicInfo->bootstrap_method_attr_index = bufferNextShort(buffer);
 			invokeDynamicInfo->name_and_type_index = bufferNextShort(buffer);
