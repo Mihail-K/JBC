@@ -91,4 +91,17 @@ typedef struct {
 	uint16_t	name_and_type_index;
 } ConstantInvokeDynamicInfo;
 
+typedef struct {
+	uint32_t	magic;
+	uint16_t	major_version;
+	uint16_t	minor_version;
+	uint16_t	constant_pool_count;
+	ConstantInfo **constant_pool;
+	uint16_t	access_flags;
+	ConstantClassInfo *this_class;
+	ConstantClassInfo *super_class;
+	uint16_t	interfaces_count;
+	ConstantClassInfo **interfaces;
+} ClassFile;
+
 # endif /* Types.h */

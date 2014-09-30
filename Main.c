@@ -5,8 +5,6 @@
 # include "Types.h"
 # include "ClassBuffer.h"
 
-static ConstantInfo **constants;
-
 # define debug_printf(fmt, ...) printf(fmt, ## __VA_ARGS__)
 
 void *zalloc(size_t size) {
@@ -155,35 +153,54 @@ ConstantInfo *visitConstant(ClassBuffer *buffer) {
 	}
 }
 
-void visitClassFile(ClassBuffer *buffer) {
-	int idx;
-	int16_t count;
-
-	debug_printf("Magic : %#X.\n", bufferNextInt(buffer));
-	debug_printf("Major Version : %d.\n", bufferNextShort(buffer));
-	debug_printf("Minor Version : %d.\n", bufferNextShort(buffer));
-
-	count = bufferNextShort(buffer);
-	debug_printf("Constant Pool Count : %d.\n", count);
-
-	constants = malloc(sizeof(ConstantInfo *) * count);
-	if(constants == NULL) {
-		perror("malloc");
+ConstantInfo *getConstant(ClassFile *classFile, int idx) {
+	ConstantInfo *info = classFile->constant_pool[idx];
+	if(info == NULL) {
+		fprintf(stderr, "Constant not found. (ID : %d)\n", idx);
 		exit(EXIT_FAILURE);
 	}
+	return info;
+}
 
-	constants[0] = NULL;
-	for(idx = 1; idx < count; idx++) {
+ClassFile *visitClassFile(ClassBuffer *buffer) {
+	int idx;
+	ClassFile *classFile = zalloc(sizeof(ClassFile));
+
+	classFile->magic = bufferNextInt(buffer);
+	classFile->major_version = bufferNextShort(buffer);
+	classFile->minor_version = bufferNextShort(buffer);
+
+	debug_printf("Magic : %#X.\n", classFile->magic);
+	debug_printf("Major Version : %d.\n", classFile->major_version);
+	debug_printf("Minor Version : %d.\n", classFile->minor_version);
+
+	classFile->constant_pool_count = bufferNextShort(buffer);
+	debug_printf("Constant Pool Count : %d.\n", classFile->constant_pool_count);
+
+	classFile->constant_pool = zalloc(sizeof(ConstantInfo *) *
+			classFile->constant_pool_count);
+	classFile->constant_pool[0] = NULL;
+	for(idx = 1; idx < classFile->constant_pool_count; idx++) {
 		debug_printf("Constant %d : ", idx);
-		ConstantInfo *info = visitConstant(buffer);
-		constants[idx] = info;
+		classFile->constant_pool[idx] = visitConstant(buffer);
 	}
 
-	debug_printf("Access Flags : %#X.\n", bufferNextShort(buffer));
-	debug_printf("This Class : %d.\n", bufferNextShort(buffer));
-	debug_printf("Super Class : %d.\n", bufferNextShort(buffer));
+	classFile->access_flags = bufferNextShort(buffer);
+	classFile->this_class = (void *)getConstant(classFile, bufferNextShort(buffer));
+	classFile->super_class = (void *)getConstant(classFile, bufferNextShort(buffer));
 
-	debug_printf("Interfaces Count : %d.\n", bufferNextShort(buffer));
+	debug_printf("Access Flags : %#X.\n", classFile->access_flags);
+	debug_printf("This Class : %d.\n", classFile->this_class->name_index);
+	debug_printf("Super Class : %d.\n", classFile->super_class->name_index);
+
+	classFile->interfaces_count = bufferNextShort(buffer);
+	debug_printf("Interfaces Count : %d.\n", classFile->interfaces_count);
+	classFile->interfaces = zalloc(sizeof(ConstantClassInfo *) * classFile->interfaces_count);
+
+	for(idx = 0; idx < classFile->interfaces_count; idx++) {
+		classFile->interfaces[idx] = (void *)getConstant(classFile, bufferNextShort(buffer));
+		debug_printf("Interface %d : %d.\n", idx, classFile->interfaces[idx]->name_index);
+	}
 }
 
 int main() {
