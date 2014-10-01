@@ -467,7 +467,16 @@ typedef struct {
 
 /* Field/Method Info */
 
+typedef enum {
+	MT_FIELD,
+	MT_METHOD
+} MemberType;
+
 typedef struct {
+	// Member Type
+	// [Not present in classfile]
+	uint8_t		member_type;
+
 	uint16_t	access_flags;
 
 	// Name
@@ -483,7 +492,8 @@ typedef struct {
 	AttributeInfo **attributes;
 }
 FieldInfo,
-MethodInfo;
+MethodInfo,
+MemberInfo;
 
 typedef struct {
 	uint32_t	magic;

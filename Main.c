@@ -4,8 +4,8 @@
 # include <string.h>
 
 # include "Debug.h"
-# include "Types.h"
 # include "Zalloc.h"
+# include "MemberInfo.h"
 # include "ClassBuffer.h"
 # include "ConstantInfo.h"
 
@@ -58,32 +58,6 @@ void visitInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
 		debug_printf("Interface %d : %d.\n", idx, classFile->interface_indexes[idx]);
 		classFile->interfaces[idx] = (void *)getConstant(classFile, classFile->interface_indexes[idx]);
 	}
-}
-
-void *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	return NULL;
-}
-
-FieldInfo *visitField(ClassFile *classFile, ClassBuffer *buffer) {
-	int idx;
-	FieldInfo *field = zalloc(sizeof(FieldInfo));
-
-	field->access_flags = bufferNextShort(buffer);
-
-	field->name_index = bufferNextShort(buffer);
-	field->name = (void *)getConstant(classFile, field->name_index);
-
-	field->descriptor_index = bufferNextShort(buffer);
-	field->descriptor = (void *)getConstant(classFile, field->descriptor_index);
-
-	field->attributes_count = bufferNextShort(buffer);
-	field->attributes = zalloc(sizeof(void *) * field->attributes_count);
-
-	for(idx = 0; idx < field->attributes_count; idx++) {
-		field->attributes[idx] = visitAttribute(classFile, buffer);
-	}
-
-	return field;
 }
 
 ClassFile *visitClassFile(ClassBuffer *buffer) {

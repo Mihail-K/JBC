@@ -10,7 +10,8 @@ ConstantInfo *visitConstantUtf8(ClassBuffer *buffer) {
 
 	utf8Info->tag = CONSTANT_UTF8;
 	utf8Info->length = bufferNextShort(buffer);
-	utf8Info->bytes = zalloc(utf8Info->length);
+	utf8Info->bytes = zalloc(utf8Info->length + 1);
+	utf8Info->bytes[utf8Info->length] = '\0';
 
 	for(idx = 0; idx < utf8Info->length; idx++)
 		// TODO : Potentially add a mass-read operation
