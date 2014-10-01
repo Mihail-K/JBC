@@ -360,9 +360,9 @@ struct sElementValue {
 		// Constant Value
 		struct {
 			// Constant Value
-			uint16_t	constant_value_index;
-			ConstantInfo *constant_value;
-		} constant_value;
+			uint16_t	const_value_index;
+			ConstantInfo *const_value;
+		} const_value;
 
 		// Enum Constant Value
 		struct {
@@ -440,6 +440,7 @@ typedef struct {
 	uint8_t		num_parameters;
 	ParameterAnnotationsEntry **parameter_annotations;
 }
+RuntimeParameterAnnotationsAttribute,
 RuntimeVisibleParameterAnnotationsAttribute,
 RuntimeInvisibleParameterAnnotationsAttribute;
 

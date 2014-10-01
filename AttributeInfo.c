@@ -61,6 +61,12 @@ AttributeInfo *visitCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	return (AttributeInfo *)code;
 }
 
+AttributeInfo *visitStackMapTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+	StackMapTableAttribute *table = zalloc(sizeof(StackMapTableAttribute));
+
+	return (AttributeInfo *)table;
+}
+
 AttributeInfo *visitExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	int idx;
 	ExceptionsAttribute *except = zalloc(sizeof(ExceptionsAttribute));
@@ -299,6 +305,18 @@ AttributeInfo *visitDeprecatedAttribute(ClassFile *classFile, ClassBuffer *buffe
 	return (AttributeInfo *)zalloc(sizeof(DeprecatedAttribute));
 }
 
+ElementValue *visitConstElementValue(ClassFile *classFile, ClassBuffer *buffer) {
+	uint16_t index;
+	ElementValue *value = zalloc(sizeof(ElementValue));
+
+	// Constant Value
+	index = bufferNextShort(buffer);
+	value->value.const_value.const_value_index = index;
+	value->value.const_value.const_value = (void *)classFile->constant_pool[index];
+
+	return value;
+}
+
 ElementValue *visitEnumElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
 	ElementValue *value = zalloc(sizeof(ElementValue));
@@ -362,16 +380,26 @@ ElementValue *visitElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	uint8_t tag = bufferNextByte(buffer);
 
 	switch(tag) {
+		case 'B': case 'C': case 'D':
+		case 'F': case 'I': case 'J':
+		case 'S': case 'Z': case 's':
+			debug_printf("Constant Element Value.\n");
+			value = visitConstElementValue(classFile, buffer);
+			break;
 		case 'e':
+			debug_printf("Enum Constant Element Value.\n");
 			value = visitEnumElementValue(classFile, buffer);
 			break;
 		case 'c':
+			debug_printf("Class Element Value.\n");
 			value = visitClassElementValue(classFile, buffer);
 			break;
 		case '@':
+			debug_printf("Annotation Element Value.\n");
 			value = visitAnnotationElementValue(classFile, buffer);
 			break;
-		case '['"
+		case '[':
+			debug_printf("Array Element Value.\n");
 			value = visitArrayElementValue(classFile, buffer);
 			break;
 	}
@@ -418,9 +446,11 @@ AnnotationEntry *visitAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer)
 	return entry;
 }
 
-AttributeInfo *visitRuntimeAnnotations(ClassFile *classFile, ClassBuffer *buffer) {
+AttributeInfo *visitRuntimeAnnotationsAttribute(
+		ClassFile *classFile, ClassBuffer *buffer) {
 	int idx;
-	RuntimeAnnotationsAttribute *annot = zalloc(sizeof(RuntimeAnnotationsAttribute));
+	RuntimeAnnotationsAttribute *annot = zalloc(sizeof(
+			RuntimeAnnotationsAttribute));
 
 	// Annotations Table
 	annot->num_annotations = bufferNextShort(buffer);
@@ -432,6 +462,87 @@ AttributeInfo *visitRuntimeAnnotations(ClassFile *classFile, ClassBuffer *buffer
 	}
 
 	return (AttributeInfo *)annot;
+}
+
+ParameterAnnotationsEntry *visitParameterAnnotationsEntry(
+		ClassFile *classFile, ClassBuffer *buffer) {
+	int idx;
+	ParameterAnnotationsEntry *entry = zalloc(sizeof(ParameterAnnotationsEntry));
+
+	// Annotations Table
+	entry->num_annotations = bufferNextShort(buffer);
+	entry->annotations = zalloc(sizeof(AnnotationEntry *) *
+			entry->num_annotations);
+
+	for(idx = 0; idx > entry->num_annotations; idx++) {
+		entry->annotations[idx] = visitAnnotationEntry(classFile, buffer);
+	}
+
+	return entry;
+}
+
+AttributeInfo *visitRuntimeParameterAnnotationsAttribute(
+		ClassFile *classFile, ClassBuffer *buffer) {
+	int idx;
+	RuntimeParameterAnnotationsAttribute *annot = zalloc(sizeof(
+			RuntimeParameterAnnotationsAttribute));
+
+	// Parameter Annotations Table
+	annot->num_parameters = bufferNextShort(buffer);
+	annot->parameter_annotations = zalloc(sizeof(ParameterAnnotationsEntry *) *
+			annot->num_parameters);
+
+	for(idx = 0; idx < annot->num_parameters; idx++) {
+		annot->parameter_annotations[idx] =
+				visitParameterAnnotationsEntry(classFile, buffer);
+	}
+
+	return (AttributeInfo *)annot;
+}
+
+AttributeInfo *visitAnnotationDefaultAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+	AnnotationDefaultAttribute *annot = zalloc(sizeof(AnnotationDefaultAttribute));
+
+	// Default Value
+	annot->default_value = visitElementValue(classFile, buffer);
+
+	return (AttributeInfo *)annot;
+}
+
+BootstrapMethodEntry *visitBootstrapMethodEntry(ClassFile *classFile, ClassBuffer *buffer) {
+	int idx;
+	BootstrapMethodEntry *entry = zalloc(sizeof(BootstrapMethodEntry));
+
+	// Bootstrap Method Parameters Table
+	entry->num_arguments = bufferNextShort(buffer);
+	entry->bootstrap_argument_indexes = zalloc(sizeof(uint16_t) *
+			entry->num_arguments);
+	entry->bootstrap_arguments = zalloc(sizeof(ConstantInfo *) *
+			entry->num_arguments);
+
+	for(idx = 0; idx < entry->num_arguments; idx++) {
+		uint16_t index = bufferNextShort(buffer);
+		entry->bootstrap_argument_indexes[idx] = index;
+		entry->bootstrap_arguments[idx] = classFile->constant_pool[index];
+	}
+
+	return entry;
+}
+
+AttributeInfo *visitBootstrapMethodsAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+	int idx;
+	BootstrapMethodsAttribute *bootstrap = zalloc(sizeof(BootstrapMethodsAttribute));
+
+	// Bootstrap Method Table
+	bootstrap->num_bootstrap_methods = bufferNextShort(buffer);
+	bootstrap->bootstrap_methods = zalloc(sizeof(BootstrapMethodEntry *) *
+			bootstrap->num_bootstrap_methods);
+
+	for(idx = 0; idx < bootstrap->num_bootstrap_methods; idx++) {
+		bootstrap->bootstrap_methods[idx] = visitBootstrapMethodEntry(classFile, buffer);
+	}
+
+	return (AttributeInfo *)bootstrap;
 }
 
 AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
@@ -455,8 +566,7 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	} else
 	// Stack Map Table Attribute
 	if(!strcmp("StackMapTable", name->bytes)) {
-		debug_printf("Not yet implemented!\n");
-		exit(EXIT_FAILURE);
+		info = visitStackMapTableAttribute(classFile, buffer);
 	} else
 	// Exceptions Attribute
 	if(!strcmp("Exceptions", name->bytes)) {
@@ -505,11 +615,30 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	} else
 	// Runtime Visible Annotations Attribute
 	if(!strcmp("RuntimeVisibleAnnotations", name->bytes)) {
-	
+		info = visitRuntimeAnnotationsAttribute(classFile, buffer);
 	} else
 	// Runtime Invisible Annotations Attribute
 	if(!strcmp("RuntimeInvisibleAnnotations", name->bytes)) {
-	
+		info = visitRuntimeAnnotationsAttribute(classFile, buffer);
+	} else
+	// Runtime Visible Parameter Annotations Attribute
+	if(!strcmp("RuntimeVisibleParameterAnnotations", name->bytes)) {
+		info = visitRuntimeParameterAnnotationsAttribute(classFile, buffer);
+	} else
+	// Runtime Visible Parameter Annotations Attribute
+	if(!strcmp("RuntimeInvisibleParameterAnnotations", name->bytes)) {
+		info = visitRuntimeParameterAnnotationsAttribute(classFile, buffer);
+	} else
+	// Annotation Default Attribute
+	if(!strcmp("AnnotationDefault", name->bytes)) {
+		info = visitAnnotationDefaultAttribute(classFile, buffer);
+	} else
+	// Bootstrap Methods Attribute
+	if(!strcmp("BootstrapMethods", name->bytes)) {
+		info = visitBootstrapMethodsAttribute(classFile, buffer);
+	} else {
+		fprintf(stderr, "Unknown Attribute type : %s.\n", name->bytes);
+		exit(EXIT_FAILURE);
 	}
 
 	info->attribute_length = attribute_length;
