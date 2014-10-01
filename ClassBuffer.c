@@ -1,8 +1,8 @@
 
 # include <stdio.h>
-# include <stdlib.h>
 # include <string.h>
 
+# include "Zalloc.h"
 # include "ClassBuffer.h"
 
 struct ClassBuffer {
@@ -15,9 +15,7 @@ ClassBuffer *createBuffer(FILE *classFile) {
 	ClassBuffer *buffer;
 
 	if(classFile == NULL) return NULL;
-	if((buffer = malloc(sizeof(ClassBuffer))) == NULL) {
-		return NULL;
-	}
+	buffer = zalloc(sizeof(ClassBuffer));
 
 	buffer->file = classFile;
 	buffer->pos = buffer->length = 0;

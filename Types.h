@@ -469,8 +469,16 @@ typedef struct {
 
 typedef struct {
 	uint16_t	access_flags;
+
+	// Name
+	uint16_t	name_index;
 	ConstantUtf8Info *name;
+
+	// Descriptor
+	uint16_t	descriptor_index;
 	ConstantUtf8Info *descriptor;
+
+	// Attributes Table
 	uint16_t	attributes_count;
 	AttributeInfo **attributes;
 }
@@ -479,17 +487,35 @@ MethodInfo;
 
 typedef struct {
 	uint32_t	magic;
+
+	// Version Info
 	uint16_t	major_version;
 	uint16_t	minor_version;
+
+	// Constants Table
 	uint16_t	constant_pool_count;
 	ConstantInfo **constant_pool;
+
 	uint16_t	access_flags;
+
+	// This Class
+	uint16_t	this_class_index;
 	ConstantClassInfo *this_class;
+
+	// Super Class
+	uint16_t	super_class_index;
 	ConstantClassInfo *super_class;
+
+	// Interfaces Table
 	uint16_t	interfaces_count;
+	uint16_t	*interface_indexes;
 	ConstantClassInfo **interfaces;
+
+	// Fields Table
 	uint16_t	fields_count;
 	FieldInfo	**fields;
+
+	// Methods Table
 	uint16_t	methods_count;
 	MethodInfo	**methods;
 } ClassFile;
