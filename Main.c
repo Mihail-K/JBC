@@ -1,6 +1,7 @@
 
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
 
 # include "Types.h"
 # include "ClassBuffer.h"
@@ -162,6 +163,28 @@ ConstantInfo *getConstant(ClassFile *classFile, int idx) {
 	return info;
 }
 
+void *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+	return NULL;
+}
+
+FieldInfo *visitField(ClassFile *classFile, ClassBuffer *buffer) {
+	int idx;
+	FieldInfo *field = zalloc(sizeof(FieldInfo));
+
+	field->access_flags = bufferNextShort(buffer);
+	field->name = (void *)getConstant(classFile, bufferNextShort(buffer));
+	field->descriptor = (void *)getConstant(classFile, bufferNextShort(buffer));
+
+	field->attributes_count = bufferNextShort(buffer);
+	field->attributes = zalloc(sizeof(void *) * field->attributes_count);
+
+	for(idx = 0; idx < field->attributes_count; idx++) {
+		field->attributes[idx] = visitAttribute(classFile, buffer);
+	}
+
+	return field;
+}
+
 ClassFile *visitClassFile(ClassBuffer *buffer) {
 	int idx;
 	ClassFile *classFile = zalloc(sizeof(ClassFile));
@@ -200,6 +223,14 @@ ClassFile *visitClassFile(ClassBuffer *buffer) {
 	for(idx = 0; idx < classFile->interfaces_count; idx++) {
 		classFile->interfaces[idx] = (void *)getConstant(classFile, bufferNextShort(buffer));
 		debug_printf("Interface %d : %d.\n", idx, classFile->interfaces[idx]->name_index);
+	}
+
+	classFile->fields_count = bufferNextShort(buffer);
+	debug_printf("Fields Count : %d.\n", classFile->fields_count);
+	classFile->fields = zalloc(sizeof(FieldInfo *) * classFile->fields_count);
+
+	for(idx = 0; idx < classFile->fields_count; idx++) {
+		classFile->fields[idx] = visitField(classFile, buffer);
 	}
 }
 
