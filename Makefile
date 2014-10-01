@@ -1,7 +1,7 @@
 
 CFLAGS = -D _DEBUG
 
-test: Main.o ClassBuffer.o ConstantInfo.o MemberInfo.o AttributeInfo.o
+test: Main.o ClassBuffer.o ClassFile.o ConstantInfo.o MemberInfo.o AttributeInfo.o
 	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 .PHONY: clean

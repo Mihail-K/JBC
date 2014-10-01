@@ -604,6 +604,10 @@ typedef struct {
 	// Methods Table
 	uint16_t	methods_count;
 	MethodInfo	**methods;
+
+	// Attributes Table
+	uint16_t	attributes_count;
+	AttributeInfo **attributes;
 } ClassFile;
 
 # endif /* Types.h */
