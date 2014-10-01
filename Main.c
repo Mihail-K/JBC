@@ -116,9 +116,9 @@ ClassFile *visitClassFile(ClassBuffer *buffer) {
 	}
 }
 
-int main() {
+int main(int argc, char **argv) {
 	FILE *file;
-	char *path = "C:\\Users\\Mihail.K\\Documents\\Clicker.class";
+	char *path = argv[1];
 	if((file = fopen(path, "rb")) == NULL) {
 		perror("fopen");
 		return 1;
