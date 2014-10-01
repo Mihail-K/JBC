@@ -4,32 +4,30 @@
 # include "MemberInfo.h"
 # include "AttributeInfo.h"
 
-MemberInfo *visitField(ClassFile *classFile, ClassBuffer *buffer) {
+MemberInfo *visitMember(ClassFile *classFile, ClassBuffer *buffer) {
 	int idx;
-	FieldInfo *field = zalloc(sizeof(FieldInfo));
+	MemberInfo *member = zalloc(sizeof(MemberInfo));
 
-	field->member_type = MT_FIELD;
-	field->access_flags = bufferNextShort(buffer);
+	member->access_flags = bufferNextShort(buffer);
 
-	// Field Name
-	field->name_index = bufferNextShort(buffer);
-	field->name = (void *)getConstant(classFile, field->name_index);
+	// Member Name
+	member->name_index = bufferNextShort(buffer);
+	member->name = (void *)getConstant(classFile, member->name_index);
+	debug_printf("Member Name : %s.\n", member->name->bytes);
 
-	// Field Descriptor
-	field->descriptor_index = bufferNextShort(buffer);
-	field->descriptor = (void *)getConstant(classFile, field->descriptor_index);
+	// Member Descriptor
+	member->descriptor_index = bufferNextShort(buffer);
+	member->descriptor = (void *)getConstant(classFile, member->descriptor_index);
+	debug_printf("Member Descriptor : %s.\n", member->descriptor->bytes);
 
-	// Field Attributes Table
-	field->attributes_count = bufferNextShort(buffer);
-	field->attributes = zalloc(sizeof(AttributeInfo *) * field->attributes_count);
+	// Member Attributes Table
+	member->attributes_count = bufferNextShort(buffer);
+	debug_printf("Member Attributes Count : %d.\n", member->attributes_count);
+	member->attributes = zalloc(sizeof(AttributeInfo *) * member->attributes_count);
 
-	for(idx = 0; idx < field->attributes_count; idx++) {
-		field->attributes[idx] = visitAttribute(classFile, buffer);
+	for(idx = 0; idx < member->attributes_count; idx++) {
+		member->attributes[idx] = visitAttribute(classFile, buffer);
 	}
 
-	return field;
-}
-
-MemberInfo *visitMethod(ClassFile *classFile, ClassBuffer *buffer) {
-	return NULL;
+	return member;
 }

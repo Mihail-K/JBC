@@ -61,8 +61,186 @@ AttributeInfo *visitCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	return (AttributeInfo *)code;
 }
 
+VerificationTypeInfo *visitVerificationTypeInfo(
+		ClassFile *classFile, ClassBuffer *buffer) {
+	uint8_t tag;
+	uint16_t index;
+	VerificationTypeInfo *info = zalloc(sizeof(VerificationTypeInfo));
+
+	tag = bufferNextByte(buffer);
+	switch(tag) {
+		case 0:
+			debug_printf("Top variable info.\n");
+			info->top_variable_info.tag = tag;
+			break;
+		case 1:
+			debug_printf("Integer variable info.\n");
+			info->integer_variable_info.tag = tag;
+			break;
+		case 2:
+			debug_printf("Float variable info.\n");
+			info->float_variable_info.tag = tag;
+			break;
+		case 3:
+			debug_printf("Double variable info.\n");
+			info->double_variable_info.tag = tag;
+			break;
+		case 4:
+			debug_printf("Long variable info.\n");
+			info->long_variable_info.tag = tag;
+			break;
+		case 5:
+			debug_printf("Null variable info.\n");
+			info->null_variable_info.tag = tag;
+			break;
+		case 6:
+			debug_printf("Uninitialized this variable info.\n");
+			info->uninitialized_this_variable_info.tag = tag;
+			break;
+		case 7:
+			debug_printf("Object variable info.\n");
+			index = bufferNextShort(buffer);
+			info->object_variable_info.tag = tag;
+			info->object_variable_info.cpool_index = index;
+			info->object_variable_info.object = (void *)
+					classFile->constant_pool[index];
+			break;
+		case 8:
+			debug_printf("Uninitialized variable info.\n");
+			index = bufferNextShort(buffer);
+			info->uninitialized_variable_info.tag = tag;
+			info->uninitialized_variable_info.offset = index;
+			break;
+		default:
+			fprintf(stderr, "Unknown verification type (ID : %d)!\n", tag);
+			exit(EXIT_FAILURE);
+	}
+
+	return info;
+}
+
+StackMapFrame *visitStackMapOffFrame(ClassFile *classFile, ClassBuffer *buffer) {
+	StackMapOffFrame *frame = zalloc(sizeof(StackMapOffFrame));
+
+	frame->offset_delta = bufferNextShort(buffer);
+
+	return (StackMapFrame *)frame;
+}
+
+StackMapFrame *visitStackMapItemFrame(ClassFile *classFile, ClassBuffer *buffer) {
+	StackMapItemFrame *frame = zalloc(sizeof(StackMapItemFrame));
+
+	frame->stack = visitVerificationTypeInfo(classFile, buffer);
+
+	return (StackMapFrame *)frame;
+}
+
+StackMapFrame *visitStackMapExtFrame(ClassFile *classFile, ClassBuffer *buffer) {
+	StackMapExtFrame *frame = zalloc(sizeof(StackMapExtFrame));
+
+	frame->offset_delta = bufferNextShort(buffer);
+	frame->stack = visitVerificationTypeInfo(classFile, buffer);
+
+	return (StackMapFrame *)frame;
+}
+
+StackMapFrame *visitStackMapListFrame(
+		ClassFile *classFile, ClassBuffer *buffer, int count) {
+	int idx;
+	StackMapListFrame *frame = zalloc(sizeof(StackMapListFrame));
+
+	frame->offset_delta = bufferNextShort(buffer);
+	frame->stack = zalloc(sizeof(VerificationTypeInfo *) * count);
+
+	for(idx = 0; idx < count; idx++) {
+		frame->stack[idx] = visitVerificationTypeInfo(classFile, buffer);
+	}
+
+	return (StackMapFrame *)frame;
+}
+
+StackMapFrame *visitStackMapFullFrame(ClassFile *classFile, ClassBuffer *buffer) {
+	int idx;
+	StackMapFullFrame *frame = zalloc(sizeof(StackMapFullFrame));
+
+	frame->offset_delta = bufferNextShort(buffer);
+
+	// Stack Frame Locals
+	frame->number_of_locals = bufferNextShort(buffer);
+	frame->locals = zalloc(sizeof(VerificationTypeInfo *) *
+			frame->number_of_locals);
+
+	for(idx = 0; idx < frame->number_of_locals; idx++) {
+		frame->locals[idx] = visitVerificationTypeInfo(classFile, buffer);
+	}
+
+	// Stack Frame Items
+	frame->number_of_stack_items = bufferNextShort(buffer);
+	frame->stack = zalloc(sizeof(VerificationTypeInfo *) *
+			frame->number_of_stack_items);
+
+	for(idx = 0; idx < frame->number_of_stack_items; idx++) {
+		frame->stack[idx] = visitVerificationTypeInfo(classFile, buffer);
+	}
+
+	return (StackMapFrame *)frame;
+}
+
+StackMapFrame *visitStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
+	StackMapFrame *frame;
+	uint8_t tag = bufferNextByte(buffer);
+
+	// Stack Map Same Frame
+	if(tag >= 0 && tag <= 63) {
+		frame = zalloc(sizeof(StackMapFrame));
+	} else
+	// Stack Map Same Locals 1
+	if(tag >= 64 && tag <= 127) {
+		frame = visitStackMapItemFrame(classFile, buffer);
+	} else
+	// Reserved Values
+	if(tag >= 128 && tag <= 246) {
+		fprintf(stderr, "Stack Frame tag (ID : %d) is reveserved!\n", tag);
+		exit(EXIT_FAILURE);
+	} else
+	// Stack Map Same Locals 1 Extended
+	if(tag == 247) {
+		frame = visitStackMapExtFrame(classFile, buffer);
+	} else
+	// Stack Map Chop Frame
+	if(tag >= 248 && tag <= 250) {
+		frame = visitStackMapOffFrame(classFile, buffer);
+	} else
+	// Stack Map Same Frame Extended
+	if(tag == 251) {
+		frame = visitStackMapOffFrame(classFile, buffer);
+	} else
+	// Stack Map Append Frame
+	if(tag >= 252 && tag <= 254) {
+		int count = tag - 251;
+		frame = visitStackMapListFrame(classFile, buffer, count);
+	}
+	// Stack Map Full Frame
+	else {
+		frame = visitStackMapFullFrame(classFile, buffer);
+	}
+
+	frame->tag = tag;
+	return frame;
+}
+
 AttributeInfo *visitStackMapTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+	int idx;
 	StackMapTableAttribute *table = zalloc(sizeof(StackMapTableAttribute));
+
+	// Stack Map Table
+	table->number_of_entries = bufferNextShort(buffer);
+	table->entries = zalloc(sizeof(StackMapFrame *) *
+			table->number_of_entries);
+
+	for(idx = 0; idx < table->number_of_entries; idx++) {
+		table->entries[idx] = visitStackMapFrame(classFile, buffer);
+	}
 
 	return (AttributeInfo *)table;
 }
@@ -171,6 +349,8 @@ AttributeInfo *visitSourceFileAttribute(ClassFile *classFile, ClassBuffer *buffe
 	file->source_file_index = index;
 	file->source_file = (void *)classFile->constant_pool[index];
 
+	debug_printf("Source file name : %s.\n", file->source_file->bytes);
+
 	return (AttributeInfo *)file;
 }
 
@@ -206,6 +386,7 @@ AttributeInfo *visitLineNumberTableAttribute(ClassFile *classFile, ClassBuffer *
 
 	// Line Number Table
 	table->line_number_table_length = bufferNextShort(buffer);
+	debug_printf("Line Number Table length : %d.\n", table->line_number_table_length);
 	table->line_number_table = zalloc(sizeof(LineNumberTableEntry *) *
 			table->line_number_table_length);
 
@@ -547,6 +728,7 @@ AttributeInfo *visitBootstrapMethodsAttribute(ClassFile *classFile, ClassBuffer 
 
 AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	AttributeInfo *info;
+
 	uint16_t name_index = bufferNextShort(buffer);
 	uint32_t attribute_length = bufferNextInt(buffer);
 	ConstantUtf8Info *name = (void *)classFile->constant_pool[name_index];
@@ -555,6 +737,8 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 		fprintf(stderr, "Error : Attribute with no name entry!\n");
 		exit(EXIT_FAILURE);
 	}
+
+	debug_printf("Visiting Attribute type : %s.\n", name->bytes);
 
 	// Constant Value Attribute
 	if(!strcmp("ConstantValue", name->bytes)) {

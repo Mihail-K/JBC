@@ -4,8 +4,9 @@
 # include "Types.h"
 # include "ClassBuffer.h"
 
-MemberInfo *visitField(ClassFile *classFile, ClassBuffer *buffer);
+# define visitField visitMember
+# define visitMethod visitMember
 
-MemberInfo *visitMethod(ClassFile *classFile, ClassBuffer *buffer);
+MemberInfo *visitMember(ClassFile *classFile, ClassBuffer *buffer);
 
 # endif /* MemberInfo.h */

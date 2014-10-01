@@ -169,6 +169,73 @@ typedef struct {
 	AttributeInfo **attributes;
 } CodeAttribute;
 
+typedef union {
+	struct {
+		uint8_t		tag;
+	} 
+	top_variable_info,
+	integer_variable_info,
+	float_variable_info,
+	long_variable_info,
+	double_variable_info,
+	null_variable_info,
+	uninitialized_this_variable_info;
+	struct {
+		uint8_t		tag;
+		uint16_t	cpool_index;
+		ConstantClassInfo *object;
+	} object_variable_info;
+	struct {
+		uint8_t		tag;
+		uint16_t	offset;
+	} uninitialized_variable_info;
+} VerificationTypeInfo;
+
+typedef struct {
+	uint8_t		tag;
+} StackMapFrame;
+
+typedef struct {
+	uint8_t		tag;
+	uint16_t	offset_delta;
+} StackMapOffFrame;
+
+typedef struct {
+	uint8_t		tag;
+
+	// Stack Items
+	VerificationTypeInfo *stack;
+} StackMapItemFrame;
+
+typedef struct {
+	uint8_t		tag;
+	uint16_t	offset_delta;
+
+	// Stack Items
+	VerificationTypeInfo *stack;
+} StackMapExtFrame;
+
+typedef struct {
+	uint8_t		tag;
+	uint16_t	offset_delta;
+
+	// Stack Item Table
+	VerificationTypeInfo **stack;
+} StackMapListFrame;
+
+typedef struct {
+	uint8_t		tag;
+	uint16_t	offset_delta;
+
+	// Local Items
+	uint16_t	number_of_locals;
+	VerificationTypeInfo **locals;
+
+	// Stack Items
+	uint16_t	number_of_stack_items;
+	VerificationTypeInfo **stack;
+} StackMapFullFrame;
+
 typedef struct {
 	uint16_t	name_index;
 	ConstantUtf8Info *name;
@@ -176,7 +243,7 @@ typedef struct {
 
 	// Stack Frame Map Entries
 	uint16_t	number_of_entries;
-	void		**entries;
+	StackMapFrame **entries;
 } StackMapTableAttribute;
 
 typedef struct {

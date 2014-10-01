@@ -19,7 +19,7 @@ void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 			classFile->constant_pool_count);
 	classFile->constant_pool[0] = NULL;
 	for(idx = 1; idx < classFile->constant_pool_count; idx++) {
-		debug_printf("Constant %d : ", idx);
+		debug_printf("Constant %d :\n", idx);
 		classFile->constant_pool[idx] = visitConstant(buffer);
 	}
 }
@@ -86,7 +86,19 @@ ClassFile *visitClassFile(ClassBuffer *buffer) {
 	classFile->fields = zalloc(sizeof(FieldInfo *) * classFile->fields_count);
 
 	for(idx = 0; idx < classFile->fields_count; idx++) {
+		debug_printf("Field %d :\n", idx);
 		classFile->fields[idx] = visitField(classFile, buffer);
+		classFile->fields[idx]->member_type = MT_FIELD;
+	}
+
+	classFile->methods_count = bufferNextShort(buffer);
+	debug_printf("Methods Count : %d.\n", classFile->methods_count);
+	classFile->methods = zalloc(sizeof(MethodInfo *) * classFile->methods_count);
+
+	for(idx = 0; idx < classFile->methods_count; idx++) {
+		debug_printf("Method %d :\n", idx);
+		classFile->methods[idx] = visitMethod(classFile, buffer);
+		classFile->methods[idx]->member_type = MT_METHOD;
 	}
 }
 
