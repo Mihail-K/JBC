@@ -291,7 +291,7 @@ typedef struct {
 
 	// Line Number Table
 	uint16_t	line_number_table_length;
-	LineNumberTableEntry *line_number_table;
+	LineNumberTableEntry **line_number_table;
 } LineNumberTableAttribute;
 
 typedef struct {
@@ -316,7 +316,7 @@ typedef struct {
 
 	// Local Variable Table
 	uint16_t	local_variable_table_length;
-	LocalVariableTableEntry *local_variable_table;
+	LocalVariableTableEntry **local_variable_table;
 } LocalVariableTableAttribute;
 
 typedef struct {
@@ -341,7 +341,7 @@ typedef struct {
 
 	// Local Variable Type Table
 	uint16_t	local_variable_type_table_length;
-	LocalVariableTypeTableEntry *local_variable_type_table;
+	LocalVariableTypeTableEntry **local_variable_type_table;
 } LocalVariableTypeTableAttribute;
 
 typedef struct {
@@ -373,7 +373,14 @@ struct sElementValue {
 			// Constant Name
 			uint16_t	const_name_index;
 			ConstantUtf8Info *const_name;
-		} enum_constant_value;
+		} enum_const_value;
+
+		// Class Info Value
+		struct {
+			// Class Info
+			uint16_t	class_info_index;
+			ConstantClassInfo *class_info;
+		} class_info_value;
 
 		// Annotation Value
 		AnnotationEntry *annotation_value;
@@ -414,6 +421,7 @@ typedef struct {
 	uint16_t	num_annotations;
 	AnnotationEntry **annotations;
 }
+RuntimeAnnotationsAttribute,
 RuntimeVisibleAnnotationsAttribute,
 RuntimeInvisibleAnnotationsAttribute;
 
