@@ -549,10 +549,6 @@ typedef enum {
 } MemberType;
 
 typedef struct {
-	// Member Type
-	// [Not present in classfile]
-	uint8_t		member_type;
-
 	uint16_t	access_flags;
 
 	// Name

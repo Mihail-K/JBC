@@ -10,7 +10,7 @@ ConstantInfo *visitConstantUtf8(ClassBuffer *buffer) {
 
 	utf8Info->tag = CONSTANT_UTF8;
 	utf8Info->length = bufferNextShort(buffer);
-	debug_printf("Constant Length : %d.\n", utf8Info->length);
+	debug_printf(level3, "Constant Length : %d.\n", utf8Info->length);
 
 	utf8Info->bytes = zalloc(utf8Info->length + 1);
 	utf8Info->bytes[utf8Info->length] = '\0';
@@ -18,7 +18,7 @@ ConstantInfo *visitConstantUtf8(ClassBuffer *buffer) {
 	for(idx = 0; idx < utf8Info->length; idx++)
 		// TODO : Potentially add a mass-read operation
 		utf8Info->bytes[idx] = bufferNextByte(buffer);
-	debug_printf("Constant Data : %s.\n", utf8Info->bytes);
+	debug_printf(level3, "Constant Data : %s.\n", utf8Info->bytes);
 	return (ConstantInfo *)utf8Info;
 }
 
@@ -152,46 +152,46 @@ ConstantInfo *visitConstant(ClassBuffer *buffer) {
 
 	switch(tag) {
 		case CONSTANT_UTF8:
-			debug_printf("Constant UTF8.\n");
+			debug_printf(level2, "Constant UTF8.\n");
 			return visitConstantUtf8(buffer);
 		case CONSTANT_INTEGER:
-			debug_printf("Constant Integer.\n");
+			debug_printf(level2, "Constant Integer.\n");
 			return visitConstantInteger(buffer);
 		case CONSTANT_FLOAT:
-			debug_printf("Constant Float.\n");
+			debug_printf(level2, "Constant Float.\n");
 			return visitConstantFloat(buffer);
 		case CONSTANT_LONG:
-			debug_printf("Constant Long.\n");
+			debug_printf(level2, "Constant Long.\n");
 			return visitConstantLong(buffer);
 		case CONSTANT_DOUBLE:
-			debug_printf("Constant Double.\n");
+			debug_printf(level2, "Constant Double.\n");
 			return visitConstantDouble(buffer);
 		case CONSTANT_CLASS:
-			debug_printf("Constant Class.\n");
+			debug_printf(level2, "Constant Class.\n");
 			return visitConstantClass(buffer);
 		case CONSTANT_STRING:
-			debug_printf("Constant String.\n");
+			debug_printf(level2, "Constant String.\n");
 			return visitConstantString(buffer);
 		case CONSTANT_FIELD_REF:
-			debug_printf("Constant Field Ref.\n");
+			debug_printf(level2, "Constant Field Ref.\n");
 			return visitConstantFieldRef(buffer);
 		case CONSTANT_METHOD_REF:
-			debug_printf("Constant Method Ref.\n");
+			debug_printf(level2, "Constant Method Ref.\n");
 			return visitConstantMethodRef(buffer);
 		case CONSTANT_INTERFACE_METHOD_REF:
-			debug_printf("Constant Interface Method Ref.\n");
+			debug_printf(level2, "Constant Interface Method Ref.\n");
 			return visitConstantInterfaceMethodRef(buffer);
 		case CONSTANT_NAME_AND_TYPE:
-			debug_printf("Constant Name And Type.\n");
+			debug_printf(level2, "Constant Name And Type.\n");
 			return visitConstantNameAndType(buffer);
 		case CONSTANT_METHOD_HANDLE:
-			debug_printf("Constant Method Handle.\n");
+			debug_printf(level2, "Constant Method Handle.\n");
 			return visitConstantMethodHandle(buffer);
 		case CONSTANT_METHOD_TYPE:
-			debug_printf("Constant Method Type.\n");
+			debug_printf(level2, "Constant Method Type.\n");
 			return visitConstantMethodType(buffer);
 		case CONSTANT_INVOKE_DYNAMIC:
-			debug_printf("Constant Invoke Dynamic.\n");
+			debug_printf(level2, "Constant Invoke Dynamic.\n");
 			return visitConstantInvokeDynamic(buffer);
 		case (uint8_t)-1:
 			fprintf(stderr, "Unexpected end of file.\n");

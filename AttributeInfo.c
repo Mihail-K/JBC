@@ -41,7 +41,7 @@ AttributeInfo *visitCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 	// Code
 	code->code_length = bufferNextInt(buffer);
-	debug_printf("Code length : %d.\n", code->code_length);
+	debug_printf(level2, "Code length : %d.\n", code->code_length);
 	code->code = zalloc(sizeof(uint8_t) * code->code_length);
 
 	for(idx = 0; idx < code->code_length; idx++) {
@@ -51,7 +51,7 @@ AttributeInfo *visitCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 	// Exception Table
 	code->exception_table_length = bufferNextShort(buffer);
-	debug_printf("Code Exception table length : %d.\n", code->exception_table_length);
+	debug_printf(level2, "Code Exception table length : %d.\n", code->exception_table_length);
 	code->exception_table = zalloc(sizeof(ExceptionTableEntry *) *
 			code->exception_table_length);
 
@@ -61,10 +61,11 @@ AttributeInfo *visitCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 	// Attributes Table
 	code->attributes_count = bufferNextShort(buffer);
-	debug_printf("Code Attributes count : %d.\n", code->attributes_count);
+	debug_printf(level2, "Code Attributes count : %d.\n", code->attributes_count);
 	code->attributes = zalloc(sizeof(AttributeInfo *) * code->attributes_count);
 
 	for(idx = 0; idx < code->attributes_count; idx++) {
+		debug_printf(level2, "Code Attribute %d :\n", idx);
 		code->attributes[idx] = visitAttribute(classFile, buffer);
 	}
 
@@ -80,35 +81,35 @@ VerificationTypeInfo *visitVerificationTypeInfo(
 	tag = bufferNextByte(buffer);
 	switch(tag) {
 		case 0:
-			debug_printf("Top variable info.\n");
+			debug_printf(level3, "Top variable info.\n");
 			info->top_variable_info.tag = tag;
 			break;
 		case 1:
-			debug_printf("Integer variable info.\n");
+			debug_printf(level3, "Integer variable info.\n");
 			info->integer_variable_info.tag = tag;
 			break;
 		case 2:
-			debug_printf("Float variable info.\n");
+			debug_printf(level3, "Float variable info.\n");
 			info->float_variable_info.tag = tag;
 			break;
 		case 3:
-			debug_printf("Double variable info.\n");
+			debug_printf(level3, "Double variable info.\n");
 			info->double_variable_info.tag = tag;
 			break;
 		case 4:
-			debug_printf("Long variable info.\n");
+			debug_printf(level3, "Long variable info.\n");
 			info->long_variable_info.tag = tag;
 			break;
 		case 5:
-			debug_printf("Null variable info.\n");
+			debug_printf(level3, "Null variable info.\n");
 			info->null_variable_info.tag = tag;
 			break;
 		case 6:
-			debug_printf("Uninitialized this variable info.\n");
+			debug_printf(level3, "Uninitialized this variable info.\n");
 			info->uninitialized_this_variable_info.tag = tag;
 			break;
 		case 7:
-			debug_printf("Object variable info.\n");
+			debug_printf(level3, "Object variable info.\n");
 			index = bufferNextShort(buffer);
 			info->object_variable_info.tag = tag;
 			info->object_variable_info.cpool_index = index;
@@ -116,7 +117,7 @@ VerificationTypeInfo *visitVerificationTypeInfo(
 					getConstant(classFile, index);
 			break;
 		case 8:
-			debug_printf("Uninitialized variable info.\n");
+			debug_printf(level3, "Uninitialized variable info.\n");
 			index = bufferNextShort(buffer);
 			info->uninitialized_variable_info.tag = tag;
 			info->uninitialized_variable_info.offset = index;
@@ -244,14 +245,19 @@ AttributeInfo *visitStackMapTableAttribute(ClassFile *classFile, ClassBuffer *bu
 	unsigned int idx;
 	StackMapTableAttribute *table = zalloc(sizeof(StackMapTableAttribute));
 
+	debug_printf(level2, "Visiting StackMapTable.\n");
+
 	// Stack Map Table
 	table->number_of_entries = bufferNextShort(buffer);
 	table->entries = zalloc(sizeof(StackMapFrame *) *
 			table->number_of_entries);
 
 	for(idx = 0; idx < table->number_of_entries; idx++) {
+		debug_printf(level2, "Stack Map Frame %d :\n");
 		table->entries[idx] = visitStackMapFrame(classFile, buffer);
 	}
+
+	debug_printf(level2, "Finished StackMapTable.\n");
 
 	return (AttributeInfo *)table;
 }
@@ -262,7 +268,7 @@ AttributeInfo *visitExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffe
 
 	// Exceptions Table
 	except->number_of_exceptions = bufferNextShort(buffer);
-	debug_printf("Exceptions count : %d.\n", except->number_of_exceptions);
+	debug_printf(level2, "Exceptions count : %d.\n", except->number_of_exceptions);
 
 	except->exception_index_table = zalloc(sizeof(uint16_t) *
 			except->number_of_exceptions);
@@ -364,7 +370,7 @@ AttributeInfo *visitSourceFileAttribute(ClassFile *classFile, ClassBuffer *buffe
 	file->source_file_index = index;
 	file->source_file = getConstant(classFile, index);
 
-	debug_printf("Source file name : %s.\n", file->source_file->bytes);
+	debug_printf(level2, "Source file name : %s.\n", file->source_file->bytes);
 
 	return (AttributeInfo *)file;
 }
@@ -404,7 +410,7 @@ AttributeInfo *visitLineNumberTableAttribute(ClassFile *classFile, ClassBuffer *
 
 	// Line Number Table
 	table->line_number_table_length = bufferNextShort(buffer);
-	debug_printf("Line Number Table length : %d.\n", table->line_number_table_length);
+	debug_printf(level2, "Line Number Table length : %d.\n", table->line_number_table_length);
 	table->line_number_table = zalloc(sizeof(LineNumberTableEntry *) *
 			table->line_number_table_length);
 
@@ -427,17 +433,17 @@ LocalVariableTableEntry *visitLocalVariableTableEntry(
 	index = bufferNextShort(buffer);
 	entry->name_index = index;
 	entry->name = getConstant(classFile, index);
-	debug_printf("Local variable name : %s.\n", entry->name->bytes);
+	debug_printf(level3, "Local variable name : %s.\n", entry->name->bytes);
 
 	// Variable Descriptor
 	index = bufferNextShort(buffer);
 	entry->descriptor_index = index;
 	entry->descriptor = getConstant(classFile, index);
-	debug_printf("Local variable descriptor : %s.\n", entry->descriptor->bytes);
+	debug_printf(level3, "Local variable descriptor : %s.\n", entry->descriptor->bytes);
 
 	index = bufferNextShort(buffer);
 	entry->index = index;
-	debug_printf("Index : %d.\n", index);
+	debug_printf(level3, "Index : %d.\n", index);
 
 	return entry;
 }
@@ -450,7 +456,7 @@ AttributeInfo *visitLocalVariableTableAttribute(
 
 	// Local Variable Table
 	local->local_variable_table_length = bufferNextShort(buffer);
-	debug_printf("Local Variable Table length : %d.\n",
+	debug_printf(level2, "Local Variable Table length : %d.\n",
 			local->local_variable_table_length);
 
 	local->local_variable_table = zalloc(sizeof(LocalVariableTableEntry *) *
@@ -476,17 +482,17 @@ LocalVariableTypeTableEntry *visitLocalVariableTypeTableEntry(
 	index = bufferNextShort(buffer);
 	entry->name_index = index;
 	entry->name = getConstant(classFile, index);
-	debug_printf("Local variable name : %s.\n", entry->name->bytes);
+	debug_printf(level3, "Local variable name : %s.\n", entry->name->bytes);
 
 	// Variable Type Signature
 	index = bufferNextShort(buffer);
 	entry->signature_index = index;
 	entry->signature = getConstant(classFile, index);
-	debug_printf("Local variable signature : %s.\n", entry->signature->bytes);
+	debug_printf(level3, "Local variable signature : %s.\n", entry->signature->bytes);
 
 	index = bufferNextShort(buffer);
 	entry->index = index;
-	debug_printf("Index : %d.\n", index);
+	debug_printf(level3, "Index : %d.\n", index);
 
 	return entry;
 }
@@ -499,7 +505,7 @@ AttributeInfo *visitLocalVariableTypeTableAttribute(
 
 	// Local Variable Type Table
 	local->local_variable_type_table_length = bufferNextShort(buffer);
-	debug_printf("Local Variable Type Table length : %d.\n",
+	debug_printf(level2, "Local Variable Type Table length : %d.\n",
 			local->local_variable_type_table_length);
 
 	local->local_variable_type_table = zalloc(sizeof(LocalVariableTypeTableEntry *) *
@@ -597,23 +603,23 @@ ElementValue *visitElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 		case 'B': case 'C': case 'D':
 		case 'F': case 'I': case 'J':
 		case 'S': case 'Z': case 's':
-			debug_printf("Constant Element Value.\n");
+			debug_printf(level3, "Constant Element Value.\n");
 			value = visitConstElementValue(classFile, buffer);
 			break;
 		case 'e':
-			debug_printf("Enum Constant Element Value.\n");
+			debug_printf(level3, "Enum Constant Element Value.\n");
 			value = visitEnumElementValue(classFile, buffer);
 			break;
 		case 'c':
-			debug_printf("Class Element Value.\n");
+			debug_printf(level3, "Class Element Value.\n");
 			value = visitClassElementValue(classFile, buffer);
 			break;
 		case '@':
-			debug_printf("Annotation Element Value.\n");
+			debug_printf(level3, "Annotation Element Value.\n");
 			value = visitAnnotationElementValue(classFile, buffer);
 			break;
 		case '[':
-			debug_printf("Array Element Value.\n");
+			debug_printf(level3, "Array Element Value.\n");
 			value = visitArrayElementValue(classFile, buffer);
 			break;
 	}
@@ -772,7 +778,7 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 		exit(EXIT_FAILURE);
 	}
 
-	debug_printf("Visiting Attribute type : %s.\n", name->bytes);
+	debug_printf(level1, "Visiting Attribute type : %s.\n", name->bytes);
 
 	// Constant Value Attribute
 	if(!strcmp("ConstantValue", (char *)name->bytes)) {
@@ -855,7 +861,7 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	if(!strcmp("BootstrapMethods", (char *)name->bytes)) {
 		info = visitBootstrapMethodsAttribute(classFile, buffer);
 	} else {
-		debug_printf("Unknown Attribute type : %s; Skipping.\n", name->bytes);
+		debug_printf(level2, "Unknown Attribute type : %s; Skipping.\n", name->bytes);
 		while(bufferPos(buffer) - initpos < attribute_length) {
 			// TODO : Implement a skip operation
 			bufferNextByte(buffer);
@@ -867,7 +873,7 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 		exit(EXIT_FAILURE);
 	}
 
-	debug_printf("Finished Attribute : %s.\n", name->bytes);
+	debug_printf(level1, "Finished Attribute : %s.\n", name->bytes);
 	info->attribute_length = attribute_length;
 	info->name_index = name_index;
 	info->name = name;
