@@ -775,84 +775,84 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	debug_printf("Visiting Attribute type : %s.\n", name->bytes);
 
 	// Constant Value Attribute
-	if(!strcmp("ConstantValue", name->bytes)) {
+	if(!strcmp("ConstantValue", (char *)name->bytes)) {
 		info = visitConstantValueAttribute(classFile, buffer);
 	} else
 	// Code Attribute
-	if(!strcmp("Code", name->bytes)) {
+	if(!strcmp("Code", (char *)name->bytes)) {
 		info = visitCodeAttribute(classFile, buffer);
 	} else
 	// Stack Map Table Attribute
-	if(!strcmp("StackMapTable", name->bytes)) {
+	if(!strcmp("StackMapTable", (char *)name->bytes)) {
 		info = visitStackMapTableAttribute(classFile, buffer);
 	} else
 	// Exceptions Attribute
-	if(!strcmp("Exceptions", name->bytes)) {
+	if(!strcmp("Exceptions", (char *)name->bytes)) {
 		info = visitExceptionsAttribute(classFile, buffer);
 	} else
 	// Inner Classes Attribute
-	if(!strcmp("InnerClasses", name->bytes)) {
+	if(!strcmp("InnerClasses", (char *)name->bytes)) {
 		info = visitInnerClassesAttribute(classFile, buffer);
 	} else
 	// Enclosing Method Attribute
-	if(!strcmp("EnclosingMethod", name->bytes)) {
+	if(!strcmp("EnclosingMethod", (char *)name->bytes)) {
 		info = visitEnclosingMethodAttribute(classFile, buffer);
 	} else
 	// Synthetic Attribute
-	if(!strcmp("Synthetic", name->bytes)) {
+	if(!strcmp("Synthetic", (char *)name->bytes)) {
 		info = visitSyntheticAttribute(classFile, buffer);
 	} else
 	// Signature Attribute
-	if(!strcmp("Signature", name->bytes)) {
+	if(!strcmp("Signature", (char *)name->bytes)) {
 		info = visitSignatureAttribute(classFile, buffer);
 	} else
 	// Source File Attribute
-	if(!strcmp("SourceFile", name->bytes)) {
+	if(!strcmp("SourceFile", (char *)name->bytes)) {
 		info = visitSourceFileAttribute(classFile, buffer);
 	} else
 	// Source Debug Extension Attribute
-	if(!strcmp("SourceDebugExtension", name->bytes)) {
+	if(!strcmp("SourceDebugExtension", (char *)name->bytes)) {
 		info = visitSourceDebugExtensionAttribute(
 				classFile, buffer, attribute_length);
 	} else
 	// Line Number Table Attribute
-	if(!strcmp("LineNumberTable", name->bytes)) {
+	if(!strcmp("LineNumberTable", (char *)name->bytes)) {
 		info = visitLineNumberTableAttribute(classFile, buffer);
 	} else
 	// Local Variable Table Attribute
-	if(!strcmp("LocalVariableTable", name->bytes)) {
+	if(!strcmp("LocalVariableTable", (char *)name->bytes)) {
 		info = visitLocalVariableTableAttribute(classFile, buffer);
 	} else
 	// Local Variable Type Table Attribute
-	if(!strcmp("LocalVariableTypeTable", name->bytes)) {
+	if(!strcmp("LocalVariableTypeTable", (char *)name->bytes)) {
 		info = visitLocalVariableTypeTableAttribute(classFile, buffer);
 	} else
 	// Deprecated Attribute
-	if(!strcmp("Deprecated", name->bytes)) {
+	if(!strcmp("Deprecated", (char *)name->bytes)) {
 		info = visitDeprecatedAttribute(classFile, buffer);
 	} else
 	// Runtime Visible Annotations Attribute
-	if(!strcmp("RuntimeVisibleAnnotations", name->bytes)) {
+	if(!strcmp("RuntimeVisibleAnnotations", (char *)name->bytes)) {
 		info = visitRuntimeAnnotationsAttribute(classFile, buffer);
 	} else
 	// Runtime Invisible Annotations Attribute
-	if(!strcmp("RuntimeInvisibleAnnotations", name->bytes)) {
+	if(!strcmp("RuntimeInvisibleAnnotations", (char *)name->bytes)) {
 		info = visitRuntimeAnnotationsAttribute(classFile, buffer);
 	} else
 	// Runtime Visible Parameter Annotations Attribute
-	if(!strcmp("RuntimeVisibleParameterAnnotations", name->bytes)) {
+	if(!strcmp("RuntimeVisibleParameterAnnotations", (char *)name->bytes)) {
 		info = visitRuntimeParameterAnnotationsAttribute(classFile, buffer);
 	} else
 	// Runtime Visible Parameter Annotations Attribute
-	if(!strcmp("RuntimeInvisibleParameterAnnotations", name->bytes)) {
+	if(!strcmp("RuntimeInvisibleParameterAnnotations", (char *)name->bytes)) {
 		info = visitRuntimeParameterAnnotationsAttribute(classFile, buffer);
 	} else
 	// Annotation Default Attribute
-	if(!strcmp("AnnotationDefault", name->bytes)) {
+	if(!strcmp("AnnotationDefault", (char *)name->bytes)) {
 		info = visitAnnotationDefaultAttribute(classFile, buffer);
 	} else
 	// Bootstrap Methods Attribute
-	if(!strcmp("BootstrapMethods", name->bytes)) {
+	if(!strcmp("BootstrapMethods", (char *)name->bytes)) {
 		info = visitBootstrapMethodsAttribute(classFile, buffer);
 	} else {
 		debug_printf("Unknown Attribute type : %s; Skipping.\n", name->bytes);

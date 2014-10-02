@@ -193,7 +193,7 @@ ConstantInfo *visitConstant(ClassBuffer *buffer) {
 		case CONSTANT_INVOKE_DYNAMIC:
 			debug_printf("Constant Invoke Dynamic.\n");
 			return visitConstantInvokeDynamic(buffer);
-		case -1:
+		case (uint8_t)-1:
 			fprintf(stderr, "Unexpected end of file.\n");
 			exit(EXIT_FAILURE);
 		default:

@@ -66,6 +66,8 @@ uint8_t bufferNextByte(ClassBuffer *buffer) {
 	if(buffer == NULL) return -1;
 	if((read = fread(&value, 1, sizeof(uint8_t), buffer->file)) != sizeof(uint8_t)) {
 		perror("fread byte");
+		fprintf(stderr, "Read : %u, expected %u (Pos : %u).\n",
+				read, sizeof(uint8_t), buffer->pos);
 		exit(EXIT_FAILURE);
 	}
 
@@ -80,6 +82,8 @@ uint16_t bufferNextShort(ClassBuffer *buffer) {
 	if(buffer == NULL) return -1;
 	if((read = fread(&value, 1, sizeof(uint16_t), buffer->file)) != sizeof(uint16_t)) {
 		perror("fread short");
+		fprintf(stderr, "Read : %u, expected %u (Pos : %u).\n",
+				read, sizeof(uint16_t), buffer->pos);
 		exit(EXIT_FAILURE);
 	}
 
@@ -94,6 +98,8 @@ uint32_t bufferNextInt(ClassBuffer *buffer) {
 	if(buffer == NULL) return -1;
 	if((read = fread(&value, 1, sizeof(uint32_t), buffer->file)) != sizeof(uint32_t)) {
 		perror("fread int");
+		fprintf(stderr, "Read : %u, expected %u (Pos : %u).\n",
+				read, sizeof(uint32_t), buffer->pos);
 		exit(EXIT_FAILURE);
 	}
 
