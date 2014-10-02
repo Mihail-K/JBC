@@ -202,12 +202,16 @@ StackMapFrame *visitStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
 	StackMapFrame *frame;
 	uint8_t tag = bufferNextByte(buffer);
 
+	debug_printf(level3, "Visiting Stack Frame type : %d.\n", tag);
+
 	// Stack Map Same Frame
 	if(tag <= 63) {
+		debug_printf(level3, "Stack Map same frame.\n");
 		frame = zalloc(sizeof(StackMapFrame));
 	} else
 	// Stack Map Same Locals 1
 	if(tag >= 64 && tag <= 127) {
+		debug_printf(level3, "Stack Map same locals.\n");
 		frame = visitStackMapItemFrame(classFile, buffer);
 	} else
 	// Reserved Values
@@ -217,25 +221,32 @@ StackMapFrame *visitStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
 	} else
 	// Stack Map Same Locals 1 Extended
 	if(tag == 247) {
+		debug_printf(level3, "Stack Map same locals extended.\n");
 		frame = visitStackMapExtFrame(classFile, buffer);
 	} else
 	// Stack Map Chop Frame
 	if(tag >= 248 && tag <= 250) {
+		debug_printf(level3, "Stack Map chop frame.\n");
 		frame = visitStackMapOffFrame(classFile, buffer);
 	} else
 	// Stack Map Same Frame Extended
 	if(tag == 251) {
+		debug_printf(level3, "Stack Map same frame extended.\n");
 		frame = visitStackMapOffFrame(classFile, buffer);
 	} else
 	// Stack Map Append Frame
 	if(tag >= 252 && tag <= 254) {
 		int count = tag - 251;
+		debug_printf(level3, "Stack Map append frame.\n");
 		frame = visitStackMapListFrame(classFile, buffer, count);
 	}
 	// Stack Map Full Frame
 	else {
+		debug_printf(level3, "Stack Map full frame.\n");
 		frame = visitStackMapFullFrame(classFile, buffer);
 	}
+
+	debug_printf(level3, "Finished Stack Frame.\n");
 
 	frame->tag = tag;
 	return frame;
@@ -253,7 +264,7 @@ AttributeInfo *visitStackMapTableAttribute(ClassFile *classFile, ClassBuffer *bu
 			table->number_of_entries);
 
 	for(idx = 0; idx < table->number_of_entries; idx++) {
-		debug_printf(level2, "Stack Map Frame %d :\n");
+		debug_printf(level2, "Stack Map Frame %d :\n", idx);
 		table->entries[idx] = visitStackMapFrame(classFile, buffer);
 	}
 
@@ -276,6 +287,8 @@ AttributeInfo *visitExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffe
 			except->number_of_exceptions);
 
 	for(idx = 0; idx < except->number_of_exceptions; idx++) {
+		debug_printf(level2, "Exception entry %d :\n");
+
 		uint16_t index = bufferNextShort(buffer);
 		except->exception_index_table[idx] = index;
 		except->exception_table[idx] = getConstant(classFile, index);
@@ -302,6 +315,8 @@ InnerClassEntry *visitInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer)
 	index = bufferNextShort(buffer);
 	entry->inner_class_name_index = index;
 	entry->inner_class_name = getConstant(classFile, index);
+	debug_printf(level2, "Inner class name : %s.\n",
+			entry->inner_class_name->bytes);
 
 	// Inner Class Flags
 	index = bufferNextShort(buffer);
@@ -316,10 +331,12 @@ AttributeInfo *visitInnerClassesAttribute(ClassFile *classFile, ClassBuffer *buf
 
 	// Inner Classes Table
 	inner->number_of_classes = bufferNextShort(buffer);
+	debug_printf(level2, "Inner classes count : %d.\n", inner->number_of_classes);
 	inner->classes = zalloc(sizeof(InnerClassEntry *) *
 			inner->number_of_classes);
 
 	for(idx = 0; idx < inner->number_of_classes; idx++) {
+		debug_printf(level2, "Inner class %d :\n", idx);
 		inner->classes[idx] = visitInnerClassEntry(classFile, buffer);
 	}
 
