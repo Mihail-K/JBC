@@ -28,15 +28,18 @@ enum ConstantType {
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 } ConstantInfo;
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 	uint16_t	name_index;
 } ConstantClassInfo;
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 	uint16_t	class_index;
 	uint16_t	name_and_type_index;
 }
@@ -46,11 +49,13 @@ ConstantInterfaceMethodRefInfo;
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 	uint16_t	string_index;
 } ConstantStringInfo;
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 	uint32_t	bytes;
 }
 ConstantIntegerInfo,
@@ -58,6 +63,7 @@ ConstantFloatInfo;
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 	uint32_t	high_bytes;
 	uint32_t	low_bytes;
 }
@@ -66,29 +72,34 @@ ConstantDoubleInfo;
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 	uint16_t	name_index;
 	uint16_t	descriptor_index;
 } ConstantNameAndTypeInfo;
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 	uint16_t	length;
 	uint8_t		*bytes;
 } ConstantUtf8Info;
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 	uint8_t		reference_kind;
 	uint16_t	reference_index;
 } ConstantMethodHandleInfo;
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 	uint16_t	descriptor_index;
 } ConstantMethodTypeInfo;
 
 typedef struct {
 	uint8_t		tag;
+	uint16_t	index;
 	uint16_t	bootstrap_method_attr_index;
 	uint16_t	name_and_type_index;
 } ConstantInvokeDynamicInfo;
@@ -125,18 +136,15 @@ enum MethodAccessFlags {
 /* Attribute Info */
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 } AttributeInfo;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
 	// Constant Value
-	uint16_t	constant_value_index;
 	ConstantInfo *constant_value;
 } ConstantValueAttribute;
 
@@ -148,7 +156,6 @@ typedef struct {
 } ExceptionTableEntry;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -182,7 +189,6 @@ typedef union {
 	uninitialized_this_variable_info;
 	struct {
 		uint8_t		tag;
-		uint16_t	cpool_index;
 		ConstantClassInfo *object;
 	} object_variable_info;
 	struct {
@@ -237,7 +243,6 @@ typedef struct {
 } StackMapFullFrame;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -247,13 +252,11 @@ typedef struct {
 } StackMapTableAttribute;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
 	// Exception Table
 	uint16_t	number_of_exceptions;
-	uint16_t	*exception_index_table;
 	ConstantClassInfo **exception_table;
 } ExceptionsAttribute;
 
@@ -272,15 +275,12 @@ typedef enum {
 
 typedef struct {
 	// Inner Class Info
-	uint16_t	inner_class_info_index;
 	ConstantClassInfo *inner_class_info;
 
 	// Outer Class Info
-	uint16_t	outer_class_info_index;
 	ConstantClassInfo *outer_class_info;
 
 	// Inner Class Name
-	uint16_t	inner_class_name_index;
 	ConstantUtf8Info *inner_class_name;
 
 	// Inner Class Flags
@@ -288,7 +288,6 @@ typedef struct {
 } InnerClassEntry;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -298,47 +297,38 @@ typedef struct {
 } InnerClassesAttribute;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
 	// Enclosing Class
-	uint16_t	enclosing_class_index;
 	ConstantClassInfo *enclosing_class;
 
 	// Enclosing Method
-	uint16_t	enclosing_method_index;
 	ConstantNameAndTypeInfo *enclosing_method;
 } EnclosingMethodAttribute;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 } SyntheticAttribute;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
 	// Signature
-	uint16_t	signature_index;
 	ConstantUtf8Info *signature;
 } SignatureAttribute;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
 	// Source File
-	uint16_t	source_file_index;
 	ConstantUtf8Info *source_file;
 } SourceFileAttribute;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -352,7 +342,6 @@ typedef struct {
 } LineNumberTableEntry;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -366,18 +355,15 @@ typedef struct {
 	uint16_t	length;
 
 	// Variable Name
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 
 	// Descriptor
-	uint16_t	descriptor_index;
 	ConstantUtf8Info *descriptor;
 
 	uint16_t	index;
 } LocalVariableTableEntry;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -391,18 +377,15 @@ typedef struct {
 	uint16_t	length;
 
 	// Variable Name
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 
 	// Signature
-	uint16_t	signature_index;
 	ConstantUtf8Info *signature;
 
 	uint16_t	index;
 } LocalVariableTypeTableEntry;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -412,7 +395,6 @@ typedef struct {
 } LocalVariableTypeTableAttribute;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 } DeprecatedAttribute;
@@ -425,29 +407,19 @@ struct sElementValue {
 	uint8_t		tag;
 	union {
 		// Constant Value
-		struct {
-			// Constant Value
-			uint16_t	const_value_index;
-			ConstantInfo *const_value;
-		} const_value;
+		ConstantInfo *const_value;
 
 		// Enum Constant Value
 		struct {
 			// Type Name
-			uint16_t	type_name_index;
 			ConstantUtf8Info *type_name;
 
 			// Constant Name
-			uint16_t	const_name_index;
 			ConstantUtf8Info *const_name;
 		} enum_const_value;
 
 		// Class Info Value
-		struct {
-			// Class Info
-			uint16_t	class_info_index;
-			ConstantClassInfo *class_info;
-		} class_info_value;
+		ConstantClassInfo *class_info;
 
 		// Annotation Value
 		AnnotationEntry *annotation_value;
@@ -462,7 +434,6 @@ struct sElementValue {
 
 typedef struct {
 	// Name
-	uint16_t	element_name_index;
 	ConstantUtf8Info *element_name;
 
 	// Element Value
@@ -471,7 +442,6 @@ typedef struct {
 
 struct sAnnotationEntry {
 	// Type
-	uint16_t	type_index;
 	ConstantUtf8Info *type;
 
 	// Element-Value Pairs Table
@@ -480,7 +450,6 @@ struct sAnnotationEntry {
 };
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -499,7 +468,6 @@ typedef struct {
 } ParameterAnnotationsEntry;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -512,7 +480,6 @@ RuntimeVisibleParameterAnnotationsAttribute,
 RuntimeInvisibleParameterAnnotationsAttribute;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -522,17 +489,14 @@ typedef struct {
 
 typedef struct {
 	// Bootstrap Method Reference
-	uint16_t	bootstrap_method_ref_index;
 	ConstantMethodHandleInfo *bootstrap_method_ref;
 
 	// Bootstrap Argument Table
 	uint16_t	num_arguments;
-	uint16_t	*bootstrap_argument_indexes;
 	ConstantInfo **bootstrap_arguments;
 } BootstrapMethodEntry;
 
 typedef struct {
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
@@ -552,11 +516,9 @@ typedef struct {
 	uint16_t	access_flags;
 
 	// Name
-	uint16_t	name_index;
 	ConstantUtf8Info *name;
 
 	// Descriptor
-	uint16_t	descriptor_index;
 	ConstantUtf8Info *descriptor;
 
 	// Attributes Table
@@ -581,16 +543,13 @@ typedef struct {
 	uint16_t	access_flags;
 
 	// This Class
-	uint16_t	this_class_index;
 	ConstantClassInfo *this_class;
 
 	// Super Class
-	uint16_t	super_class_index;
 	ConstantClassInfo *super_class;
 
 	// Interfaces Table
 	uint16_t	interfaces_count;
-	uint16_t	*interface_indexes;
 	ConstantClassInfo **interfaces;
 
 	// Fields Table

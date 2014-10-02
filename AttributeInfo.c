@@ -9,11 +9,12 @@
 # define ignore_unused(x) ((void)x)
 
 AttributeInfo *visitConstantValueAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+	uint16_t index;
 	ConstantValueAttribute *info = zalloc(sizeof(ConstantValueAttribute));
 
 	// Constant Value
-	info->constant_value_index = bufferNextShort(buffer);
-	info->constant_value = getConstant(classFile, info->constant_value_index);
+	index = bufferNextShort(buffer);
+	info->constant_value = getConstant(classFile, index);
 
 	return (AttributeInfo *)info;
 }
@@ -112,7 +113,6 @@ VerificationTypeInfo *visitVerificationTypeInfo(
 			debug_printf(level3, "Object variable info.\n");
 			index = bufferNextShort(buffer);
 			info->object_variable_info.tag = tag;
-			info->object_variable_info.cpool_index = index;
 			info->object_variable_info.object = (void *)
 					getConstant(classFile, index);
 			break;
@@ -281,8 +281,6 @@ AttributeInfo *visitExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffe
 	except->number_of_exceptions = bufferNextShort(buffer);
 	debug_printf(level2, "Exceptions count : %d.\n", except->number_of_exceptions);
 
-	except->exception_index_table = zalloc(sizeof(uint16_t) *
-			except->number_of_exceptions);
 	except->exception_table = zalloc(sizeof(ConstantClassInfo *) *
 			except->number_of_exceptions);
 
@@ -290,7 +288,6 @@ AttributeInfo *visitExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffe
 		debug_printf(level2, "Exception entry %d :\n");
 
 		uint16_t index = bufferNextShort(buffer);
-		except->exception_index_table[idx] = index;
 		except->exception_table[idx] = getConstant(classFile, index);
 	}
 
@@ -303,20 +300,18 @@ InnerClassEntry *visitInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer)
 
 	// Inner Class Info
 	index = bufferNextShort(buffer);
-	entry->inner_class_info_index = index;
 	entry->inner_class_info = getConstant(classFile, index);
 
 	// Outer Class Info
 	index = bufferNextShort(buffer);
-	entry->outer_class_info_index = index;
 	entry->outer_class_info = getConstant(classFile, index);
 
 	// Inner Class Name
 	index = bufferNextShort(buffer);
-	entry->inner_class_name_index = index;
 	entry->inner_class_name = getConstant(classFile, index);
 	debug_printf(level2, "Inner class name : %s.\n",
-			entry->inner_class_name->bytes);
+			(index != 0 ? (char *)entry->inner_class_name->bytes
+			: "<anonymous class>"));
 
 	// Inner Class Flags
 	index = bufferNextShort(buffer);
@@ -349,12 +344,10 @@ AttributeInfo *visitEnclosingMethodAttribute(ClassFile *classFile, ClassBuffer *
 
 	// Enclosing Class
 	index = bufferNextShort(buffer);
-	enclose->enclosing_class_index = index;
 	enclose->enclosing_class = getConstant(classFile, index);
 
 	//Enclosing Method
 	index = bufferNextShort(buffer);
-	enclose->enclosing_method_index = index;
 	enclose->enclosing_method = getConstant(classFile, index);
 
 	return (AttributeInfo *)enclose;
@@ -372,7 +365,6 @@ AttributeInfo *visitSignatureAttribute(ClassFile *classFile, ClassBuffer *buffer
 
 	// Signature
 	index = bufferNextShort(buffer);
-	signature->signature_index = index;
 	signature->signature = getConstant(classFile, index);
 
 	return (AttributeInfo *)signature;
@@ -384,7 +376,6 @@ AttributeInfo *visitSourceFileAttribute(ClassFile *classFile, ClassBuffer *buffe
 
 	// Source File
 	index = bufferNextShort(buffer);
-	file->source_file_index = index;
 	file->source_file = getConstant(classFile, index);
 
 	debug_printf(level2, "Source file name : %s.\n", file->source_file->bytes);
@@ -448,13 +439,11 @@ LocalVariableTableEntry *visitLocalVariableTableEntry(
 
 	// Variable Name
 	index = bufferNextShort(buffer);
-	entry->name_index = index;
 	entry->name = getConstant(classFile, index);
 	debug_printf(level3, "Local variable name : %s.\n", entry->name->bytes);
 
 	// Variable Descriptor
 	index = bufferNextShort(buffer);
-	entry->descriptor_index = index;
 	entry->descriptor = getConstant(classFile, index);
 	debug_printf(level3, "Local variable descriptor : %s.\n", entry->descriptor->bytes);
 
@@ -497,13 +486,11 @@ LocalVariableTypeTableEntry *visitLocalVariableTypeTableEntry(
 
 	// Variable Type Name
 	index = bufferNextShort(buffer);
-	entry->name_index = index;
 	entry->name = getConstant(classFile, index);
 	debug_printf(level3, "Local variable name : %s.\n", entry->name->bytes);
 
 	// Variable Type Signature
 	index = bufferNextShort(buffer);
-	entry->signature_index = index;
 	entry->signature = getConstant(classFile, index);
 	debug_printf(level3, "Local variable signature : %s.\n", entry->signature->bytes);
 
@@ -548,8 +535,7 @@ ElementValue *visitConstElementValue(ClassFile *classFile, ClassBuffer *buffer) 
 
 	// Constant Value
 	index = bufferNextShort(buffer);
-	value->value.const_value.const_value_index = index;
-	value->value.const_value.const_value = getConstant(classFile, index);
+	value->value.const_value = getConstant(classFile, index);
 
 	return value;
 }
@@ -560,12 +546,10 @@ ElementValue *visitEnumElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 
 	// Type Name
 	index = bufferNextShort(buffer);
-	value->value.enum_const_value.type_name_index = index;
 	value->value.enum_const_value.type_name = getConstant(classFile, index);
 
 	// Constant Name
 	index = bufferNextShort(buffer);
-	value->value.enum_const_value.const_name_index = index;
 	value->value.enum_const_value.const_name = getConstant(classFile, index);
 
 	return value;
@@ -577,8 +561,7 @@ ElementValue *visitClassElementValue(ClassFile *classFile, ClassBuffer *buffer) 
 
 	// Class Info
 	index = bufferNextShort(buffer);
-	value->value.class_info_value.class_info_index = index;
-	value->value.class_info_value.class_info = getConstant(classFile, index);
+	value->value.class_info = getConstant(classFile, index);
 
 	return value;
 }
@@ -652,7 +635,6 @@ ElementValuePairsEntry *visitElementValuePairsEntry(
 
 	// Element Name
 	index = bufferNextShort(buffer);
-	entry->element_name_index = index;
 	entry->element_name = getConstant(classFile, index);
 
 	// Element Value
@@ -668,7 +650,6 @@ AnnotationEntry *visitAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer)
 
 	// Annotation Entry Type
 	index = bufferNextShort(buffer);
-	entry->type_index = index;
 	entry->type = getConstant(classFile, index);
 
 	// Element Value Pairs Table
@@ -752,14 +733,11 @@ BootstrapMethodEntry *visitBootstrapMethodEntry(ClassFile *classFile, ClassBuffe
 
 	// Bootstrap Method Parameters Table
 	entry->num_arguments = bufferNextShort(buffer);
-	entry->bootstrap_argument_indexes = zalloc(sizeof(uint16_t) *
-			entry->num_arguments);
 	entry->bootstrap_arguments = zalloc(sizeof(ConstantInfo *) *
 			entry->num_arguments);
 
 	for(idx = 0; idx < entry->num_arguments; idx++) {
 		uint16_t index = bufferNextShort(buffer);
-		entry->bootstrap_argument_indexes[idx] = index;
 		entry->bootstrap_arguments[idx] = classFile->constant_pool[index];
 	}
 
@@ -892,7 +870,6 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 	debug_printf(level1, "Finished Attribute : %s.\n", name->bytes);
 	info->attribute_length = attribute_length;
-	info->name_index = name_index;
 	info->name = name;
 
 	return info;

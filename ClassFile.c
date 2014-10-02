@@ -23,6 +23,8 @@ void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 	for(idx = 1; idx < classFile->constant_pool_count; idx++) {
 		debug_printf(level2, "Constant %d :\n", idx);
 		classFile->constant_pool[idx] = visitConstant(buffer);
+		classFile->constant_pool[idx]->index = idx;
+
 		if(isLongConstant(classFile->constant_pool[idx])) {
 			debug_printf(level2, "Long Constant; Skipping index.\n");
 			classFile->constant_pool[++idx] = NULL;
@@ -31,15 +33,15 @@ void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 }
 
 void visitThisClass(ClassFile *classFile, ClassBuffer *buffer) {
-	classFile->this_class_index = bufferNextShort(buffer);
-	debug_printf(level3, "This Class : %d.\n", classFile->this_class_index);
-	classFile->this_class = getConstant(classFile, classFile->this_class_index);
+	uint16_t index = bufferNextShort(buffer);
+	debug_printf(level3, "This Class : %d.\n", index);
+	classFile->this_class = getConstant(classFile, index);
 }
 
 void visitSuperClass(ClassFile *classFile, ClassBuffer *buffer) {
-	classFile->super_class_index = bufferNextShort(buffer);
-	debug_printf(level3, "Super Class : %d.\n", classFile->super_class_index);
-	classFile->super_class = getConstant(classFile, classFile->super_class_index);
+	uint16_t index = bufferNextShort(buffer);
+	debug_printf(level3, "Super Class : %d.\n", index);
+	classFile->super_class = getConstant(classFile, index);
 }
 
 void visitInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
@@ -47,13 +49,12 @@ void visitInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
 
 	classFile->interfaces_count = bufferNextShort(buffer);
 	debug_printf(level1, "Interfaces Count : %d.\n", classFile->interfaces_count);
-	classFile->interface_indexes = zalloc(sizeof(uint16_t) * classFile->interfaces_count);
 	classFile->interfaces = zalloc(sizeof(ConstantClassInfo *) * classFile->interfaces_count);
 
 	for(idx = 0; idx < classFile->interfaces_count; idx++) {
-		classFile->interface_indexes[idx] = bufferNextShort(buffer);
-		debug_printf(level2, "Interface %d : %d.\n", idx, classFile->interface_indexes[idx]);
-		classFile->interfaces[idx] = getConstant(classFile, classFile->interface_indexes[idx]);
+		uint16_t index = bufferNextShort(buffer);
+		debug_printf(level2, "Interface %d : %d.\n", idx, index);
+		classFile->interfaces[idx] = getConstant(classFile, index);
 	}
 }
 
