@@ -25,7 +25,7 @@ void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 		classFile->constant_pool[idx] = visitConstant(buffer);
 		if(isLongConstant(classFile->constant_pool[idx])) {
 			debug_printf("Long Constant; Skipping index.\n");
-			idx++;
+			classFile->constant_pool[++idx] = NULL;
 		}
 	}
 }

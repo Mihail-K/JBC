@@ -41,6 +41,7 @@ AttributeInfo *visitCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 	// Code
 	code->code_length = bufferNextInt(buffer);
+	debug_printf("Code length : %d.\n", code->code_length);
 	code->code = zalloc(sizeof(uint8_t) * code->code_length);
 
 	for(idx = 0; idx < code->code_length; idx++) {
@@ -50,6 +51,7 @@ AttributeInfo *visitCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 	// Exception Table
 	code->exception_table_length = bufferNextShort(buffer);
+	debug_printf("Code Exception table length : %d.\n", code->exception_table_length);
 	code->exception_table = zalloc(sizeof(ExceptionTableEntry *) *
 			code->exception_table_length);
 
@@ -59,6 +61,7 @@ AttributeInfo *visitCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 	// Attributes Table
 	code->attributes_count = bufferNextShort(buffer);
+	debug_printf("Code Attributes count : %d.\n", code->attributes_count);
 	code->attributes = zalloc(sizeof(AttributeInfo *) * code->attributes_count);
 
 	for(idx = 0; idx < code->attributes_count; idx++) {
@@ -259,6 +262,8 @@ AttributeInfo *visitExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffe
 
 	// Exceptions Table
 	except->number_of_exceptions = bufferNextShort(buffer);
+	debug_printf("Exceptions count : %d.\n", except->number_of_exceptions);
+
 	except->exception_index_table = zalloc(sizeof(uint16_t) *
 			except->number_of_exceptions);
 	except->exception_table = zalloc(sizeof(ConstantClassInfo *) *
@@ -267,7 +272,7 @@ AttributeInfo *visitExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffe
 	for(idx = 0; idx < except->number_of_exceptions; idx++) {
 		uint16_t index = bufferNextShort(buffer);
 		except->exception_index_table[idx] = index;
-		except->exception_table[idx] = (void *)classFile->constant_pool[index];
+		except->exception_table[idx] = getConstant(classFile, index);
 	}
 
 	return (AttributeInfo *)except;
@@ -422,14 +427,17 @@ LocalVariableTableEntry *visitLocalVariableTableEntry(
 	index = bufferNextShort(buffer);
 	entry->name_index = index;
 	entry->name = getConstant(classFile, index);
+	debug_printf("Local variable name : %s.\n", entry->name->bytes);
 
 	// Variable Descriptor
 	index = bufferNextShort(buffer);
 	entry->descriptor_index = index;
 	entry->descriptor = getConstant(classFile, index);
+	debug_printf("Local variable descriptor : %s.\n", entry->descriptor->bytes);
 
 	index = bufferNextShort(buffer);
 	entry->index = index;
+	debug_printf("Index : %d.\n", index);
 
 	return entry;
 }
@@ -442,11 +450,15 @@ AttributeInfo *visitLocalVariableTableAttribute(
 
 	// Local Variable Table
 	local->local_variable_table_length = bufferNextShort(buffer);
+	debug_printf("Local Variable Table length : %d.\n",
+			local->local_variable_table_length);
+
 	local->local_variable_table = zalloc(sizeof(LocalVariableTableEntry *) *
 			local->local_variable_table_length);
 
 	for(idx = 0; idx < local->local_variable_table_length; idx++) {
-		local->local_variable_table[idx] = visitLocalVariableTableEntry(classFile, buffer);
+		local->local_variable_table[idx] =
+				visitLocalVariableTableEntry(classFile, buffer);
 	}
 
 	return (AttributeInfo *)local;
@@ -464,14 +476,17 @@ LocalVariableTypeTableEntry *visitLocalVariableTypeTableEntry(
 	index = bufferNextShort(buffer);
 	entry->name_index = index;
 	entry->name = getConstant(classFile, index);
+	debug_printf("Local variable name : %s.\n", entry->name->bytes);
 
 	// Variable Type Signature
 	index = bufferNextShort(buffer);
 	entry->signature_index = index;
 	entry->signature = getConstant(classFile, index);
+	debug_printf("Local variable signature : %s.\n", entry->signature->bytes);
 
 	index = bufferNextShort(buffer);
 	entry->index = index;
+	debug_printf("Index : %d.\n", index);
 
 	return entry;
 }
@@ -484,6 +499,9 @@ AttributeInfo *visitLocalVariableTypeTableAttribute(
 
 	// Local Variable Type Table
 	local->local_variable_type_table_length = bufferNextShort(buffer);
+	debug_printf("Local Variable Type Table length : %d.\n",
+			local->local_variable_type_table_length);
+
 	local->local_variable_type_table = zalloc(sizeof(LocalVariableTypeTableEntry *) *
 			local->local_variable_type_table_length);
 
@@ -747,6 +765,7 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t name_index = bufferNextShort(buffer);
 	uint32_t attribute_length = bufferNextInt(buffer);
 	ConstantUtf8Info *name = getConstant(classFile, name_index);
+	unsigned initpos = bufferPos(buffer);
 
 	if(name == NULL) {
 		fprintf(stderr, "Error : Attribute with no name entry!\n");
@@ -836,10 +855,19 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	if(!strcmp("BootstrapMethods", name->bytes)) {
 		info = visitBootstrapMethodsAttribute(classFile, buffer);
 	} else {
-		fprintf(stderr, "Unknown Attribute type : %s.\n", name->bytes);
+		debug_printf("Unknown Attribute type : %s; Skipping.\n", name->bytes);
+		while(bufferPos(buffer) - initpos < attribute_length) {
+			// TODO : Implement a skip operation
+			bufferNextByte(buffer);
+		}
+	}
+
+	if(bufferPos(buffer) - initpos != attribute_length) {
+		fprintf(stderr, "Attribute length mismatch!\n");
 		exit(EXIT_FAILURE);
 	}
 
+	debug_printf("Finished Attribute : %s.\n", name->bytes);
 	info->attribute_length = attribute_length;
 	info->name_index = name_index;
 	info->name = name;
