@@ -33,21 +33,21 @@ void deleteBuffer(ClassBuffer *buffer) {
 	free(buffer);
 }
 
-static __inline__
+static inline
 void swap(uint8_t *a, uint8_t *b) {
 	uint8_t t = *a;
 	*a = *b;
 	*b = t;
 }
 
-static __inline__
+static inline
 uint16_t tole16(uint16_t l) {
 	union { uint16_t l; uint8_t b[2]; } u = { l };
 	swap(&u.b[0], &u.b[1]);
 	return u.l;
 }
 
-static __inline__
+static inline
 uint32_t tole32(uint32_t l) {
 	union { uint32_t l; uint8_t b[4]; } u = { l };
 	swap(&u.b[0], &u.b[3]);

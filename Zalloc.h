@@ -3,7 +3,9 @@
 
 # include <stdlib.h>
 
-static __inline__
+# include "Defines.h"
+
+static inline
 void *zalloc(size_t size) {
 	void *bytes = malloc(size);
 	if(bytes == NULL) {

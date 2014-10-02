@@ -10,7 +10,7 @@ int encodeClassFile(FILE *target, ClassFile *classFile);
 
 ClassFile *decodeClassFile(FILE *source);
 
-static __inline__
+static inline
 void *getConstant(ClassFile *classFile, int idx) {
 	if(idx < 0 || idx >= classFile->constant_pool_count) {
 		fprintf(stderr, "Constant not found. (ID : %d)\n", idx);
