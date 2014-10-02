@@ -1,6 +1,7 @@
 
 # include "Debug.h"
 # include "Zalloc.h"
+# include "ClassFile.h"
 # include "MemberInfo.h"
 # include "AttributeInfo.h"
 

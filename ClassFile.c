@@ -26,15 +26,6 @@ void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 	}
 }
 
-ConstantInfo *getConstant(ClassFile *classFile, int idx) {
-	if(idx < 0 || idx >= classFile->constant_pool_count) {
-		fprintf(stderr, "Constant not found. (ID : %d)\n", idx);
-		exit(EXIT_FAILURE);
-	}
-
-	return classFile->constant_pool[idx];
-}
-
 void visitThisClass(ClassFile *classFile, ClassBuffer *buffer) {
 	classFile->this_class_index = bufferNextShort(buffer);
 	debug_printf("This Class : %d.\n", classFile->this_class_index);
@@ -114,6 +105,8 @@ ClassFile *visitClassFile(ClassBuffer *buffer) {
 		debug_printf("Attribute %d :\n", idx);
 		classFile->attributes[idx] = visitAttribute(classFile, buffer);
 	}
+
+	return classFile;
 }
 
 ClassFile *decodeClassFile(FILE *source) {

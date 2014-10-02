@@ -1,5 +1,5 @@
 
-CFLAGS = -D _DEBUG
+CFLAGS = -D _DEBUG -Werror -Wall -Wextra
 
 test: Main.o ClassBuffer.o ClassFile.o ConstantInfo.o MemberInfo.o AttributeInfo.o
 	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)

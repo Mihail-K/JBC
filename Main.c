@@ -1,16 +1,23 @@
 
 # include <stdio.h>
+# include <stdlib.h>
 # include <string.h>
 
 # include "ClassFile.h"
 
 int main(int argc, char **argv) {
 	FILE *file;
-	char *path = argv[1];
-	if((file = fopen(path, "rb")) == NULL) {
-		perror("fopen");
-		return 1;
+
+	if(argc < 2) {
+		fprintf(stderr, "Requires argument path.\n");
+		exit(EXIT_FAILURE);
 	}
-	visitClassFile(createBuffer(file));
+
+	if((file = fopen(argv[1], "rb")) == NULL) {
+		perror("fopen");
+		exit(EXIT_FAILURE);
+	}
+
+	decodeClassFile(file);
 	return 0;
 }
