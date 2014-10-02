@@ -9,10 +9,12 @@ ClassBuffer *createBuffer(FILE *classFile);
 
 void deleteBuffer(ClassBuffer *buffer);
 
-int8_t bufferNextByte(ClassBuffer *buffer);
+unsigned int bufferPos(ClassBuffer *buffer);
 
-int16_t bufferNextShort(ClassBuffer *buffer);
+uint8_t bufferNextByte(ClassBuffer *buffer);
 
-int32_t bufferNextInt(ClassBuffer *buffer);
+uint16_t bufferNextShort(ClassBuffer *buffer);
+
+uint32_t bufferNextInt(ClassBuffer *buffer);
 
 # endif /* ClassBuffer.h */

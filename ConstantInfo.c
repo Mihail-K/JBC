@@ -4,18 +4,21 @@
 # include "ConstantInfo.h"
 
 ConstantInfo *visitConstantUtf8(ClassBuffer *buffer) {
-	int idx;
+	unsigned int idx;
 	ConstantUtf8Info *utf8Info;
 	utf8Info = zalloc(sizeof(ConstantUtf8Info));
 
 	utf8Info->tag = CONSTANT_UTF8;
 	utf8Info->length = bufferNextShort(buffer);
+	debug_printf("Constant Length : %d.\n", utf8Info->length);
+
 	utf8Info->bytes = zalloc(utf8Info->length + 1);
 	utf8Info->bytes[utf8Info->length] = '\0';
 
 	for(idx = 0; idx < utf8Info->length; idx++)
 		// TODO : Potentially add a mass-read operation
 		utf8Info->bytes[idx] = bufferNextByte(buffer);
+	debug_printf("Constant Data : %s.\n", utf8Info->bytes);
 	return (ConstantInfo *)utf8Info;
 }
 
@@ -145,7 +148,8 @@ ConstantInfo *visitConstantInvokeDynamic(ClassBuffer *buffer) {
 }
 
 ConstantInfo *visitConstant(ClassBuffer *buffer) {
-	int8_t tag = bufferNextByte(buffer);
+	uint8_t tag = bufferNextByte(buffer);
+
 	switch(tag) {
 		case CONSTANT_UTF8:
 			debug_printf("Constant UTF8.\n");
@@ -193,7 +197,7 @@ ConstantInfo *visitConstant(ClassBuffer *buffer) {
 			fprintf(stderr, "Unexpected end of file.\n");
 			exit(EXIT_FAILURE);
 		default:
-			fprintf(stderr, "Unknown tag : %d.\n", tag);
+			fprintf(stderr, "Unknown tag : %d (%u).\n", tag, bufferPos(buffer));
 			exit(EXIT_FAILURE);
 	}
 }

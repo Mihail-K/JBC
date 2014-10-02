@@ -7,8 +7,7 @@
 
 struct ClassBuffer {
 	FILE *file;
-
-	// TODO
+	unsigned int pos;
 };
 
 ClassBuffer *createBuffer(FILE *classFile) {
@@ -22,6 +21,7 @@ ClassBuffer *createBuffer(FILE *classFile) {
 
 	buffer = zalloc(sizeof(ClassBuffer));
 	buffer->file = classFile;
+	buffer->pos = 0;
 
 	return buffer;
 }
@@ -31,6 +31,11 @@ void deleteBuffer(ClassBuffer *buffer) {
 	if(buffer->file != NULL)
 		fclose(buffer->file);
 	free(buffer);
+}
+
+unsigned int bufferPos(ClassBuffer *buffer) {
+	if(buffer == NULL) return -1;
+	return buffer->pos;
 }
 
 static inline
@@ -55,36 +60,44 @@ uint32_t tole32(uint32_t l) {
 	return u.l;
 }
 
-int8_t bufferNextByte(ClassBuffer *buffer) {
-	int8_t value = 0;
+uint8_t bufferNextByte(ClassBuffer *buffer) {
+	size_t read;
+	uint8_t value = 0;
 	if(buffer == NULL) return -1;
-	if(fread(&value, 1, sizeof(uint8_t), buffer->file) != sizeof(uint8_t)) {
+	if((read = fread(&value, 1, sizeof(uint8_t), buffer->file)) != sizeof(uint8_t)) {
 		perror("fread byte");
 		exit(EXIT_FAILURE);
 	}
 
+	buffer->pos += read;
+
 	return value;
 }
 
-int16_t bufferNextShort(ClassBuffer *buffer) {
-	int16_t value = 0;
+uint16_t bufferNextShort(ClassBuffer *buffer) {
+	size_t read;
+	uint16_t value = 0;
 	if(buffer == NULL) return -1;
-	if(fread(&value, 1, sizeof(uint16_t), buffer->file) != sizeof(uint16_t)) {
+	if((read = fread(&value, 1, sizeof(uint16_t), buffer->file)) != sizeof(uint16_t)) {
 		perror("fread short");
 		exit(EXIT_FAILURE);
 	}
 
+	buffer->pos += read;
+
 	return tole16(value);
 }
 
-int32_t bufferNextInt(ClassBuffer *buffer) {
-	int32_t value = 0;
+uint32_t bufferNextInt(ClassBuffer *buffer) {
+	size_t read;
+	uint32_t value = 0;
 	if(buffer == NULL) return -1;
-	if(fread(&value, 1, sizeof(uint32_t), buffer->file) != sizeof(uint32_t)) {
+	if((read = fread(&value, 1, sizeof(uint32_t), buffer->file)) != sizeof(uint32_t)) {
 		perror("fread int");
 		exit(EXIT_FAILURE);
 	}
 
+	buffer->pos += read;
 
 	return tole32(value);
 }
