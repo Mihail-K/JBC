@@ -7,7 +7,7 @@
 #	elif defined _MSC_VER
 #		define inline __inline
 #	else
-		/* Just hope for the best */
+#		define inline
 #	endif /* Compiler */
 # endif /* C++ */
 
