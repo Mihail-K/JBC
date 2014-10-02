@@ -6,19 +6,19 @@
 # include "AttributeInfo.h"
 
 MemberInfo *visitMember(ClassFile *classFile, ClassBuffer *buffer) {
-	int idx;
+	unsigned int idx;
 	MemberInfo *member = zalloc(sizeof(MemberInfo));
 
 	member->access_flags = bufferNextShort(buffer);
 
 	// Member Name
 	member->name_index = bufferNextShort(buffer);
-	member->name = (void *)getConstant(classFile, member->name_index);
+	member->name = getConstant(classFile, member->name_index);
 	debug_printf("Member Name : %s.\n", member->name->bytes);
 
 	// Member Descriptor
 	member->descriptor_index = bufferNextShort(buffer);
-	member->descriptor = (void *)getConstant(classFile, member->descriptor_index);
+	member->descriptor = getConstant(classFile, member->descriptor_index);
 	debug_printf("Member Descriptor : %s.\n", member->descriptor->bytes);
 
 	// Member Attributes Table

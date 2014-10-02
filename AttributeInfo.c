@@ -280,17 +280,17 @@ InnerClassEntry *visitInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer)
 	// Inner Class Info
 	index = bufferNextShort(buffer);
 	entry->inner_class_info_index = index;
-	entry->inner_class_info = (void *)getConstant(classFile, index);
+	entry->inner_class_info = getConstant(classFile, index);
 
 	// Outer Class Info
 	index = bufferNextShort(buffer);
 	entry->outer_class_info_index = index;
-	entry->outer_class_info = (void *)getConstant(classFile, index);
+	entry->outer_class_info = getConstant(classFile, index);
 
 	// Inner Class Name
 	index = bufferNextShort(buffer);
 	entry->inner_class_name_index = index;
-	entry->inner_class_name = (void *)getConstant(classFile, index);
+	entry->inner_class_name = getConstant(classFile, index);
 
 	// Inner Class Flags
 	index = bufferNextShort(buffer);
@@ -322,12 +322,12 @@ AttributeInfo *visitEnclosingMethodAttribute(ClassFile *classFile, ClassBuffer *
 	// Enclosing Class
 	index = bufferNextShort(buffer);
 	enclose->enclosing_class_index = index;
-	enclose->enclosing_class = (void *)getConstant(classFile, index);
+	enclose->enclosing_class = getConstant(classFile, index);
 
 	//Enclosing Method
 	index = bufferNextShort(buffer);
 	enclose->enclosing_method_index = index;
-	enclose->enclosing_method = (void *)getConstant(classFile, index);
+	enclose->enclosing_method = getConstant(classFile, index);
 
 	return (AttributeInfo *)enclose;
 }
@@ -345,7 +345,7 @@ AttributeInfo *visitSignatureAttribute(ClassFile *classFile, ClassBuffer *buffer
 	// Signature
 	index = bufferNextShort(buffer);
 	signature->signature_index = index;
-	signature->signature = (void *)getConstant(classFile, index);
+	signature->signature = getConstant(classFile, index);
 
 	return (AttributeInfo *)signature;
 }
@@ -357,7 +357,7 @@ AttributeInfo *visitSourceFileAttribute(ClassFile *classFile, ClassBuffer *buffe
 	// Source File
 	index = bufferNextShort(buffer);
 	file->source_file_index = index;
-	file->source_file = (void *)getConstant(classFile, index);
+	file->source_file = getConstant(classFile, index);
 
 	debug_printf("Source file name : %s.\n", file->source_file->bytes);
 
@@ -421,12 +421,12 @@ LocalVariableTableEntry *visitLocalVariableTableEntry(
 	// Variable Name
 	index = bufferNextShort(buffer);
 	entry->name_index = index;
-	entry->name = (void *)getConstant(classFile, index);
+	entry->name = getConstant(classFile, index);
 
 	// Variable Descriptor
 	index = bufferNextShort(buffer);
 	entry->descriptor_index = index;
-	entry->descriptor = (void *)getConstant(classFile, index);
+	entry->descriptor = getConstant(classFile, index);
 
 	index = bufferNextShort(buffer);
 	entry->index = index;
@@ -463,12 +463,12 @@ LocalVariableTypeTableEntry *visitLocalVariableTypeTableEntry(
 	// Variable Type Name
 	index = bufferNextShort(buffer);
 	entry->name_index = index;
-	entry->name = (void *)getConstant(classFile, index);
+	entry->name = getConstant(classFile, index);
 
 	// Variable Type Signature
 	index = bufferNextShort(buffer);
 	entry->signature_index = index;
-	entry->signature = (void *)getConstant(classFile, index);
+	entry->signature = getConstant(classFile, index);
 
 	index = bufferNextShort(buffer);
 	entry->index = index;
@@ -508,7 +508,7 @@ ElementValue *visitConstElementValue(ClassFile *classFile, ClassBuffer *buffer) 
 	// Constant Value
 	index = bufferNextShort(buffer);
 	value->value.const_value.const_value_index = index;
-	value->value.const_value.const_value = (void *)getConstant(classFile, index);
+	value->value.const_value.const_value = getConstant(classFile, index);
 
 	return value;
 }
@@ -520,12 +520,12 @@ ElementValue *visitEnumElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	// Type Name
 	index = bufferNextShort(buffer);
 	value->value.enum_const_value.type_name_index = index;
-	value->value.enum_const_value.type_name = (void *)getConstant(classFile, index);
+	value->value.enum_const_value.type_name = getConstant(classFile, index);
 
 	// Constant Name
 	index = bufferNextShort(buffer);
 	value->value.enum_const_value.const_name_index = index;
-	value->value.enum_const_value.const_name = (void *)getConstant(classFile, index);
+	value->value.enum_const_value.const_name = getConstant(classFile, index);
 
 	return value;
 }
@@ -537,7 +537,7 @@ ElementValue *visitClassElementValue(ClassFile *classFile, ClassBuffer *buffer) 
 	// Class Info
 	index = bufferNextShort(buffer);
 	value->value.class_info_value.class_info_index = index;
-	value->value.class_info_value.class_info = (void *)getConstant(classFile, index);
+	value->value.class_info_value.class_info = getConstant(classFile, index);
 
 	return value;
 }
@@ -612,7 +612,7 @@ ElementValuePairsEntry *visitElementValuePairsEntry(
 	// Element Name
 	index = bufferNextShort(buffer);
 	entry->element_name_index = index;
-	entry->element_name = (void *)getConstant(classFile, index);
+	entry->element_name = getConstant(classFile, index);
 
 	// Element Value
 	entry->value = visitElementValue(classFile, buffer);
@@ -628,7 +628,7 @@ AnnotationEntry *visitAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer)
 	// Annotation Entry Type
 	index = bufferNextShort(buffer);
 	entry->type_index = index;
-	entry->type = (void *)getConstant(classFile, index);
+	entry->type = getConstant(classFile, index);
 
 	// Element Value Pairs Table
 	entry->num_element_value_pairs = bufferNextShort(buffer);
@@ -746,7 +746,7 @@ AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 	uint16_t name_index = bufferNextShort(buffer);
 	uint32_t attribute_length = bufferNextInt(buffer);
-	ConstantUtf8Info *name = (void *)getConstant(classFile, name_index);
+	ConstantUtf8Info *name = getConstant(classFile, name_index);
 
 	if(name == NULL) {
 		fprintf(stderr, "Error : Attribute with no name entry!\n");

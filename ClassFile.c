@@ -12,7 +12,7 @@
 # include "AttributeInfo.h"
 
 void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
-	int idx;
+	unsigned int idx;
 
 	classFile->constant_pool_count = bufferNextShort(buffer);
 	debug_printf("Constant Pool Count : %d.\n", classFile->constant_pool_count);
@@ -29,17 +29,17 @@ void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 void visitThisClass(ClassFile *classFile, ClassBuffer *buffer) {
 	classFile->this_class_index = bufferNextShort(buffer);
 	debug_printf("This Class : %d.\n", classFile->this_class_index);
-	classFile->this_class = (void *)getConstant(classFile, classFile->this_class_index);
+	classFile->this_class = getConstant(classFile, classFile->this_class_index);
 }
 
 void visitSuperClass(ClassFile *classFile, ClassBuffer *buffer) {
 	classFile->super_class_index = bufferNextShort(buffer);
 	debug_printf("Super Class : %d.\n", classFile->super_class_index);
-	classFile->super_class = (void *)getConstant(classFile, classFile->super_class_index);
+	classFile->super_class = getConstant(classFile, classFile->super_class_index);
 }
 
 void visitInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
-	int idx;
+	unsigned int idx;
 
 	classFile->interfaces_count = bufferNextShort(buffer);
 	debug_printf("Interfaces Count : %d.\n", classFile->interfaces_count);
@@ -49,12 +49,12 @@ void visitInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
 	for(idx = 0; idx < classFile->interfaces_count; idx++) {
 		classFile->interface_indexes[idx] = bufferNextShort(buffer);
 		debug_printf("Interface %d : %d.\n", idx, classFile->interface_indexes[idx]);
-		classFile->interfaces[idx] = (void *)getConstant(classFile, classFile->interface_indexes[idx]);
+		classFile->interfaces[idx] = getConstant(classFile, classFile->interface_indexes[idx]);
 	}
 }
 
 ClassFile *visitClassFile(ClassBuffer *buffer) {
-	int idx;
+	unsigned int idx;
 	ClassFile *classFile = zalloc(sizeof(ClassFile));
 
 	classFile->magic = bufferNextInt(buffer);
