@@ -69,6 +69,7 @@ List *listClear(List *list, void (* destroy)()) {
 		}
 	}
 
+	list->count = 0;
 	return list;
 }
 
