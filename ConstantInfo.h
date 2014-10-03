@@ -5,6 +5,10 @@
 # include "Types.h"
 # include "ClassBuffer.h"
 
+ConstantInfo *createConstant(uint8_t type);
+
+void deleteConstant(ConstantInfo *info);
+
 ConstantInfo *visitConstant(ClassBuffer *buffer);
 
 static inline

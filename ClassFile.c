@@ -11,6 +11,40 @@
 # include "ConstantInfo.h"
 # include "AttributeInfo.h"
 
+ClassFile *createClassFile() {
+	ClassFile *classFile = zalloc(sizeof(ClassFile));
+	return memset(classFile, 0, sizeof(ClassFile));
+}
+
+void deleteClassFile(ClassFile *classFile) {
+	unsigned int idx;
+	if(classFile == NULL) return;
+	if(classFile->interfaces != NULL) {
+		free(classFile->interfaces);
+	}
+	if(classFile->fields != NULL) {
+		for(idx = 0; idx < classFile->fields_count; idx++)
+			deleteMember(classFile->fields[idx]);
+		free(classFile->fields);
+	}
+	if(classFile->methods != NULL) {
+		for(idx = 0; idx < classFile->methods_count; idx++)
+			deleteMember(classFile->methods[idx]);
+		free(classFile->methods);
+	}
+	if(classFile->attributes != NULL) {
+		for(idx = 0; idx < classFile->attributes_count; idx++)
+			deleteAttribute(classFile->attributes[idx]);
+		free(classFile->attributes);
+	}
+	if(classFile->constant_pool != NULL) {
+		for(idx = 0; idx < classFile->constant_pool_count; idx++)
+			deleteConstant(classFile->constant_pool[idx]);
+		free(classFile->constant_pool);
+	}
+	free(classFile);
+}
+
 void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx;
 
@@ -60,7 +94,7 @@ void visitInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
 
 ClassFile *visitClassFile(ClassBuffer *buffer) {
 	unsigned int idx;
-	ClassFile *classFile = zalloc(sizeof(ClassFile));
+	ClassFile *classFile = createClassFile();
 
 	classFile->magic = bufferNextInt(buffer);
 	classFile->major_version = bufferNextShort(buffer);

@@ -6,6 +6,10 @@
 
 # include "Types.h"
 
+ClassFile *createClassFile();
+
+void deleteClassFile(ClassFile *classFile);
+
 int encodeClassFile(FILE *target, ClassFile *classFile);
 
 ClassFile *decodeClassFile(FILE *source);

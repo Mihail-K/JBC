@@ -4,6 +4,8 @@
 # include "Types.h"
 # include "ClassBuffer.h"
 
+void deleteAttribute(AttributeInfo *info);
+
 AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer);
 
 # endif /* AttributeInfo.h */

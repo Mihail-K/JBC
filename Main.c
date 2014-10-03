@@ -18,6 +18,6 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-	decodeClassFile(file);
+	deleteClassFile(decodeClassFile(file));
 	return 0;
 }

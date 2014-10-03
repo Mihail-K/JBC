@@ -7,6 +7,10 @@
 # define visitField visitMember
 # define visitMethod visitMember
 
+MemberInfo *createMember();
+
+void deleteMember(MemberInfo *member);
+
 MemberInfo *visitMember(ClassFile *classFile, ClassBuffer *buffer);
 
 # endif /* MemberInfo.h */

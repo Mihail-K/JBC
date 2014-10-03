@@ -1,14 +1,86 @@
 
+# include <string.h>
+
 # include "Debug.h"
 # include "Zalloc.h"
 # include "ConstantInfo.h"
 
+ConstantInfo *createConstant(uint8_t type) {
+	ConstantInfo *info;
+
+	switch(type) {
+		case CONSTANT_UTF8:
+			info = zalloc(sizeof(ConstantUtf8Info));
+			memset(info, 0, sizeof(ConstantUtf8Info));
+			break;
+		case CONSTANT_INTEGER:
+			info = zalloc(sizeof(ConstantIntegerInfo));
+			memset(info, 0, sizeof(ConstantIntegerInfo));
+			break;
+		case CONSTANT_FLOAT:
+			info = zalloc(sizeof(ConstantFloatInfo));
+			memset(info, 0, sizeof(ConstantFloatInfo));
+			break;
+		case CONSTANT_LONG:
+			info = zalloc(sizeof(ConstantLongInfo));
+			memset(info, 0, sizeof(ConstantLongInfo));
+			break;
+		case CONSTANT_DOUBLE:
+			info = zalloc(sizeof(ConstantDoubleInfo));
+			memset(info, 0, sizeof(ConstantDoubleInfo));
+			break;
+		case CONSTANT_CLASS:
+			info = zalloc(sizeof(ConstantClassInfo));
+			memset(info, 0, sizeof(ConstantClassInfo));
+			break;
+		case CONSTANT_STRING:
+			info = zalloc(sizeof(ConstantStringInfo));
+			memset(info, 0, sizeof(ConstantStringInfo));
+			break;
+		case CONSTANT_FIELD_REF:
+		case CONSTANT_METHOD_REF:
+		case CONSTANT_INTERFACE_METHOD_REF:
+			info = zalloc(sizeof(ConstantFieldRefInfo));
+			memset(info, 0, sizeof(ConstantFieldRefInfo));
+			break;
+		case CONSTANT_NAME_AND_TYPE:
+			info = zalloc(sizeof(ConstantNameAndTypeInfo));
+			memset(info, 0, sizeof(ConstantNameAndTypeInfo));
+			break;
+		case CONSTANT_METHOD_HANDLE:
+			info = zalloc(sizeof(ConstantMethodHandleInfo));
+			memset(info, 0, sizeof(ConstantMethodHandleInfo));
+			break;
+		case CONSTANT_METHOD_TYPE:
+			info = zalloc(sizeof(ConstantMethodTypeInfo));
+			memset(info, 0, sizeof(ConstantMethodTypeInfo));
+			break;
+		case CONSTANT_INVOKE_DYNAMIC:
+			info = zalloc(sizeof(ConstantInvokeDynamicInfo));
+			memset(info, 0, sizeof(ConstantInvokeDynamicInfo));
+			break;
+		default:
+			return NULL;
+	}
+
+	info->tag = type;
+	return info;
+}
+
+void deleteConstant(ConstantInfo *info) {
+	if(info == NULL) return;
+	if(info->tag == CONSTANT_UTF8)
+		free(((ConstantUtf8Info *)info)->bytes);
+	free(info);
+}
+
+# define createConstant (void *)createConstant
+
 ConstantInfo *visitConstantUtf8(ClassBuffer *buffer) {
 	unsigned int idx;
 	ConstantUtf8Info *utf8Info;
-	utf8Info = zalloc(sizeof(ConstantUtf8Info));
+	utf8Info = createConstant(CONSTANT_UTF8);
 
-	utf8Info->tag = CONSTANT_UTF8;
 	utf8Info->length = bufferNextShort(buffer);
 	debug_printf(level3, "Constant Length : %d.\n", utf8Info->length);
 
@@ -24,27 +96,24 @@ ConstantInfo *visitConstantUtf8(ClassBuffer *buffer) {
 
 ConstantInfo *visitConstantInteger(ClassBuffer *buffer) {
 	ConstantIntegerInfo *intInfo;
-	intInfo = zalloc(sizeof(ConstantIntegerInfo));
+	intInfo = createConstant(CONSTANT_INTEGER);
 
-	intInfo->tag = CONSTANT_INTEGER;
 	intInfo->bytes = bufferNextInt(buffer);
 	return (ConstantInfo *)intInfo;
 }
 
 ConstantInfo *visitConstantFloat(ClassBuffer *buffer) {
 	ConstantFloatInfo *floatInfo;
-	floatInfo = zalloc(sizeof(ConstantFloatInfo));
+	floatInfo = createConstant(CONSTANT_FLOAT);
 
-	floatInfo->tag = CONSTANT_FLOAT;
 	floatInfo->bytes = bufferNextInt(buffer);
 	return (ConstantInfo *)floatInfo;
 }
 
 ConstantInfo *visitConstantLong(ClassBuffer *buffer) {
 	ConstantLongInfo *longInfo;
-	longInfo = zalloc(sizeof(ConstantLongInfo));
+	longInfo = createConstant(CONSTANT_LONG);
 
-	longInfo->tag = CONSTANT_LONG;
 	longInfo->high_bytes = bufferNextInt(buffer);
 	longInfo->low_bytes = bufferNextInt(buffer);
 	return (ConstantInfo *)longInfo;
@@ -52,9 +121,8 @@ ConstantInfo *visitConstantLong(ClassBuffer *buffer) {
 
 ConstantInfo *visitConstantDouble(ClassBuffer *buffer) {
 	ConstantDoubleInfo *doubleInfo;
-	doubleInfo = zalloc(sizeof(ConstantDoubleInfo));
+	doubleInfo = createConstant(CONSTANT_DOUBLE);
 
-	doubleInfo->tag = CONSTANT_DOUBLE;
 	doubleInfo->high_bytes = bufferNextInt(buffer);
 	doubleInfo->low_bytes = bufferNextInt(buffer);
 	return (ConstantInfo *)doubleInfo;
@@ -62,27 +130,24 @@ ConstantInfo *visitConstantDouble(ClassBuffer *buffer) {
 
 ConstantInfo *visitConstantClass(ClassBuffer *buffer) {
 	ConstantClassInfo *classInfo;
-	classInfo = zalloc(sizeof(ConstantClassInfo));
+	classInfo = createConstant(CONSTANT_CLASS);
 
-	classInfo->tag = CONSTANT_CLASS;
 	classInfo->name_index = bufferNextShort(buffer);
 	return (ConstantInfo *)classInfo;
 }
 
 ConstantInfo *visitConstantString(ClassBuffer *buffer) {
 	ConstantStringInfo *stringInfo;
-	stringInfo = zalloc(sizeof(ConstantStringInfo));
+	stringInfo = createConstant(CONSTANT_STRING);
 
-	stringInfo->tag = CONSTANT_STRING;
 	stringInfo->string_index = bufferNextShort(buffer);
 	return (ConstantInfo *)stringInfo;
 }
 
 ConstantInfo *visitConstantFieldRef(ClassBuffer *buffer) {
 	ConstantFieldRefInfo *fieldRefInfo;
-	fieldRefInfo = zalloc(sizeof(ConstantFieldRefInfo));
+	fieldRefInfo = createConstant(CONSTANT_FIELD_REF);
 
-	fieldRefInfo->tag = CONSTANT_FIELD_REF;
 	fieldRefInfo->class_index = bufferNextShort(buffer);
 	fieldRefInfo->name_and_type_index = bufferNextShort(buffer);
 	return (ConstantInfo *)fieldRefInfo;
@@ -90,9 +155,8 @@ ConstantInfo *visitConstantFieldRef(ClassBuffer *buffer) {
 
 ConstantInfo *visitConstantMethodRef(ClassBuffer *buffer) {
 	ConstantMethodRefInfo *methodRefInfo;
-	methodRefInfo = zalloc(sizeof(ConstantMethodRefInfo));
+	methodRefInfo = createConstant(CONSTANT_METHOD_REF);
 
-	methodRefInfo->tag = CONSTANT_METHOD_REF;
 	methodRefInfo->class_index = bufferNextShort(buffer);
 	methodRefInfo->name_and_type_index = bufferNextShort(buffer);
 	return (ConstantInfo *)methodRefInfo;
@@ -100,9 +164,8 @@ ConstantInfo *visitConstantMethodRef(ClassBuffer *buffer) {
 
 ConstantInfo *visitConstantInterfaceMethodRef(ClassBuffer *buffer) {
 	ConstantInterfaceMethodRefInfo *methodRefInfo;
-	methodRefInfo = zalloc(sizeof(ConstantInterfaceMethodRefInfo));
+	methodRefInfo = createConstant(CONSTANT_INTERFACE_METHOD_REF);
 
-	methodRefInfo->tag = CONSTANT_INTERFACE_METHOD_REF;
 	methodRefInfo->class_index = bufferNextShort(buffer);
 	methodRefInfo->name_and_type_index = bufferNextShort(buffer);
 	return (ConstantInfo *)methodRefInfo;
@@ -110,9 +173,8 @@ ConstantInfo *visitConstantInterfaceMethodRef(ClassBuffer *buffer) {
 
 ConstantInfo *visitConstantNameAndType(ClassBuffer *buffer) {
 	ConstantNameAndTypeInfo *nameAndTypeInfo;
-	nameAndTypeInfo = zalloc(sizeof(ConstantNameAndTypeInfo));
+	nameAndTypeInfo = createConstant(CONSTANT_NAME_AND_TYPE);
 
-	nameAndTypeInfo->tag = CONSTANT_NAME_AND_TYPE;
 	nameAndTypeInfo->name_index = bufferNextShort(buffer);
 	nameAndTypeInfo->descriptor_index = bufferNextShort(buffer);
 	return (ConstantInfo *)nameAndTypeInfo;
@@ -120,9 +182,8 @@ ConstantInfo *visitConstantNameAndType(ClassBuffer *buffer) {
 
 ConstantInfo *visitConstantMethodHandle(ClassBuffer *buffer) {
 	ConstantMethodHandleInfo *methodHandleInfo;
-	methodHandleInfo = zalloc(sizeof(ConstantMethodHandleInfo));
+	methodHandleInfo = createConstant(CONSTANT_METHOD_HANDLE);
 
-	methodHandleInfo->tag = CONSTANT_METHOD_HANDLE;
 	methodHandleInfo->reference_kind = bufferNextByte(buffer);
 	methodHandleInfo->reference_index = bufferNextShort(buffer);
 	return (ConstantInfo *)methodHandleInfo;
@@ -130,18 +191,16 @@ ConstantInfo *visitConstantMethodHandle(ClassBuffer *buffer) {
 
 ConstantInfo *visitConstantMethodType(ClassBuffer *buffer) {
 	ConstantMethodTypeInfo *methodTypeInfo;
-	methodTypeInfo = zalloc(sizeof(ConstantMethodTypeInfo));
+	methodTypeInfo = createConstant(CONSTANT_METHOD_TYPE);
 
-	methodTypeInfo->tag = CONSTANT_METHOD_TYPE;
 	methodTypeInfo->descriptor_index = bufferNextShort(buffer);
 	return (ConstantInfo *)methodTypeInfo;
 }
 
 ConstantInfo *visitConstantInvokeDynamic(ClassBuffer *buffer) {
 	ConstantInvokeDynamicInfo *invokeDynamicInfo;
-	invokeDynamicInfo = zalloc(sizeof(ConstantInvokeDynamicInfo));
+	invokeDynamicInfo = createConstant(CONSTANT_INVOKE_DYNAMIC);
 
-	invokeDynamicInfo->tag = CONSTANT_INVOKE_DYNAMIC;
 	invokeDynamicInfo->bootstrap_method_attr_index = bufferNextShort(buffer);
 	invokeDynamicInfo->name_and_type_index = bufferNextShort(buffer);
 	return (ConstantInfo *)invokeDynamicInfo;
