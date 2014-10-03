@@ -738,7 +738,7 @@ BootstrapMethodEntry *visitBootstrapMethodEntry(ClassFile *classFile, ClassBuffe
 
 	for(idx = 0; idx < entry->num_arguments; idx++) {
 		uint16_t index = bufferNextShort(buffer);
-		entry->bootstrap_arguments[idx] = classFile->constant_pool[index];
+		entry->bootstrap_arguments[idx] = getConstant(classFile, index);
 	}
 
 	return entry;

@@ -16,12 +16,13 @@ ClassFile *decodeClassFile(FILE *source);
 
 static inline
 void *getConstant(ClassFile *classFile, int idx) {
-	if(idx < 0 || idx >= classFile->constant_pool_count) {
-		fprintf(stderr, "Constant not found. (ID : %d)\n", idx);
+	if(idx < 0 || idx > listSize(classFile->constant_pool)) {
+		fprintf(stderr, "Constant not found. (ID : %d/%d)\n", idx,
+				listSize(classFile->constant_pool));
 		exit(EXIT_FAILURE);
 	}
 
-	return classFile->constant_pool[idx];
+	return listGet(classFile->constant_pool, idx);
 }
 
 # endif /* ClassFile.h */

@@ -3,6 +3,8 @@
 
 # include <stdint.h>
 
+# include "List.h"
+
 enum ConstantType {
 	CONSTANT_UTF8	= 1,
 	CONSTANT_UNUSED0,
@@ -537,8 +539,7 @@ typedef struct {
 	uint16_t	minor_version;
 
 	// Constants Table
-	uint16_t	constant_pool_count;
-	ConstantInfo **constant_pool;
+	List		*constant_pool;
 
 	uint16_t	access_flags;
 
@@ -549,20 +550,16 @@ typedef struct {
 	ConstantClassInfo *super_class;
 
 	// Interfaces Table
-	uint16_t	interfaces_count;
-	ConstantClassInfo **interfaces;
+	List		*interfaces;
 
 	// Fields Table
-	uint16_t	fields_count;
-	FieldInfo	**fields;
+	List		*fields;
 
 	// Methods Table
-	uint16_t	methods_count;
-	MethodInfo	**methods;
+	List		*methods;
 
 	// Attributes Table
-	uint16_t	attributes_count;
-	AttributeInfo **attributes;
+	List		*attributes;
 } ClassFile;
 
 # endif /* Types.h */

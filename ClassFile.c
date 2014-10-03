@@ -17,51 +17,45 @@ ClassFile *createClassFile() {
 }
 
 void deleteClassFile(ClassFile *classFile) {
-	unsigned int idx;
 	if(classFile == NULL) return;
 	if(classFile->interfaces != NULL) {
-		free(classFile->interfaces);
+		deleteList(classFile->interfaces, NULL);
 	}
 	if(classFile->fields != NULL) {
-		for(idx = 0; idx < classFile->fields_count; idx++)
-			deleteMember(classFile->fields[idx]);
-		free(classFile->fields);
+		deleteList(classFile->fields, deleteMember);
 	}
 	if(classFile->methods != NULL) {
-		for(idx = 0; idx < classFile->methods_count; idx++)
-			deleteMember(classFile->methods[idx]);
-		free(classFile->methods);
+		deleteList(classFile->methods, deleteMember);
 	}
 	if(classFile->attributes != NULL) {
-		for(idx = 0; idx < classFile->attributes_count; idx++)
-			deleteAttribute(classFile->attributes[idx]);
-		free(classFile->attributes);
+		deleteList(classFile->attributes, deleteAttribute);
 	}
 	if(classFile->constant_pool != NULL) {
-		for(idx = 0; idx < classFile->constant_pool_count; idx++)
-			deleteConstant(classFile->constant_pool[idx]);
-		free(classFile->constant_pool);
+		deleteList(classFile->constant_pool, deleteConstant);
 	}
 	free(classFile);
 }
 
 void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 
-	classFile->constant_pool_count = bufferNextShort(buffer);
-	debug_printf(level1, "Constant Pool Count : %d.\n", classFile->constant_pool_count);
+	length = bufferNextShort(buffer);
+	debug_printf(level1, "Constant Pool Count : %d.\n", length);
 
-	classFile->constant_pool = zalloc(sizeof(ConstantInfo *) *
-			classFile->constant_pool_count);
-	classFile->constant_pool[0] = NULL;
-	for(idx = 1; idx < classFile->constant_pool_count; idx++) {
+	classFile->constant_pool = createList();
+	listAdd(classFile->constant_pool, NULL);
+
+	for(idx = 1; idx < length; idx++) {
+		ConstantInfo *info;
 		debug_printf(level2, "Constant %d :\n", idx);
-		classFile->constant_pool[idx] = visitConstant(buffer);
-		classFile->constant_pool[idx]->index = idx;
+		info = visitConstant(buffer);
+		info->index = idx;
 
-		if(isLongConstant(classFile->constant_pool[idx])) {
+		listAdd(classFile->constant_pool, info);
+		if(isLongConstant(info)) {
 			debug_printf(level2, "Long Constant; Skipping index.\n");
-			classFile->constant_pool[++idx] = NULL;
+			listAdd(classFile->constant_pool, NULL);
+			idx++;
 		}
 	}
 }
@@ -79,21 +73,21 @@ void visitSuperClass(ClassFile *classFile, ClassBuffer *buffer) {
 }
 
 void visitInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 
-	classFile->interfaces_count = bufferNextShort(buffer);
-	debug_printf(level1, "Interfaces Count : %d.\n", classFile->interfaces_count);
-	classFile->interfaces = zalloc(sizeof(ConstantClassInfo *) * classFile->interfaces_count);
+	length = bufferNextShort(buffer);
+	debug_printf(level1, "Interfaces Count : %d.\n", length);
+	classFile->interfaces = createList();
 
-	for(idx = 0; idx < classFile->interfaces_count; idx++) {
+	for(idx = 0; idx < length; idx++) {
 		uint16_t index = bufferNextShort(buffer);
 		debug_printf(level2, "Interface %d : %d.\n", idx, index);
-		classFile->interfaces[idx] = getConstant(classFile, index);
+		listAdd(classFile->interfaces, getConstant(classFile, index));
 	}
 }
 
 ClassFile *visitClassFile(ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	ClassFile *classFile = createClassFile();
 
 	classFile->magic = bufferNextInt(buffer);
@@ -114,33 +108,33 @@ ClassFile *visitClassFile(ClassBuffer *buffer) {
 	visitInterfaces(classFile, buffer);
 
 	// Fields Table
-	classFile->fields_count = bufferNextShort(buffer);
-	debug_printf(level1, "Fields Count : %d.\n", classFile->fields_count);
-	classFile->fields = zalloc(sizeof(FieldInfo *) * classFile->fields_count);
+	length = bufferNextShort(buffer);
+	debug_printf(level1, "Fields Count : %d.\n", length);
+	classFile->fields = createList();
 
-	for(idx = 0; idx < classFile->fields_count; idx++) {
+	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Field %d :\n", idx);
-		classFile->fields[idx] = visitField(classFile, buffer);
+		listAdd(classFile->fields, visitField(classFile, buffer));
 	}
 
 	// Methods Table
-	classFile->methods_count = bufferNextShort(buffer);
-	debug_printf(level1, "Methods Count : %d.\n", classFile->methods_count);
-	classFile->methods = zalloc(sizeof(MethodInfo *) * classFile->methods_count);
+	length = bufferNextShort(buffer);
+	debug_printf(level1, "Methods Count : %d.\n", length);
+	classFile->methods = createList();
 
-	for(idx = 0; idx < classFile->methods_count; idx++) {
+	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Method %d :\n", idx);
-		classFile->methods[idx] = visitMethod(classFile, buffer);
+		listAdd(classFile->methods, visitMethod(classFile, buffer));
 	}
 
 	// Attributes Table
-	classFile->attributes_count = bufferNextShort(buffer);
-	debug_printf(level1, "Attributes Count : %d.\n", classFile->attributes_count);
-	classFile->attributes = zalloc(sizeof(AttributeInfo *) * classFile->attributes_count);
+	length = bufferNextShort(buffer);
+	debug_printf(level1, "Attributes Count : %d.\n", length);
+	classFile->attributes = createList();
 
-	for(idx = 0; idx < classFile->attributes_count; idx++) {
+	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Attribute %d :\n", idx);
-		classFile->attributes[idx] = visitAttribute(classFile, buffer);
+		listAdd(classFile->attributes, visitAttribute(classFile, buffer));
 	}
 
 	return classFile;
