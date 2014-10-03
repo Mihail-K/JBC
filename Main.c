@@ -19,5 +19,7 @@ int main(int argc, char **argv) {
 	}
 
 	deleteClassFile(decodeClassFile(file));
+	fclose(file);
+
 	return 0;
 }

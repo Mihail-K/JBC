@@ -21,10 +21,10 @@ List *createList() {
 
 void deleteList(List *list, void (* destroy)()) {
 	if(list == NULL) return;
-
-	listClear(list, destroy);
-	if(list->elements != NULL)
+	if(list->elements != NULL) {
+		listClear(list, destroy);
 		free(list->elements);
+	}
 	free(list);
 }
 
@@ -65,7 +65,9 @@ List *listClear(List *list, void (* destroy)()) {
 	if(list == NULL) return NULL;
 	if(destroy != NULL) {
 		for(idx = 0; idx < list->count; idx++) {
-			destroy(list->elements[idx]);
+			if(list->elements[idx] != NULL) {
+				destroy(list->elements[idx]);
+			}
 		}
 	}
 

@@ -13,19 +13,17 @@ MemberInfo *createMember() {
 }
 
 void deleteMember(MemberInfo *member) {
-	unsigned idx;
 	if(member == NULL) return;
 	if(member->attributes != NULL) {
-		for(idx = 0; idx < member->attributes_count; idx++)
-			deleteAttribute(member->attributes[idx]);
-		free(member->attributes);
+		debug_printf(level2, "Deleting member attributes.\n");
+		deleteList(member->attributes, deleteAttribute);
 	}
 	free(member);
 }
 
 MemberInfo *visitMember(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	unsigned int idx;
+	unsigned int idx, length;
 	MemberInfo *member = createMember();
 
 	member->access_flags = bufferNextShort(buffer);
@@ -41,13 +39,13 @@ MemberInfo *visitMember(ClassFile *classFile, ClassBuffer *buffer) {
 	debug_printf(level1, "Member Descriptor : %s.\n", member->descriptor->bytes);
 
 	// Member Attributes Table
-	member->attributes_count = bufferNextShort(buffer);
-	debug_printf(level1, "Member Attributes Count : %d.\n", member->attributes_count);
-	member->attributes = zalloc(sizeof(AttributeInfo *) * member->attributes_count);
+	length = bufferNextShort(buffer);
+	debug_printf(level1, "Member Attributes Count : %d.\n", length);
+	member->attributes = createList();
 
-	for(idx = 0; idx < member->attributes_count; idx++) {
+	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Member Attribute %d :\n", idx);
-		member->attributes[idx] = visitAttribute(classFile, buffer);
+		listAdd(member->attributes, visitAttribute(classFile, buffer));
 	}
 
 	return member;

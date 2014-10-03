@@ -2,16 +2,25 @@
 # include <stdlib.h>
 # include <string.h>
 
+# include "Debug.h"
 # include "ClassFile.h"
 # include "AttributeInfo.h"
 
 void deleteCodeAttribute(CodeAttribute *code) {
 	unsigned int idx;
-	if(code->code != NULL) free(code);
-	if(code->exception_table) {
+	if(code->code != NULL)
+		free(code->code);
+	if(code->exception_table != NULL) {
+		debug_printf(level3, "Deleting exception table.\n");
 		for(idx = 0; idx < code->exception_table_length; idx++)
 			free(code->exception_table[idx]);
 		free(code->exception_table);
+	}
+	if(code->attributes != NULL) {
+		debug_printf(level3, "Deleting code attributes.\n");
+		for(idx = 0; idx < code->attributes_count; idx++)
+			deleteAttribute(code->attributes[idx]);
+		free(code->attributes);
 	}
 	free(code);
 }

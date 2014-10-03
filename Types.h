@@ -169,6 +169,7 @@ typedef struct {
 	uint32_t	code_length;
 	uint8_t		*code;
 
+
 	// Exception Table
 	uint16_t	exception_table_length;
 	ExceptionTableEntry **exception_table;
@@ -524,8 +525,7 @@ typedef struct {
 	ConstantUtf8Info *descriptor;
 
 	// Attributes Table
-	uint16_t	attributes_count;
-	AttributeInfo **attributes;
+	List		*attributes;
 }
 FieldInfo,
 MethodInfo,
