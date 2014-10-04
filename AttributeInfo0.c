@@ -7,20 +7,15 @@
 # include "AttributeInfo.h"
 
 void deleteCodeAttribute(CodeAttribute *code) {
-	unsigned int idx;
 	if(code->code != NULL)
 		free(code->code);
 	if(code->exception_table != NULL) {
 		debug_printf(level3, "Deleting exception table.\n");
-		for(idx = 0; idx < code->exception_table_length; idx++)
-			free(code->exception_table[idx]);
-		free(code->exception_table);
+		deleteList(code->exception_table, free);
 	}
 	if(code->attributes != NULL) {
 		debug_printf(level3, "Deleting code attributes.\n");
-		for(idx = 0; idx < code->attributes_count; idx++)
-			deleteAttribute(code->attributes[idx]);
-		free(code->attributes);
+		deleteList(code->attributes, deleteAttribute);
 	}
 	free(code);
 }
@@ -252,6 +247,8 @@ void deleteAttribute(AttributeInfo *info) {
 		free(info);
 		return;
 	}
+
+	debug_printf(level2, "Deleting attribute : %s.\n", name->bytes);
 
 	// Code Attribute
 	if(!strcmp("Code", (char *)name->bytes)) {

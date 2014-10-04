@@ -14,6 +14,8 @@ MemberInfo *createMember() {
 
 void deleteMember(MemberInfo *member) {
 	if(member == NULL) return;
+	debug_printf(level1, "Deleting member : %s.\n",
+			member->name->bytes);
 	if(member->attributes != NULL) {
 		debug_printf(level2, "Deleting member attributes.\n");
 		deleteList(member->attributes, deleteAttribute);

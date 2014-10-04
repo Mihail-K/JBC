@@ -171,12 +171,10 @@ typedef struct {
 
 
 	// Exception Table
-	uint16_t	exception_table_length;
-	ExceptionTableEntry **exception_table;
+	List		*exception_table;
 
 	// Attribute Table
-	uint16_t	attributes_count;
-	AttributeInfo **attributes;
+	List		*attributes;
 } CodeAttribute;
 
 typedef union {

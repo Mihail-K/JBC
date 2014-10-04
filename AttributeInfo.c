@@ -33,7 +33,7 @@ ExceptionTableEntry *visitExceptionTableEntry(ClassFile *classFile, ClassBuffer 
 }
 
 AttributeInfo *visitCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	CodeAttribute *code = zalloc(sizeof(CodeAttribute));
 
 	// Maximums
@@ -51,23 +51,23 @@ AttributeInfo *visitCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	}
 
 	// Exception Table
-	code->exception_table_length = bufferNextShort(buffer);
-	debug_printf(level2, "Code Exception table length : %d.\n", code->exception_table_length);
-	code->exception_table = zalloc(sizeof(ExceptionTableEntry *) *
-			code->exception_table_length);
+	length = bufferNextShort(buffer);
+	code->exception_table = createList();
+	debug_printf(level2, "Code Exception table length : %d.\n", length);
 
-	for(idx = 0; idx < code->exception_table_length; idx++) {
-		code->exception_table[idx] = visitExceptionTableEntry(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		debug_printf(level2, "Code Exception table entry %d :\n", idx);
+		listAdd(code->exception_table, visitExceptionTableEntry(classFile, buffer));
 	}
 
 	// Attributes Table
-	code->attributes_count = bufferNextShort(buffer);
-	debug_printf(level2, "Code Attributes count : %d.\n", code->attributes_count);
-	code->attributes = zalloc(sizeof(AttributeInfo *) * code->attributes_count);
+	length = bufferNextShort(buffer);
+	code->attributes = createList();
+	debug_printf(level2, "Code Attributes count : %d.\n", length);
 
-	for(idx = 0; idx < code->attributes_count; idx++) {
+	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Code Attribute %d :\n", idx);
-		code->attributes[idx] = visitAttribute(classFile, buffer);
+		listAdd(code->attributes, visitAttribute(classFile, buffer));
 	}
 
 	return (AttributeInfo *)code;
