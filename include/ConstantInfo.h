@@ -9,7 +9,7 @@ ConstantInfo *createConstant(uint8_t type);
 
 void deleteConstant(ConstantInfo *info);
 
-ConstantInfo *visitConstant(ClassBuffer *buffer);
+ConstantInfo *decodeConstant(ClassBuffer *buffer);
 
 static inline
 int isLongConstant(ConstantInfo *info) {

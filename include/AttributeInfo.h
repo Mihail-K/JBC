@@ -9,6 +9,6 @@
 
 void deleteAttribute(AttributeInfo *info);
 
-AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer);
+AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer);
 
 # endif /* AttributeInfo.h */

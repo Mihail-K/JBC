@@ -1,29 +1,13 @@
 
-# include <string.h>
-
+# include "List.h"
 # include "Debug.h"
-# include "Zalloc.h"
+
 # include "ClassFile.h"
 # include "MemberInfo.h"
+# include "ConstantInfo.h"
 # include "AttributeInfo.h"
 
-MemberInfo *createMember() {
-	MemberInfo *info = zalloc(sizeof(MemberInfo));
-	return memset(info, 0, sizeof(MemberInfo));
-}
-
-void deleteMember(MemberInfo *member) {
-	if(member == NULL) return;
-	debug_printf(level1, "Deleting member : %s.\n",
-			member->name->bytes);
-	if(member->attributes != NULL) {
-		debug_printf(level2, "Deleting member attributes.\n");
-		deleteList(member->attributes, deleteAttribute);
-	}
-	free(member);
-}
-
-MemberInfo *visitMember(ClassFile *classFile, ClassBuffer *buffer) {
+MemberInfo *decodeMember(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
 	unsigned int idx, length;
 	MemberInfo *member = createMember();
@@ -47,7 +31,7 @@ MemberInfo *visitMember(ClassFile *classFile, ClassBuffer *buffer) {
 
 	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Member Attribute %d :\n", idx);
-		listAdd(member->attributes, visitAttribute(classFile, buffer));
+		listAdd(member->attributes, decodeAttribute(classFile, buffer));
 	}
 
 	return member;

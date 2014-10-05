@@ -1,42 +1,15 @@
 
-# include <stdio.h>
-# include <string.h>
-
+# include "List.h"
 # include "Debug.h"
 # include "Zalloc.h"
+# include "ClassFile.h"
 # include "ClassBuffer.h"
 
-# include "ClassFile.h"
 # include "MemberInfo.h"
 # include "ConstantInfo.h"
 # include "AttributeInfo.h"
 
-ClassFile *createClassFile() {
-	ClassFile *classFile = zalloc(sizeof(ClassFile));
-	return memset(classFile, 0, sizeof(ClassFile));
-}
-
-void deleteClassFile(ClassFile *classFile) {
-	if(classFile == NULL) return;
-	if(classFile->interfaces != NULL) {
-		deleteList(classFile->interfaces, NULL);
-	}
-	if(classFile->fields != NULL) {
-		deleteList(classFile->fields, deleteMember);
-	}
-	if(classFile->methods != NULL) {
-		deleteList(classFile->methods, deleteMember);
-	}
-	if(classFile->attributes != NULL) {
-		deleteList(classFile->attributes, deleteAttribute);
-	}
-	if(classFile->constant_pool != NULL) {
-		deleteList(classFile->constant_pool, deleteConstant);
-	}
-	free(classFile);
-}
-
-void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
+void decodeConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
 
 	length = bufferNextShort(buffer);
@@ -48,7 +21,7 @@ void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 	for(idx = 1; idx < length; idx++) {
 		ConstantInfo *info;
 		debug_printf(level2, "Constant %d :\n", idx);
-		info = visitConstant(buffer);
+		info = decodeConstant(buffer);
 		info->index = idx;
 
 		listAdd(classFile->constant_pool, info);
@@ -60,19 +33,19 @@ void visitConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 	}
 }
 
-void visitThisClass(ClassFile *classFile, ClassBuffer *buffer) {
+void decodeThisClass(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index = bufferNextShort(buffer);
 	debug_printf(level3, "This Class : %d.\n", index);
 	classFile->this_class = getConstant(classFile, index);
 }
 
-void visitSuperClass(ClassFile *classFile, ClassBuffer *buffer) {
+void decodeSuperClass(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index = bufferNextShort(buffer);
 	debug_printf(level3, "Super Class : %d.\n", index);
 	classFile->super_class = getConstant(classFile, index);
 }
 
-void visitInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
+void decodeInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
 
 	length = bufferNextShort(buffer);
@@ -86,7 +59,7 @@ void visitInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
 	}
 }
 
-ClassFile *visitClassFile(ClassBuffer *buffer) {
+ClassFile *decodeClassData(ClassBuffer *buffer) {
 	unsigned int idx, length;
 	ClassFile *classFile = createClassFile();
 
@@ -98,14 +71,14 @@ ClassFile *visitClassFile(ClassBuffer *buffer) {
 	debug_printf(level0, "Major Version : %d.\n", classFile->major_version);
 	debug_printf(level0, "Minor Version : %d.\n", classFile->minor_version);
 
-	visitConstantPool(classFile, buffer);
+	decodeConstantPool(classFile, buffer);
 
 	classFile->access_flags = bufferNextShort(buffer);
 	debug_printf(level3, "Access Flags : %#X.\n", classFile->access_flags);
 
-	visitThisClass(classFile, buffer);
-	visitSuperClass(classFile, buffer);
-	visitInterfaces(classFile, buffer);
+	decodeThisClass(classFile, buffer);
+	decodeSuperClass(classFile, buffer);
+	decodeInterfaces(classFile, buffer);
 
 	// Fields Table
 	length = bufferNextShort(buffer);
@@ -114,7 +87,7 @@ ClassFile *visitClassFile(ClassBuffer *buffer) {
 
 	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Field %d :\n", idx);
-		listAdd(classFile->fields, visitField(classFile, buffer));
+		listAdd(classFile->fields, decodeField(classFile, buffer));
 	}
 
 	// Methods Table
@@ -124,7 +97,7 @@ ClassFile *visitClassFile(ClassBuffer *buffer) {
 
 	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Method %d :\n", idx);
-		listAdd(classFile->methods, visitMethod(classFile, buffer));
+		listAdd(classFile->methods, decodeMethod(classFile, buffer));
 	}
 
 	// Attributes Table
@@ -134,7 +107,7 @@ ClassFile *visitClassFile(ClassBuffer *buffer) {
 
 	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Attribute %d :\n", idx);
-		listAdd(classFile->attributes, visitAttribute(classFile, buffer));
+		listAdd(classFile->attributes, decodeAttribute(classFile, buffer));
 	}
 
 	return classFile;
@@ -143,10 +116,9 @@ ClassFile *visitClassFile(ClassBuffer *buffer) {
 ClassFile *decodeClassFile(FILE *source) {
 	debug_printf(level0, "Creating Class buffer.\n");
 	ClassBuffer *buffer = createBuffer(source);
-	debug_printf(level0, "Visiting Class file :\n");
-	ClassFile *classFile = visitClassFile(buffer);
+	debug_printf(level0, "decodeing Class file :\n");
+	ClassFile *classFile = decodeClassData(buffer);
 	debug_printf(level0, "Finished Class file.\n");
 	deleteBuffer(buffer);
 	return classFile;
 }
-

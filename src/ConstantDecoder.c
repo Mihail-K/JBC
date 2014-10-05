@@ -1,82 +1,11 @@
 
-# include <string.h>
-
 # include "Debug.h"
 # include "Zalloc.h"
 # include "ConstantInfo.h"
 
-ConstantInfo *createConstant(uint8_t type) {
-	ConstantInfo *info;
-
-	switch(type) {
-		case CONSTANT_UTF8:
-			info = zalloc(sizeof(ConstantUtf8Info));
-			memset(info, 0, sizeof(ConstantUtf8Info));
-			break;
-		case CONSTANT_INTEGER:
-			info = zalloc(sizeof(ConstantIntegerInfo));
-			memset(info, 0, sizeof(ConstantIntegerInfo));
-			break;
-		case CONSTANT_FLOAT:
-			info = zalloc(sizeof(ConstantFloatInfo));
-			memset(info, 0, sizeof(ConstantFloatInfo));
-			break;
-		case CONSTANT_LONG:
-			info = zalloc(sizeof(ConstantLongInfo));
-			memset(info, 0, sizeof(ConstantLongInfo));
-			break;
-		case CONSTANT_DOUBLE:
-			info = zalloc(sizeof(ConstantDoubleInfo));
-			memset(info, 0, sizeof(ConstantDoubleInfo));
-			break;
-		case CONSTANT_CLASS:
-			info = zalloc(sizeof(ConstantClassInfo));
-			memset(info, 0, sizeof(ConstantClassInfo));
-			break;
-		case CONSTANT_STRING:
-			info = zalloc(sizeof(ConstantStringInfo));
-			memset(info, 0, sizeof(ConstantStringInfo));
-			break;
-		case CONSTANT_FIELD_REF:
-		case CONSTANT_METHOD_REF:
-		case CONSTANT_INTERFACE_METHOD_REF:
-			info = zalloc(sizeof(ConstantFieldRefInfo));
-			memset(info, 0, sizeof(ConstantFieldRefInfo));
-			break;
-		case CONSTANT_NAME_AND_TYPE:
-			info = zalloc(sizeof(ConstantNameAndTypeInfo));
-			memset(info, 0, sizeof(ConstantNameAndTypeInfo));
-			break;
-		case CONSTANT_METHOD_HANDLE:
-			info = zalloc(sizeof(ConstantMethodHandleInfo));
-			memset(info, 0, sizeof(ConstantMethodHandleInfo));
-			break;
-		case CONSTANT_METHOD_TYPE:
-			info = zalloc(sizeof(ConstantMethodTypeInfo));
-			memset(info, 0, sizeof(ConstantMethodTypeInfo));
-			break;
-		case CONSTANT_INVOKE_DYNAMIC:
-			info = zalloc(sizeof(ConstantInvokeDynamicInfo));
-			memset(info, 0, sizeof(ConstantInvokeDynamicInfo));
-			break;
-		default:
-			return NULL;
-	}
-
-	info->tag = type;
-	return info;
-}
-
-void deleteConstant(ConstantInfo *info) {
-	if(info == NULL) return;
-	if(info->tag == CONSTANT_UTF8)
-		free(((ConstantUtf8Info *)info)->bytes);
-	free(info);
-}
-
 # define createConstant (void *)createConstant
 
-ConstantInfo *visitConstantUtf8(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantUtf8(ClassBuffer *buffer) {
 	unsigned int idx;
 	ConstantUtf8Info *utf8Info;
 	utf8Info = createConstant(CONSTANT_UTF8);
@@ -94,7 +23,7 @@ ConstantInfo *visitConstantUtf8(ClassBuffer *buffer) {
 	return (ConstantInfo *)utf8Info;
 }
 
-ConstantInfo *visitConstantInteger(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantInteger(ClassBuffer *buffer) {
 	ConstantIntegerInfo *intInfo;
 	intInfo = createConstant(CONSTANT_INTEGER);
 
@@ -102,7 +31,7 @@ ConstantInfo *visitConstantInteger(ClassBuffer *buffer) {
 	return (ConstantInfo *)intInfo;
 }
 
-ConstantInfo *visitConstantFloat(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantFloat(ClassBuffer *buffer) {
 	ConstantFloatInfo *floatInfo;
 	floatInfo = createConstant(CONSTANT_FLOAT);
 
@@ -110,7 +39,7 @@ ConstantInfo *visitConstantFloat(ClassBuffer *buffer) {
 	return (ConstantInfo *)floatInfo;
 }
 
-ConstantInfo *visitConstantLong(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantLong(ClassBuffer *buffer) {
 	ConstantLongInfo *longInfo;
 	longInfo = createConstant(CONSTANT_LONG);
 
@@ -119,7 +48,7 @@ ConstantInfo *visitConstantLong(ClassBuffer *buffer) {
 	return (ConstantInfo *)longInfo;
 }
 
-ConstantInfo *visitConstantDouble(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantDouble(ClassBuffer *buffer) {
 	ConstantDoubleInfo *doubleInfo;
 	doubleInfo = createConstant(CONSTANT_DOUBLE);
 
@@ -128,7 +57,7 @@ ConstantInfo *visitConstantDouble(ClassBuffer *buffer) {
 	return (ConstantInfo *)doubleInfo;
 }
 
-ConstantInfo *visitConstantClass(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantClass(ClassBuffer *buffer) {
 	ConstantClassInfo *classInfo;
 	classInfo = createConstant(CONSTANT_CLASS);
 
@@ -136,7 +65,7 @@ ConstantInfo *visitConstantClass(ClassBuffer *buffer) {
 	return (ConstantInfo *)classInfo;
 }
 
-ConstantInfo *visitConstantString(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantString(ClassBuffer *buffer) {
 	ConstantStringInfo *stringInfo;
 	stringInfo = createConstant(CONSTANT_STRING);
 
@@ -144,7 +73,7 @@ ConstantInfo *visitConstantString(ClassBuffer *buffer) {
 	return (ConstantInfo *)stringInfo;
 }
 
-ConstantInfo *visitConstantFieldRef(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantFieldRef(ClassBuffer *buffer) {
 	ConstantFieldRefInfo *fieldRefInfo;
 	fieldRefInfo = createConstant(CONSTANT_FIELD_REF);
 
@@ -153,7 +82,7 @@ ConstantInfo *visitConstantFieldRef(ClassBuffer *buffer) {
 	return (ConstantInfo *)fieldRefInfo;
 }
 
-ConstantInfo *visitConstantMethodRef(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantMethodRef(ClassBuffer *buffer) {
 	ConstantMethodRefInfo *methodRefInfo;
 	methodRefInfo = createConstant(CONSTANT_METHOD_REF);
 
@@ -162,7 +91,7 @@ ConstantInfo *visitConstantMethodRef(ClassBuffer *buffer) {
 	return (ConstantInfo *)methodRefInfo;
 }
 
-ConstantInfo *visitConstantInterfaceMethodRef(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantInterfaceMethodRef(ClassBuffer *buffer) {
 	ConstantInterfaceMethodRefInfo *methodRefInfo;
 	methodRefInfo = createConstant(CONSTANT_INTERFACE_METHOD_REF);
 
@@ -171,7 +100,7 @@ ConstantInfo *visitConstantInterfaceMethodRef(ClassBuffer *buffer) {
 	return (ConstantInfo *)methodRefInfo;
 }
 
-ConstantInfo *visitConstantNameAndType(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantNameAndType(ClassBuffer *buffer) {
 	ConstantNameAndTypeInfo *nameAndTypeInfo;
 	nameAndTypeInfo = createConstant(CONSTANT_NAME_AND_TYPE);
 
@@ -180,7 +109,7 @@ ConstantInfo *visitConstantNameAndType(ClassBuffer *buffer) {
 	return (ConstantInfo *)nameAndTypeInfo;
 }
 
-ConstantInfo *visitConstantMethodHandle(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantMethodHandle(ClassBuffer *buffer) {
 	ConstantMethodHandleInfo *methodHandleInfo;
 	methodHandleInfo = createConstant(CONSTANT_METHOD_HANDLE);
 
@@ -189,7 +118,7 @@ ConstantInfo *visitConstantMethodHandle(ClassBuffer *buffer) {
 	return (ConstantInfo *)methodHandleInfo;
 }
 
-ConstantInfo *visitConstantMethodType(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantMethodType(ClassBuffer *buffer) {
 	ConstantMethodTypeInfo *methodTypeInfo;
 	methodTypeInfo = createConstant(CONSTANT_METHOD_TYPE);
 
@@ -197,7 +126,7 @@ ConstantInfo *visitConstantMethodType(ClassBuffer *buffer) {
 	return (ConstantInfo *)methodTypeInfo;
 }
 
-ConstantInfo *visitConstantInvokeDynamic(ClassBuffer *buffer) {
+ConstantInfo *decodeConstantInvokeDynamic(ClassBuffer *buffer) {
 	ConstantInvokeDynamicInfo *invokeDynamicInfo;
 	invokeDynamicInfo = createConstant(CONSTANT_INVOKE_DYNAMIC);
 
@@ -206,52 +135,52 @@ ConstantInfo *visitConstantInvokeDynamic(ClassBuffer *buffer) {
 	return (ConstantInfo *)invokeDynamicInfo;
 }
 
-ConstantInfo *visitConstant(ClassBuffer *buffer) {
+ConstantInfo *decodeConstant(ClassBuffer *buffer) {
 	uint8_t tag = bufferNextByte(buffer);
 
 	switch(tag) {
 		case CONSTANT_UTF8:
 			debug_printf(level2, "Constant UTF8.\n");
-			return visitConstantUtf8(buffer);
+			return decodeConstantUtf8(buffer);
 		case CONSTANT_INTEGER:
 			debug_printf(level2, "Constant Integer.\n");
-			return visitConstantInteger(buffer);
+			return decodeConstantInteger(buffer);
 		case CONSTANT_FLOAT:
 			debug_printf(level2, "Constant Float.\n");
-			return visitConstantFloat(buffer);
+			return decodeConstantFloat(buffer);
 		case CONSTANT_LONG:
 			debug_printf(level2, "Constant Long.\n");
-			return visitConstantLong(buffer);
+			return decodeConstantLong(buffer);
 		case CONSTANT_DOUBLE:
 			debug_printf(level2, "Constant Double.\n");
-			return visitConstantDouble(buffer);
+			return decodeConstantDouble(buffer);
 		case CONSTANT_CLASS:
 			debug_printf(level2, "Constant Class.\n");
-			return visitConstantClass(buffer);
+			return decodeConstantClass(buffer);
 		case CONSTANT_STRING:
 			debug_printf(level2, "Constant String.\n");
-			return visitConstantString(buffer);
+			return decodeConstantString(buffer);
 		case CONSTANT_FIELD_REF:
 			debug_printf(level2, "Constant Field Ref.\n");
-			return visitConstantFieldRef(buffer);
+			return decodeConstantFieldRef(buffer);
 		case CONSTANT_METHOD_REF:
 			debug_printf(level2, "Constant Method Ref.\n");
-			return visitConstantMethodRef(buffer);
+			return decodeConstantMethodRef(buffer);
 		case CONSTANT_INTERFACE_METHOD_REF:
 			debug_printf(level2, "Constant Interface Method Ref.\n");
-			return visitConstantInterfaceMethodRef(buffer);
+			return decodeConstantInterfaceMethodRef(buffer);
 		case CONSTANT_NAME_AND_TYPE:
 			debug_printf(level2, "Constant Name And Type.\n");
-			return visitConstantNameAndType(buffer);
+			return decodeConstantNameAndType(buffer);
 		case CONSTANT_METHOD_HANDLE:
 			debug_printf(level2, "Constant Method Handle.\n");
-			return visitConstantMethodHandle(buffer);
+			return decodeConstantMethodHandle(buffer);
 		case CONSTANT_METHOD_TYPE:
 			debug_printf(level2, "Constant Method Type.\n");
-			return visitConstantMethodType(buffer);
+			return decodeConstantMethodType(buffer);
 		case CONSTANT_INVOKE_DYNAMIC:
 			debug_printf(level2, "Constant Invoke Dynamic.\n");
-			return visitConstantInvokeDynamic(buffer);
+			return decodeConstantInvokeDynamic(buffer);
 		case (uint8_t)-1:
 			fprintf(stderr, "Unexpected end of file.\n");
 			exit(EXIT_FAILURE);
