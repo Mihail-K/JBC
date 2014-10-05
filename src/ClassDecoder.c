@@ -116,9 +116,8 @@ ClassFile *decodeClassData(ClassBuffer *buffer) {
 ClassFile *decodeClassFile(FILE *source) {
 	debug_printf(level0, "Creating Class buffer.\n");
 	ClassBuffer *buffer = createBuffer(source);
-	debug_printf(level0, "decodeing Class file :\n");
+	debug_printf(level0, "Decoding Class file :\n");
 	ClassFile *classFile = decodeClassData(buffer);
 	debug_printf(level0, "Finished Class file.\n");
-	deleteBuffer(buffer);
 	return classFile;
 }

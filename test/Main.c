@@ -21,5 +21,7 @@ int main(int argc, char **argv) {
 	deleteClassFile(decodeClassFile(file));
 	fclose(file);
 
+	printf("Done!\n");
+
 	return 0;
 }

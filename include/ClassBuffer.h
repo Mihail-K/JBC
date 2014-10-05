@@ -1,15 +1,16 @@
 # ifndef __CLASSBUFFER_H__
 # define __CLASSBUFFER_H__
 
+# include <stdio.h>
 # include <stdint.h>
 
-typedef struct ClassBuffer ClassBuffer;
+typedef FILE ClassBuffer;
 
 ClassBuffer *createBuffer(FILE *classFile);
 
 void deleteBuffer(ClassBuffer *buffer);
 
-unsigned int bufferPos(ClassBuffer *buffer);
+long int bufferPos(ClassBuffer *buffer);
 
 uint8_t bufferNextByte(ClassBuffer *buffer);
 
