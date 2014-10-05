@@ -2,8 +2,11 @@
 CFLAGS = -Werror -Wall -Wextra
 CPPFLAGS = -D _DEBUG=3 -I include/
 
-objects = ClassBuffer.o ClassBuilder.o List.o ClassFile.o ClassDecoder.o ConstantDecoder.o \
-	ConstantEncoder.o ConstantInfo.o MemberDecoder.o MemberInfo.o AttributeDecoder.o AttributeInfo.o
+objects = ClassBuffer.o ClassBuilder.o List.o \
+	ClassFile.o ClassDecoder.o ClassEncoder.o \
+	ConstantDecoder.o ConstantEncoder.o ConstantInfo.o \
+	MemberDecoder.o MemberEncoder.o MemberInfo.o \
+	AttributeEncoder.o AttributeDecoder.o AttributeInfo.o
 
 all: libjbc.a test
 
