@@ -47,17 +47,10 @@ void deleteStackMapListFrame(StackMapListFrame *frame) {
 }
 
 void deleteStackMapFullFrame(StackMapFullFrame *frame) {
-	unsigned int idx;
-	if(frame->locals != NULL) {
-		for(idx = 0; idx < frame->number_of_locals; idx++)
-			free(frame->locals[idx]);
-		free(frame->locals);
-	}
-	if(frame->stack != NULL) {
-		for(idx = 0; idx < frame->number_of_stack_items; idx++)
-			free(frame->stack[idx]);
-		free(frame->stack);
-	}
+	if(frame->locals != NULL)
+		deleteList(frame->locals, free);
+	if(frame->stack != NULL)
+		deleteList(frame->stack, free);
 	free(frame);
 }
 
@@ -96,75 +89,51 @@ void deleteStackMapFrame(StackMapFrame *frame) {
 }
 
 void deleteStackMapTableAttribute(StackMapTableAttribute *table) {
-	unsigned int idx;
-	if(table->entries != NULL) {
-		for(idx = 0; idx < table->number_of_entries; idx++)
-			deleteStackMapFrame(table->entries[idx]);
-		free(table->entries);
-	}
+	if(table->entries != NULL)
+		deleteList(table->entries, deleteStackMapFrame);
 	free(table);
 }
 
 void deleteExceptionsAttribute(ExceptionsAttribute *except) {
 	if(except->exception_table != NULL)
-		free(except->exception_table);
+		deleteList(except->exception_table, NULL);
 	free(except);
 }
 
 void deleteInnerClassesAttribute(InnerClassesAttribute *inner) {
-	unsigned int idx;
-	if(inner->classes != NULL) {
-		for(idx = 0; idx < inner->number_of_classes; idx++)
-			free(inner->classes[idx]);
-		free(inner->classes);
-	}
+	if(inner->classes != NULL)
+		deleteList(inner->classes, free);
 	free(inner);
 }
 
 void deleteLineNumberTableAttribute(LineNumberTableAttribute *table) {
-	unsigned int idx;
-	if(table->line_number_table != NULL) {
-		for(idx = 0; idx < table->line_number_table_length; idx++)
-			free(table->line_number_table[idx]);
-		free(table->line_number_table);
-	}
+	if(table->line_number_table != NULL)
+		deleteList(table->line_number_table, free);
 	free(table);
 }
 
 void deleteLocalVariableTableAttribute(LocalVariableTableAttribute *table) {
-	unsigned int idx;
-	if(table->local_variable_table != NULL) {
-		for(idx = 0; idx < table->local_variable_table_length; idx++)
-			free(table->local_variable_table[idx]);
-		free(table->local_variable_table);
-	}
+	if(table->local_variable_table != NULL)
+		deleteList(table->local_variable_table, free);
 	free(table);
 }
 
 void deleteLocalVariableTypeTableAttribute(LocalVariableTypeTableAttribute *table) {
-	unsigned int idx;
-	if(table->local_variable_type_table != NULL) {
-		for(idx = 0; idx < table->local_variable_type_table_length; idx++)
-			free(table->local_variable_type_table[idx]);
-		free(table->local_variable_type_table);
-	}
+	if(table->local_variable_type_table != NULL)
+		deleteList(table->local_variable_type_table, free);
 	free(table);
 }
 
 void deleteElementValue(ElementValue *value) {
 	extern void deleteAnnotationEntry(AnnotationEntry *);
-	unsigned int idx;
 
 	switch(value->tag) {
 		case '@':
 			deleteAnnotationEntry(value->value.annotation_value);
 			break;
 		case '[':
-			if(value->value.array_value.values != NULL) {
-				for(idx = 0; idx < value->value.array_value.num_values; idx++)
-					deleteElementValue(value->value.array_value.values[idx]);
-				free(value->value.array_value.values);
-			}
+			if(value->value.array_value.values != NULL)
+				deleteList(value->value.array_value.values, deleteElementValue);
 			break;
 	}
 	free(value);
@@ -177,42 +146,26 @@ void deleteElementValuePairsEntry(ElementValuePairsEntry *entry) {
 }
 
 void deleteAnnotationEntry(AnnotationEntry *entry) {
-	unsigned int idx;
-	if(entry->element_value_pairs != NULL) {
-		for(idx = 0; idx < entry->num_element_value_pairs; idx++)
-			deleteElementValuePairsEntry(entry->element_value_pairs[idx]);
-		free(entry->element_value_pairs);
-	}
+	if(entry->element_value_pairs != NULL)
+		deleteList(entry->element_value_pairs, deleteElementValuePairsEntry);
 	free(entry);
 }
 
 void deleteRuntimeAnnotationsAttribute(RuntimeAnnotationsAttribute *annot) {
-	unsigned int idx;
-	if(annot->annotations != NULL) {
-		for(idx = 0; idx < annot->num_annotations; idx++)
-			deleteAnnotationEntry(annot->annotations[idx]);
-		free(annot->annotations);
-	}
+	if(annot->annotations != NULL)
+		deleteList(annot->annotations, deleteAnnotationEntry);
 	free(annot);
 }
 
 void deleteParameterAnnotationsEntry(ParameterAnnotationsEntry *entry) {
-	unsigned int idx;
-	if(entry->annotations != NULL) {
-		for(idx = 0; idx < entry->num_annotations; idx++)
-			deleteAnnotationEntry(entry->annotations[idx]);
-		free(entry->annotations);
-	}
+	if(entry->annotations != NULL)
+		deleteList(entry->annotations, deleteAnnotationEntry);
 	free(entry);
 }
 
 void deleteRuntimeParameterAnnotationsAttribute(RuntimeParameterAnnotationsAttribute *annot) {
-	unsigned int idx;
-	if(annot->parameter_annotations != NULL) {
-		for(idx = 0; idx < annot->num_parameters; idx++)
-			deleteParameterAnnotationsEntry(annot->parameter_annotations[idx]);
-		free(annot->parameter_annotations);
-	}
+	if(annot->parameter_annotations != NULL)
+		deleteList(annot->parameter_annotations, deleteParameterAnnotationsEntry);
 	free(annot);
 }
 
@@ -224,17 +177,13 @@ void deleteAnnotationDefaultAttribute(AnnotationDefaultAttribute *value) {
 
 void deleteBootstrapMethodEntry(BootstrapMethodEntry *entry) {
 	if(entry->bootstrap_arguments != NULL)
-		free(entry->bootstrap_arguments);
+		deleteList(entry->bootstrap_arguments, NULL);
 	free(entry);
 }
 
 void deleteBootstrapMethodsAttribute(BootstrapMethodsAttribute *bootstrap) {
-	unsigned int idx;
-	if(bootstrap->bootstrap_methods != NULL) {
-		for(idx = 0; idx < bootstrap->num_bootstrap_methods; idx++)
-			deleteBootstrapMethodEntry(bootstrap->bootstrap_methods[idx]);
-		free(bootstrap->bootstrap_methods);
-	}
+	if(bootstrap->bootstrap_methods != NULL)
+		deleteList(bootstrap->bootstrap_methods, deleteBootstrapMethodEntry);
 	free(bootstrap);
 }
 

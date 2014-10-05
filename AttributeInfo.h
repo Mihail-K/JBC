@@ -4,6 +4,9 @@
 # include "Types.h"
 # include "ClassBuffer.h"
 
+# define createAttribute(TYPE)	\
+	memset(zalloc(sizeof(TYPE)), 0, sizeof(TYPE))
+
 void deleteAttribute(AttributeInfo *info);
 
 AttributeInfo *visitAttribute(ClassFile *classFile, ClassBuffer *buffer);

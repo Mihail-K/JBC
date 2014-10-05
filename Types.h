@@ -235,12 +235,10 @@ typedef struct {
 	uint16_t	offset_delta;
 
 	// Local Items
-	uint16_t	number_of_locals;
-	VerificationTypeInfo **locals;
+	List		*locals;
 
 	// Stack Items
-	uint16_t	number_of_stack_items;
-	VerificationTypeInfo **stack;
+	List		*stack;
 } StackMapFullFrame;
 
 typedef struct {
@@ -248,8 +246,7 @@ typedef struct {
 	uint32_t	attribute_length;
 
 	// Stack Frame Map Entries
-	uint16_t	number_of_entries;
-	StackMapFrame **entries;
+	List		*entries;
 } StackMapTableAttribute;
 
 typedef struct {
@@ -257,8 +254,7 @@ typedef struct {
 	uint32_t	attribute_length;
 
 	// Exception Table
-	uint16_t	number_of_exceptions;
-	ConstantClassInfo **exception_table;
+	List		*exception_table;
 } ExceptionsAttribute;
 
 typedef enum {
@@ -293,8 +289,7 @@ typedef struct {
 	uint32_t	attribute_length;
 
 	// Inner Classes
-	uint16_t	number_of_classes;
-	InnerClassEntry **classes;
+	List		*classes;
 } InnerClassesAttribute;
 
 typedef struct {
@@ -347,8 +342,7 @@ typedef struct {
 	uint32_t	attribute_length;
 
 	// Line Number Table
-	uint16_t	line_number_table_length;
-	LineNumberTableEntry **line_number_table;
+	List		*line_number_table;
 } LineNumberTableAttribute;
 
 typedef struct {
@@ -369,8 +363,7 @@ typedef struct {
 	uint32_t	attribute_length;
 
 	// Local Variable Table
-	uint16_t	local_variable_table_length;
-	LocalVariableTableEntry **local_variable_table;
+	List		*local_variable_table;
 } LocalVariableTableAttribute;
 
 typedef struct {
@@ -391,8 +384,7 @@ typedef struct {
 	uint32_t	attribute_length;
 
 	// Local Variable Type Table
-	uint16_t	local_variable_type_table_length;
-	LocalVariableTypeTableEntry **local_variable_type_table;
+	List		*local_variable_type_table;
 } LocalVariableTypeTableAttribute;
 
 typedef struct {
@@ -427,8 +419,7 @@ struct sElementValue {
 
 		// Array Value
 		struct {
-			uint16_t	num_values;
-			ElementValue **values;
+			List		*values;
 		} array_value;
 	} value;
 };
@@ -446,8 +437,7 @@ struct sAnnotationEntry {
 	ConstantUtf8Info *type;
 
 	// Element-Value Pairs Table
-	uint16_t	num_element_value_pairs;
-	ElementValuePairsEntry **element_value_pairs;
+	List		*element_value_pairs;
 };
 
 typedef struct {
@@ -455,8 +445,7 @@ typedef struct {
 	uint32_t	attribute_length;
 
 	// Annotations Table
-	uint16_t	num_annotations;
-	AnnotationEntry **annotations;
+	List		*annotations;
 }
 RuntimeAnnotationsAttribute,
 RuntimeVisibleAnnotationsAttribute,
@@ -464,8 +453,7 @@ RuntimeInvisibleAnnotationsAttribute;
 
 typedef struct {
 	// Annotations Table
-	uint16_t	num_annotations;
-	AnnotationEntry **annotations;
+	List		*annotations;
 } ParameterAnnotationsEntry;
 
 typedef struct {
@@ -473,8 +461,7 @@ typedef struct {
 	uint32_t	attribute_length;
 
 	// Parameters Table
-	uint8_t		num_parameters;
-	ParameterAnnotationsEntry **parameter_annotations;
+	List		*parameter_annotations;
 }
 RuntimeParameterAnnotationsAttribute,
 RuntimeVisibleParameterAnnotationsAttribute,
@@ -493,8 +480,7 @@ typedef struct {
 	ConstantMethodHandleInfo *bootstrap_method_ref;
 
 	// Bootstrap Argument Table
-	uint16_t	num_arguments;
-	ConstantInfo **bootstrap_arguments;
+	List		*bootstrap_arguments;
 } BootstrapMethodEntry;
 
 typedef struct {
@@ -502,8 +488,7 @@ typedef struct {
 	uint32_t	attribute_length;
 
 	// Bootstrap Method Table
-	uint16_t	num_bootstrap_methods;
-	BootstrapMethodEntry **bootstrap_methods;
+	List		*bootstrap_methods;
 } BootstrapMethodsAttribute;
 
 /* Field/Method Info */

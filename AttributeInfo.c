@@ -172,27 +172,25 @@ StackMapFrame *visitStackMapListFrame(
 }
 
 StackMapFrame *visitStackMapFullFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	StackMapFullFrame *frame = zalloc(sizeof(StackMapFullFrame));
 
 	frame->offset_delta = bufferNextShort(buffer);
 
 	// Stack Frame Locals
-	frame->number_of_locals = bufferNextShort(buffer);
-	frame->locals = zalloc(sizeof(VerificationTypeInfo *) *
-			frame->number_of_locals);
+	length = bufferNextShort(buffer);
+	frame->locals = createList();
 
-	for(idx = 0; idx < frame->number_of_locals; idx++) {
-		frame->locals[idx] = visitVerificationTypeInfo(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		listAdd(frame->locals, visitVerificationTypeInfo(classFile, buffer));
 	}
 
 	// Stack Frame Items
-	frame->number_of_stack_items = bufferNextShort(buffer);
-	frame->stack = zalloc(sizeof(VerificationTypeInfo *) *
-			frame->number_of_stack_items);
+	length = bufferNextShort(buffer);
+	frame->stack = createList();
 
-	for(idx = 0; idx < frame->number_of_stack_items; idx++) {
-		frame->stack[idx] = visitVerificationTypeInfo(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		listAdd(frame->stack, visitVerificationTypeInfo(classFile, buffer));
 	}
 
 	return (StackMapFrame *)frame;
@@ -253,19 +251,19 @@ StackMapFrame *visitStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
 }
 
 AttributeInfo *visitStackMapTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	StackMapTableAttribute *table = zalloc(sizeof(StackMapTableAttribute));
 
 	debug_printf(level2, "Visiting StackMapTable.\n");
 
 	// Stack Map Table
-	table->number_of_entries = bufferNextShort(buffer);
-	table->entries = zalloc(sizeof(StackMapFrame *) *
-			table->number_of_entries);
+	length = bufferNextShort(buffer);
+	debug_printf(level2, "Stack Frame count : %d.\n", length);
+	table->entries = createList();
 
-	for(idx = 0; idx < table->number_of_entries; idx++) {
+	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Stack Map Frame %d :\n", idx);
-		table->entries[idx] = visitStackMapFrame(classFile, buffer);
+		listAdd(table->entries,  visitStackMapFrame(classFile, buffer));
 	}
 
 	debug_printf(level2, "Finished StackMapTable.\n");
@@ -274,21 +272,19 @@ AttributeInfo *visitStackMapTableAttribute(ClassFile *classFile, ClassBuffer *bu
 }
 
 AttributeInfo *visitExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	ExceptionsAttribute *except = zalloc(sizeof(ExceptionsAttribute));
 
 	// Exceptions Table
-	except->number_of_exceptions = bufferNextShort(buffer);
-	debug_printf(level2, "Exceptions count : %d.\n", except->number_of_exceptions);
+	length = bufferNextShort(buffer);
+	debug_printf(level2, "Exceptions count : %d.\n", length);
 
-	except->exception_table = zalloc(sizeof(ConstantClassInfo *) *
-			except->number_of_exceptions);
+	except->exception_table = createList();
 
-	for(idx = 0; idx < except->number_of_exceptions; idx++) {
-		debug_printf(level2, "Exception entry %d :\n");
-
+	for(idx = 0; idx < length; idx++) {
 		uint16_t index = bufferNextShort(buffer);
-		except->exception_table[idx] = getConstant(classFile, index);
+		debug_printf(level2, "Exception entry %d :\n", idx);
+		listAdd(except->exception_table, getConstant(classFile, index));
 	}
 
 	return (AttributeInfo *)except;
@@ -321,18 +317,17 @@ InnerClassEntry *visitInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer)
 }
 
 AttributeInfo *visitInnerClassesAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	InnerClassesAttribute *inner = zalloc(sizeof(InnerClassesAttribute));
 
 	// Inner Classes Table
-	inner->number_of_classes = bufferNextShort(buffer);
-	debug_printf(level2, "Inner classes count : %d.\n", inner->number_of_classes);
-	inner->classes = zalloc(sizeof(InnerClassEntry *) *
-			inner->number_of_classes);
+	length = bufferNextShort(buffer);
+	debug_printf(level2, "Inner classes count : %d.\n", length);
+	inner->classes = createList();
 
-	for(idx = 0; idx < inner->number_of_classes; idx++) {
+	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Inner class %d :\n", idx);
-		inner->classes[idx] = visitInnerClassEntry(classFile, buffer);
+		listAdd(inner->classes, visitInnerClassEntry(classFile, buffer));
 	}
 
 	return (AttributeInfo *)inner;
@@ -413,17 +408,17 @@ LineNumberTableEntry *visitLineNumberTableEntry(ClassFile *classFile, ClassBuffe
 }
 
 AttributeInfo *visitLineNumberTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	LineNumberTableAttribute *table = zalloc(sizeof(LineNumberTableAttribute));
 
 	// Line Number Table
-	table->line_number_table_length = bufferNextShort(buffer);
-	debug_printf(level2, "Line Number Table length : %d.\n", table->line_number_table_length);
-	table->line_number_table = zalloc(sizeof(LineNumberTableEntry *) *
-			table->line_number_table_length);
+	length = bufferNextShort(buffer);
+	debug_printf(level2, "Line Number Table length : %d.\n", length);
+	table->line_number_table = createList();
 
-	for(idx = 0; idx < table->line_number_table_length; idx++) {
-		table->line_number_table[idx] = visitLineNumberTableEntry(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		listAdd(table->line_number_table,
+				visitLineNumberTableEntry(classFile, buffer));
 	}
 
 	return (AttributeInfo *)table;
@@ -456,21 +451,19 @@ LocalVariableTableEntry *visitLocalVariableTableEntry(
 
 AttributeInfo *visitLocalVariableTableAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	LocalVariableTableAttribute *local = zalloc(
 			sizeof(LocalVariableTableAttribute));
 
 	// Local Variable Table
-	local->local_variable_table_length = bufferNextShort(buffer);
-	debug_printf(level2, "Local Variable Table length : %d.\n",
-			local->local_variable_table_length);
+	length = bufferNextShort(buffer);
+	debug_printf(level2, "Local Variable Table length : %d.\n", length);
 
-	local->local_variable_table = zalloc(sizeof(LocalVariableTableEntry *) *
-			local->local_variable_table_length);
+	local->local_variable_table = createList();
 
-	for(idx = 0; idx < local->local_variable_table_length; idx++) {
-		local->local_variable_table[idx] =
-				visitLocalVariableTableEntry(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		listAdd(local->local_variable_table,
+				visitLocalVariableTableEntry(classFile, buffer));
 	}
 
 	return (AttributeInfo *)local;
@@ -503,21 +496,19 @@ LocalVariableTypeTableEntry *visitLocalVariableTypeTableEntry(
 
 AttributeInfo *visitLocalVariableTypeTableAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	LocalVariableTypeTableAttribute *local = zalloc(
 			sizeof(LocalVariableTypeTableAttribute));
 
 	// Local Variable Type Table
-	local->local_variable_type_table_length = bufferNextShort(buffer);
-	debug_printf(level2, "Local Variable Type Table length : %d.\n",
-			local->local_variable_type_table_length);
+	length = bufferNextShort(buffer);
+	debug_printf(level2, "Local Variable Type Table length : %d.\n", length);
 
-	local->local_variable_type_table = zalloc(sizeof(LocalVariableTypeTableEntry *) *
-			local->local_variable_type_table_length);
+	local->local_variable_type_table = createList();
 
-	for(idx = 0; idx < local->local_variable_type_table_length; idx++) {
-		local->local_variable_type_table[idx] = 
-				visitLocalVariableTypeTableEntry(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		listAdd(local->local_variable_type_table,
+				visitLocalVariableTypeTableEntry(classFile, buffer));
 	}
 
 	return (AttributeInfo *)local;
@@ -580,16 +571,16 @@ ElementValue *visitAnnotationElementValue(ClassFile *classFile, ClassBuffer *buf
 ElementValue *visitArrayElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	extern ElementValue *visitElementValue(ClassFile *, ClassBuffer *);
 
-	unsigned int idx;
+	unsigned int idx, length;
 	ElementValue *value = zalloc(sizeof(ElementValue));
 
 	// Array Value Table
-	value->value.array_value.num_values = bufferNextShort(buffer);
-	value->value.array_value.values = zalloc(sizeof(ElementValue *) *
-			value->value.array_value.num_values);
+	length = bufferNextShort(buffer);
+	value->value.array_value.values = createList();
 
-	for(idx = 0; idx < value->value.array_value.num_values; idx++) {
-		value->value.array_value.values[idx] = visitElementValue(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		listAdd(value->value.array_value.values,
+				visitElementValue(classFile, buffer));
 	}
 
 	return value;
@@ -644,8 +635,8 @@ ElementValuePairsEntry *visitElementValuePairsEntry(
 }
 
 AnnotationEntry *visitAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
 	uint16_t index;
+	unsigned int idx, length;
 	AnnotationEntry *entry = zalloc(sizeof(AnnotationEntry));
 
 	// Annotation Entry Type
@@ -653,12 +644,12 @@ AnnotationEntry *visitAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer)
 	entry->type = getConstant(classFile, index);
 
 	// Element Value Pairs Table
-	entry->num_element_value_pairs = bufferNextShort(buffer);
-	entry->element_value_pairs = zalloc(sizeof(ElementValuePairsEntry *) *
-			entry->num_element_value_pairs);
+	length = bufferNextShort(buffer);
+	entry->element_value_pairs = createList();
 
-	for(idx = 0; idx < entry->num_element_value_pairs; idx++) {
-		entry->element_value_pairs[idx] = visitElementValuePairsEntry(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		listAdd(entry->element_value_pairs,
+				visitElementValuePairsEntry(classFile, buffer));
 	}
 
 	return entry;
@@ -666,17 +657,16 @@ AnnotationEntry *visitAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer)
 
 AttributeInfo *visitRuntimeAnnotationsAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	RuntimeAnnotationsAttribute *annot = zalloc(sizeof(
 			RuntimeAnnotationsAttribute));
 
 	// Annotations Table
-	annot->num_annotations = bufferNextShort(buffer);
-	annot->annotations = zalloc(sizeof(AnnotationEntry *) *
-			annot->num_annotations);
+	length = bufferNextShort(buffer);
+	annot->annotations = createList();
 
-	for(idx = 0; idx < annot->num_annotations; idx++) {
-		annot->annotations[idx] = visitAnnotationEntry(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		listAdd(annot->annotations, visitAnnotationEntry(classFile, buffer));
 	}
 
 	return (AttributeInfo *)annot;
@@ -684,16 +674,15 @@ AttributeInfo *visitRuntimeAnnotationsAttribute(
 
 ParameterAnnotationsEntry *visitParameterAnnotationsEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	ParameterAnnotationsEntry *entry = zalloc(sizeof(ParameterAnnotationsEntry));
 
 	// Annotations Table
-	entry->num_annotations = bufferNextShort(buffer);
-	entry->annotations = zalloc(sizeof(AnnotationEntry *) *
-			entry->num_annotations);
+	length = bufferNextShort(buffer);
+	entry->annotations = createList();
 
-	for(idx = 0; idx > entry->num_annotations; idx++) {
-		entry->annotations[idx] = visitAnnotationEntry(classFile, buffer);
+	for(idx = 0; idx > length; idx++) {
+		listAdd(entry->annotations, visitAnnotationEntry(classFile, buffer));
 	}
 
 	return entry;
@@ -701,18 +690,17 @@ ParameterAnnotationsEntry *visitParameterAnnotationsEntry(
 
 AttributeInfo *visitRuntimeParameterAnnotationsAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	RuntimeParameterAnnotationsAttribute *annot = zalloc(sizeof(
 			RuntimeParameterAnnotationsAttribute));
 
 	// Parameter Annotations Table
-	annot->num_parameters = bufferNextShort(buffer);
-	annot->parameter_annotations = zalloc(sizeof(ParameterAnnotationsEntry *) *
-			annot->num_parameters);
+	length = bufferNextShort(buffer);
+	annot->parameter_annotations = createList();
 
-	for(idx = 0; idx < annot->num_parameters; idx++) {
-		annot->parameter_annotations[idx] =
-				visitParameterAnnotationsEntry(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		listAdd(annot->parameter_annotations,
+				visitParameterAnnotationsEntry(classFile, buffer));
 	}
 
 	return (AttributeInfo *)annot;
@@ -728,33 +716,32 @@ AttributeInfo *visitAnnotationDefaultAttribute(ClassFile *classFile, ClassBuffer
 }
 
 BootstrapMethodEntry *visitBootstrapMethodEntry(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	BootstrapMethodEntry *entry = zalloc(sizeof(BootstrapMethodEntry));
 
 	// Bootstrap Method Parameters Table
-	entry->num_arguments = bufferNextShort(buffer);
-	entry->bootstrap_arguments = zalloc(sizeof(ConstantInfo *) *
-			entry->num_arguments);
+	length = bufferNextShort(buffer);
+	entry->bootstrap_arguments = createList();
 
-	for(idx = 0; idx < entry->num_arguments; idx++) {
+	for(idx = 0; idx < length; idx++) {
 		uint16_t index = bufferNextShort(buffer);
-		entry->bootstrap_arguments[idx] = getConstant(classFile, index);
+		listAdd(entry->bootstrap_arguments, getConstant(classFile, index));
 	}
 
 	return entry;
 }
 
 AttributeInfo *visitBootstrapMethodsAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx;
+	unsigned int idx, length;
 	BootstrapMethodsAttribute *bootstrap = zalloc(sizeof(BootstrapMethodsAttribute));
 
 	// Bootstrap Method Table
-	bootstrap->num_bootstrap_methods = bufferNextShort(buffer);
-	bootstrap->bootstrap_methods = zalloc(sizeof(BootstrapMethodEntry *) *
-			bootstrap->num_bootstrap_methods);
+	length = bufferNextShort(buffer);
+	bootstrap->bootstrap_methods = createList();
 
-	for(idx = 0; idx < bootstrap->num_bootstrap_methods; idx++) {
-		bootstrap->bootstrap_methods[idx] = visitBootstrapMethodEntry(classFile, buffer);
+	for(idx = 0; idx < length; idx++) {
+		listAdd(bootstrap->bootstrap_methods,
+				visitBootstrapMethodEntry(classFile, buffer));
 	}
 
 	return (AttributeInfo *)bootstrap;
