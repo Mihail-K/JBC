@@ -73,31 +73,20 @@ ConstantInfo *decodeConstantString(ClassBuffer *buffer) {
 	return (ConstantInfo *)stringInfo;
 }
 
-ConstantInfo *decodeConstantFieldRef(ClassBuffer *buffer) {
-	ConstantFieldRefInfo *fieldRefInfo;
-	fieldRefInfo = createConstant(CONSTANT_FIELD_REF);
+# define decodeConstantFieldRef(buffer) \
+	decodeConstantRef((buffer), CONSTANT_FIELD_REF)
+# define decodeConstantMethodRef(buffer) \
+	decodeConstantRef((buffer), CONSTANT_METHOD_REF)
+# define decodeConstantInterfaceMethodRef(buffer) \
+	decodeConstantRef((buffer), CONSTANT_INTERFACE_METHOD_REF)
 
-	fieldRefInfo->class_index = bufferNextShort(buffer);
-	fieldRefInfo->name_and_type_index = bufferNextShort(buffer);
-	return (ConstantInfo *)fieldRefInfo;
-}
+ConstantInfo *decodeConstantRef(ClassBuffer *buffer, uint8_t tag) {
+	ConstantRefInfo *refInfo;
+	refInfo = createConstant(tag);
 
-ConstantInfo *decodeConstantMethodRef(ClassBuffer *buffer) {
-	ConstantMethodRefInfo *methodRefInfo;
-	methodRefInfo = createConstant(CONSTANT_METHOD_REF);
-
-	methodRefInfo->class_index = bufferNextShort(buffer);
-	methodRefInfo->name_and_type_index = bufferNextShort(buffer);
-	return (ConstantInfo *)methodRefInfo;
-}
-
-ConstantInfo *decodeConstantInterfaceMethodRef(ClassBuffer *buffer) {
-	ConstantInterfaceMethodRefInfo *methodRefInfo;
-	methodRefInfo = createConstant(CONSTANT_INTERFACE_METHOD_REF);
-
-	methodRefInfo->class_index = bufferNextShort(buffer);
-	methodRefInfo->name_and_type_index = bufferNextShort(buffer);
-	return (ConstantInfo *)methodRefInfo;
+	refInfo->class_index = bufferNextShort(buffer);
+	refInfo->name_and_type_index = bufferNextShort(buffer);
+	return (ConstantInfo *)refInfo;
 }
 
 ConstantInfo *decodeConstantNameAndType(ClassBuffer *buffer) {

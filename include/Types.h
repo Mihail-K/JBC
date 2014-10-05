@@ -45,6 +45,7 @@ typedef struct {
 	uint16_t	class_index;
 	uint16_t	name_and_type_index;
 }
+ConstantRefInfo,
 ConstantFieldRefInfo,
 ConstantMethodRefInfo,
 ConstantInterfaceMethodRefInfo;

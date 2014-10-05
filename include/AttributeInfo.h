@@ -3,11 +3,14 @@
 
 # include "Types.h"
 # include "ClassBuffer.h"
+# include "ClassBuilder.h"
 
 # define createAttribute(TYPE)	\
 	memset(zalloc(sizeof(TYPE)), 0, sizeof(TYPE))
 
 void deleteAttribute(AttributeInfo *info);
+
+int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info);
 
 AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer);
 
