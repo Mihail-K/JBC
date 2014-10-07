@@ -179,6 +179,7 @@ typedef struct {
 } CodeAttribute;
 
 typedef union {
+	uint8_t		tag;
 	struct {
 		uint8_t		tag;
 	} 

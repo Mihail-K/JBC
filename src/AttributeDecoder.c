@@ -75,55 +75,45 @@ AttributeInfo *decodeCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 VerificationTypeInfo *decodeVerificationTypeInfo(
 		ClassFile *classFile, ClassBuffer *buffer) {
-	uint8_t tag;
 	uint16_t index;
 	VerificationTypeInfo *info = zalloc(sizeof(VerificationTypeInfo));
 
-	tag = bufferNextByte(buffer);
-	switch(tag) {
+	info->tag = bufferNextByte(buffer);
+	switch(info->tag) {
 		case 0:
 			debug_printf(level3, "Top variable info.\n");
-			info->top_variable_info.tag = tag;
 			break;
 		case 1:
 			debug_printf(level3, "Integer variable info.\n");
-			info->integer_variable_info.tag = tag;
 			break;
 		case 2:
 			debug_printf(level3, "Float variable info.\n");
-			info->float_variable_info.tag = tag;
 			break;
 		case 3:
 			debug_printf(level3, "Double variable info.\n");
-			info->double_variable_info.tag = tag;
 			break;
 		case 4:
 			debug_printf(level3, "Long variable info.\n");
-			info->long_variable_info.tag = tag;
 			break;
 		case 5:
 			debug_printf(level3, "Null variable info.\n");
-			info->null_variable_info.tag = tag;
 			break;
 		case 6:
 			debug_printf(level3, "Uninitialized this variable info.\n");
-			info->uninitialized_this_variable_info.tag = tag;
 			break;
 		case 7:
 			debug_printf(level3, "Object variable info.\n");
 			index = bufferNextShort(buffer);
-			info->object_variable_info.tag = tag;
 			info->object_variable_info.object = (void *)
 					getConstant(classFile, index);
 			break;
 		case 8:
 			debug_printf(level3, "Uninitialized variable info.\n");
 			index = bufferNextShort(buffer);
-			info->uninitialized_variable_info.tag = tag;
 			info->uninitialized_variable_info.offset = index;
 			break;
 		default:
-			fprintf(stderr, "Unknown verification type (ID : %d)!\n", tag);
+			fprintf(stderr, "Unknown verification type (ID : %d)!\n", info->tag);
 			exit(EXIT_FAILURE);
 	}
 
