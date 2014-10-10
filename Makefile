@@ -1,4 +1,6 @@
 
+JC = javac
+
 CFLAGS = -Werror -Wall -Wextra
 CPPFLAGS = -D _DEBUG=3 -I include/
 
@@ -8,16 +10,20 @@ objects = ClassBuffer.o ClassBuilder.o List.o \
 	MemberDecoder.o MemberEncoder.o MemberInfo.o \
 	AttributeEncoder.o AttributeDecoder.o AttributeInfo.o
 
-all: libjbc.a test
+all: libjbc.a jbctest Test.class
 
 libjbc.a: libjbc.a($(objects))
 
-test: test.o libjbc.a
+jbctest: test.o libjbc.a
 	$(CC) $(LDFLAGS) -L ./ -o $@ $< $(LDLIBS) -ljbc
 
 .PHONY: clean
 clean:
 	rm -f *.o *.exe *.a
+
+Test.class : test/Test.java
+	$(JC) $(JFALGS) $<
+	mv test/Test.class .
 
 test.o: test/Main.c include/*.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
