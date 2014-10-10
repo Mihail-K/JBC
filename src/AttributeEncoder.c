@@ -256,6 +256,261 @@ int encodeExceptionsAttribute(
 	return 0;
 }
 
+int encodeInnerClassEntry(
+		ClassFile *classFile, ClassBuilder *builder, InnerClassEntry *entry) {
+	ignore_unused(classFile);
+
+	buildNextShort(builder, entry->inner_class_info->index);
+	buildNextShort(builder, entry->outer_class_info->index);
+	buildNextShort(builder, entry->inner_class_name->index);
+	buildNextShort(builder, entry->inner_class_access_flags);
+
+	return 0;
+}
+
+int encodeInnerClassesAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	unsigned int idx, length;
+	InnerClassesAttribute *inner = (void *)info;
+
+	length = listSize(inner->classes);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		encodeInnerClassEntry(classFile, builder, listGet(
+				inner->classes, idx));
+	}
+
+	return 0;
+}
+
+int encodeEnclosingMethodAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	EnclosingMethodAttribute *enclose = (void *)info;
+
+	ignore_unused(classFile);
+	buildNextShort(builder, enclose->enclosing_class->index);
+	buildNextShort(builder, enclose->enclosing_method->index);
+
+	return 0;
+}
+
+int encodeSignatureAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	SignatureAttribute *signature = (void *)info;
+
+	ignore_unused(classFile);
+	buildNextShort(builder, signature->signature->index);
+
+	return 0;
+}
+
+int encodeSourceFileAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	SourceFileAttribute *source = (void *)info;
+
+	ignore_unused(classFile);
+	buildNextShort(builder, source->source_file->index);
+
+	return 0;
+}
+
+int encodeSourceDebugExtensionAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	unsigned int idx;
+	SourceDebugExtensionAttribute *debug = (void *)info;
+
+	ignore_unused(classFile);
+
+	for(idx = 0; idx < debug->attribute_length; idx++) {
+		buildNextByte(builder, debug->debug_extension[idx]);
+	}
+
+	return 0;
+}
+
+int encodeLineNumberTableEntry(
+		ClassFile *classFile, ClassBuilder *builder, LineNumberTableEntry *entry) {
+	ignore_unused(classFile);
+
+	buildNextShort(builder, entry->start_pc);
+	buildNextShort(builder, entry->line_number);
+
+	return 0;
+}
+
+int encodeLineNumberTableAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	unsigned int idx, length;
+	LineNumberTableAttribute *table = (void *)info;
+
+	length = listSize(table->line_number_table);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		encodeLineNumberTableEntry(classFile, builder, listGet(
+				table->line_number_table, idx));
+	}
+
+	return 0;
+}
+
+int encodeLocalVariableTableEntry(
+		ClassFile *classFile, ClassBuilder *builder, LocalVariableTableEntry *entry) {
+	ignore_unused(classFile);
+
+	buildNextShort(builder, entry->start_pc);
+	buildNextShort(builder, entry->length);
+
+	buildNextShort(builder, entry->name->index);
+	buildNextShort(builder, entry->descriptor->index);
+
+	buildNextShort(builder, entry->index);
+
+	return 0;
+}
+
+int encodeLocalVariableTableAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	unsigned int idx, length;
+	LocalVariableTableAttribute *table = (void *)info;
+
+	length = listSize(table->local_variable_table);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		encodeLocalVariableTableEntry(classFile, builder, listGet(
+				table->local_variable_table, idx));
+	}
+
+	return 0;
+}
+
+int encodeConstElementValue(
+		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
+	ignore_unused(classFile);
+
+	buildNextShort(builder, value->value.const_value->index);
+
+	return 0;
+}
+
+int encodeEnumElementValue(
+		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
+	ignore_unused(classFile);
+
+	buildNextShort(builder, value->value.enum_const_value.type_name->index);
+	buildNextShort(builder, value->value.enum_const_value.const_name->index);
+
+	return 0;
+}
+
+int encodeClassElementValue(
+		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
+	ignore_unused(classFile);
+
+	buildNextShort(builder, value->value.class_info->index);
+
+	return 0;
+}
+
+int encodeAnnotationElementValue(
+		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
+	extern int encodeAnnotationEntry(ClassFile *, ClassBuilder *, AnnotationEntry *);
+	ignore_unused(classFile);
+
+	encodeAnnotationEntry(classFile, builder, value->value.annotation_value);
+
+	return 0;
+}
+
+int encodeArrayElementValue(
+		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
+	extern int encodeElementValue(ClassFile *, ClassBuilder *, ElementValue *);
+	unsigned int idx, length;
+
+	ignore_unused(classFile);
+	length = listSize(value->value.array_values);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		encodeElementValue(classFile, builder, listGet(
+				value->value.array_values, idx));
+	}
+
+	return 0;
+}
+
+int encodeElementValue(
+		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
+	buildNextByte(builder, value->tag);
+
+	switch(value->tag) {
+		case 'B': case 'C': case 'D':
+		case 'F': case 'I': case 'J':
+		case 'S': case 'Z': case 's':
+			debug_printf(level3, "Constant Element Value.\n");
+			return encodeConstElementValue(classFile, builder, value);
+		case 'e':
+			debug_printf(level3, "Enum Constant Element Value.\n");
+			return encodeEnumElementValue(classFile, builder, value);
+		case 'c':
+			debug_printf(level3, "Class Element Value.\n");
+			return encodeClassElementValue(classFile, builder, value);
+		case '@':
+			debug_printf(level3, "Annotation Element Value.\n");
+			return encodeAnnotationElementValue(classFile, builder, value);
+		case '[':
+			debug_printf(level3, "Array Element Value.\n");
+			return encodeArrayElementValue(classFile, builder, value);
+		default:
+			fprintf(stderr, "Invalid Element Value Type : %c.\n", value->tag);
+			return -1;
+	}
+
+	return 0;
+}
+
+int encodeElementValuePairsEntry(
+		ClassFile *classFile, ClassBuilder *builder, ElementValuePairsEntry *entry) {
+	buildNextShort(builder, entry->element_name->index);
+	encodeElementValue(classFile, builder, entry->value);
+
+	return 0;
+}
+
+int encodeAnnotationEntry(
+		ClassFile *classFile, ClassBuilder *builder, AnnotationEntry *entry) {
+	unsigned int idx, length;
+
+	buildNextShort(builder, entry->type->index);
+	length = listSize(entry->element_value_pairs);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		encodeElementValuePairsEntry(classFile, builder, listGet(
+				entry->element_value_pairs, idx));
+	}
+
+	return 0;
+}
+
+int encodeRuntimeAnnotationsAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	unsigned int idx, length;
+	RuntimeAnnotationsAttribute *annot = (void *)info;
+
+	length = listSize(annot->annotations);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		encodeAnnotationEntry(classFile, builder, listGet(
+				annot->annotations, idx));
+	}
+
+	return 0;
+}
+
 int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	// TODO
 	((void)classFile);

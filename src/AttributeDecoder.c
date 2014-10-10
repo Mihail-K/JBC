@@ -566,10 +566,10 @@ ElementValue *decodeArrayElementValue(ClassFile *classFile, ClassBuffer *buffer)
 
 	// Array Value Table
 	length = bufferNextShort(buffer);
-	value->value.array_value.values = createList();
+	value->value.array_values = createList();
 
 	for(idx = 0; idx < length; idx++) {
-		listAdd(value->value.array_value.values,
+		listAdd(value->value.array_values,
 				decodeElementValue(classFile, buffer));
 	}
 

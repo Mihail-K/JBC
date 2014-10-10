@@ -51,7 +51,7 @@ uint8_t bufferNextByte(ClassBuffer *buffer) {
 	if(buffer == NULL) return -1;
 	if((read = fread(&value, 1, sizeof(uint8_t), buffer)) != sizeof(uint8_t)) {
 		perror("fread byte");
-		fprintf(stderr, "Read : %lu, expected %lu (Pos : %ld).\n",
+		fprintf(stderr, "Read : %zu, expected %zu (Pos : %ld).\n",
 				read, sizeof(uint8_t), bufferPos(buffer));
 		exit(EXIT_FAILURE);
 	}
@@ -65,7 +65,7 @@ uint16_t bufferNextShort(ClassBuffer *buffer) {
 	if(buffer == NULL) return -1;
 	if((read = fread(&value, 1, sizeof(uint16_t), buffer)) != sizeof(uint16_t)) {
 		perror("fread short");
-		fprintf(stderr, "Read : %lu, expected %lu (Pos : %ld).\n",
+		fprintf(stderr, "Read : %zu, expected %zu (Pos : %ld).\n",
 				read, sizeof(uint16_t), bufferPos(buffer));
 		exit(EXIT_FAILURE);
 	}
@@ -79,7 +79,7 @@ uint32_t bufferNextInt(ClassBuffer *buffer) {
 	if(buffer == NULL) return -1;
 	if((read = fread(&value, 1, sizeof(uint32_t), buffer)) != sizeof(uint32_t)) {
 		perror("fread int");
-		fprintf(stderr, "Read : %lu, expected %lu (Pos : %ld).\n",
+		fprintf(stderr, "Read : %zu, expected %zu (Pos : %ld).\n",
 				read, sizeof(uint32_t), bufferPos(buffer));
 		exit(EXIT_FAILURE);
 	}

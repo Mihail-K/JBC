@@ -420,9 +420,7 @@ struct sElementValue {
 		AnnotationEntry *annotation_value;
 
 		// Array Value
-		struct {
-			List		*values;
-		} array_value;
+		List		*array_values;
 	} value;
 };
 

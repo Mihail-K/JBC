@@ -132,8 +132,8 @@ void deleteElementValue(ElementValue *value) {
 			deleteAnnotationEntry(value->value.annotation_value);
 			break;
 		case '[':
-			if(value->value.array_value.values != NULL)
-				deleteList(value->value.array_value.values, deleteElementValue);
+			if(value->value.array_values != NULL)
+				deleteList(value->value.array_values, deleteElementValue);
 			break;
 	}
 	free(value);
