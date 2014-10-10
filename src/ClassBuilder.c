@@ -51,7 +51,7 @@ ClassBuilder *buildNextByte(ClassBuilder *builder, uint8_t byte) {
 	if(builder == NULL) return NULL;
 	if((wrote = fwrite(&byte, 1, sizeof(uint8_t), builder)) != sizeof(uint8_t)) {
 		perror("fwrite byte");
-		fprintf(stderr, "Write : %u, expected %u (Pos : %ld).\n",
+		fprintf(stderr, "Write : %lu, expected %lu (Pos : %ld).\n",
 				wrote, sizeof(uint8_t), builderPos(builder));
 		exit(EXIT_FAILURE);
 	}
@@ -66,7 +66,7 @@ ClassBuilder *buildNextShort(ClassBuilder *builder, uint16_t word) {
 	word = tobe16(word);
 	if((wrote = fwrite(&word, 1, sizeof(uint16_t), builder)) != sizeof(uint16_t)) {
 		perror("fwrite short");
-		fprintf(stderr, "Write : %u, expected %u (Pos : %ld).\n",
+		fprintf(stderr, "Write : %lu, expected %lu (Pos : %ld).\n",
 				wrote, sizeof(uint16_t), builderPos(builder));
 		exit(EXIT_FAILURE);
 	}
@@ -81,7 +81,7 @@ ClassBuilder *buildNextInt(ClassBuilder *builder, uint32_t dword) {
 	dword = tobe32(dword);
 	if((wrote = fwrite(&dword, 1, sizeof(uint32_t), builder)) != sizeof(uint32_t)) {
 		perror("fwrite int");
-		fprintf(stderr, "Write : %u, expected %u (Pos : %ld).\n",
+		fprintf(stderr, "Write : %lu, expected %lu (Pos : %ld).\n",
 				wrote, sizeof(uint32_t), builderPos(builder));
 		exit(EXIT_FAILURE);
 	}
