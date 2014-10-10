@@ -1,4 +1,6 @@
 
+# include <string.h>
+
 # include "Debug.h"
 
 # include "ClassFile.h"
@@ -386,6 +388,37 @@ int encodeLocalVariableTableAttribute(
 	return 0;
 }
 
+int encodeLocalVariableTypeTableEntry(
+		ClassFile *classFile, ClassBuilder *builder, LocalVariableTypeTableEntry *entry) {
+	ignore_unused(classFile);
+
+	buildNextShort(builder, entry->start_pc);
+	buildNextShort(builder, entry->length);
+
+	buildNextShort(builder, entry->name->index);
+	buildNextShort(builder, entry->signature->index);
+
+	buildNextShort(builder, entry->index);
+
+	return 0;
+}
+
+int encodeLocalVariableTypeTableAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	unsigned int idx, length;
+	LocalVariableTypeTableAttribute *table = (void *)info;
+
+	length = listSize(table->local_variable_type_table);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		encodeLocalVariableTypeTableEntry(classFile, builder, listGet(
+				table->local_variable_type_table, idx));
+	}
+
+	return 0;
+}
+
 int encodeConstElementValue(
 		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
 	ignore_unused(classFile);
@@ -511,10 +544,144 @@ int encodeRuntimeAnnotationsAttribute(
 	return 0;
 }
 
-int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	// TODO
-	((void)classFile);
-	((void)builder);
-	((void)info);
+int encodeParameterAnnotationsEntry(
+		ClassFile *classFile, ClassBuilder *builder, ParameterAnnotationsEntry *entry) {
+	unsigned int idx, length;
+
+	length = listSize(entry->annotations);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		encodeAnnotationEntry(classFile, builder, listGet(
+				entry->annotations, idx));
+	}
+
 	return 0;
 }
+
+int encodeRuntimeParameterAnnotationsAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	unsigned int idx, length;
+	RuntimeParameterAnnotationsAttribute *annot = (void *)info;
+
+	length = listSize(annot->parameter_annotations);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		encodeParameterAnnotationsEntry(classFile, builder, listGet(
+				annot->parameter_annotations, idx));
+	}
+
+	return 0;
+}
+
+int encodeAnnotationDefaultAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	AnnotationDefaultAttribute *annot = (void *)info;
+
+	encodeElementValue(classFile, builder, annot->default_value);
+
+	return 0;
+}
+
+int encodeBootstrapMethodEntry(
+		ClassFile *classFile, ClassBuilder *builder, BootstrapMethodEntry *entry) {
+	unsigned int idx, length;
+
+	ignore_unused(classFile);
+	buildNextShort(builder, entry->bootstrap_method_ref->index);
+	length = listSize(entry->bootstrap_arguments);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		ConstantInfo *info = listGet(entry->bootstrap_arguments, idx);
+		buildNextShort(builder, info->index);
+	}
+
+	return 0;
+}
+
+int encodeBootstrapMethodsAttribute(
+		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	unsigned int idx, length;
+	BootstrapMethodsAttribute *methods = (void *)info;
+
+	length = listSize(methods->bootstrap_methods);
+	buildNextShort(builder, length);
+
+	for(idx = 0; idx < length; idx++) {
+		encodeBootstrapMethodEntry(classFile, builder, listGet(
+				methods->bootstrap_methods, idx));
+	}
+
+	return 0;
+}
+
+int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	buildNextShort(builder, info->name->index);
+	buildNextInt(builder, info->attribute_length);
+
+	if(!strcmp("ConstantValue", (char *)info->name->bytes)) {
+		return encodeConstantValueAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("Code", (char *)info->name->bytes)) {
+		return encodeCodeAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("StackMapTable", (char *)info->name->bytes)) {
+		return encodeStackMapTableAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("Exceptions", (char *)info->name->bytes)) {
+		return encodeExceptionsAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("InnerClasses", (char *)info->name->bytes)) {
+		return encodeInnerClassesAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("EnclosingMethod", (char *)info->name->bytes)) {
+		return encodeEnclosingMethodAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("Synthetic", (char *)info->name->bytes)) {
+		return 0;
+	} else
+	if(!strcmp("Signature", (char *)info->name->bytes)) {
+		return encodeSignatureAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("SourceFile", (char *)info->name->bytes)) {
+		return encodeSourceFileAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("SourceDebugExtension", (char *)info->name->bytes)) {
+		return encodeSourceDebugExtensionAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("LineNumberTable", (char *)info->name->bytes)) {
+		return encodeLineNumberTableAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("LocalVariableTable", (char *)info->name->bytes)) {
+		return encodeLocalVariableTableAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("LocalVariableTypeTable", (char *)info->name->bytes)) {
+		return encodeLocalVariableTypeTableAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("Deprecated", (char *)info->name->bytes)) {
+		return 0;
+	} else
+	if(!strcmp("RuntimeVisibleAnnotations", (char *)info->name->bytes)) {
+		return encodeRuntimeAnnotationsAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("RuntimeInvisibleAnnotations", (char *)info->name->bytes)) {
+		return encodeRuntimeAnnotationsAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("RuntimeVisibleParameterAnnotations", (char *)info->name->bytes)) {
+		return encodeRuntimeParameterAnnotationsAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("RuntimeInvisibleParameterAnnotations", (char *)info->name->bytes)) {
+		return encodeRuntimeParameterAnnotationsAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("AnnotationDefault", (char *)info->name->bytes)) {
+		return encodeAnnotationDefaultAttribute(classFile, builder, info);
+	} else
+	if(!strcmp("BootstrapMethods", (char *)info->name->bytes)) {
+		return encodeBootstrapMethodsAttribute(classFile, builder, info);
+	} else {
+		return -1;
+	}
+}
+
