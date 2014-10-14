@@ -565,7 +565,7 @@ int encodeRuntimeParameterAnnotationsAttribute(
 	RuntimeParameterAnnotationsAttribute *annot = (void *)info;
 
 	length = listSize(annot->parameter_annotations);
-	buildNextShort(builder, length);
+	buildNextByte(builder, length);
 
 	for(idx = 0; idx < length; idx++) {
 		encodeParameterAnnotationsEntry(classFile, builder, listGet(

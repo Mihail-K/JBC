@@ -617,6 +617,7 @@ ElementValuePairsEntry *decodeElementValuePairsEntry(
 	// Element Name
 	index = bufferNextShort(buffer);
 	entry->element_name = getConstant(classFile, index);
+	debug_printf(level3, "Element-Value Name : %s.\n", entry->element_name->bytes);
 
 	// Element Value
 	entry->value = decodeElementValue(classFile, buffer);
@@ -635,9 +636,11 @@ AnnotationEntry *decodeAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer
 
 	// Element Value Pairs Table
 	length = bufferNextShort(buffer);
+	debug_printf(level2, "Element-Value Pairs count : %u.\n", length);
 	entry->element_value_pairs = createList();
 
 	for(idx = 0; idx < length; idx++) {
+		debug_printf(level2, "Element-Value Pair %u :\n", idx);
 		listAdd(entry->element_value_pairs,
 				decodeElementValuePairsEntry(classFile, buffer));
 	}
@@ -669,9 +672,11 @@ ParameterAnnotationsEntry *decodeParameterAnnotationsEntry(
 
 	// Annotations Table
 	length = bufferNextShort(buffer);
+	debug_printf(level2, "Parameter Annotations entry count : %u.\n", length);
 	entry->annotations = createList();
 
-	for(idx = 0; idx > length; idx++) {
+	for(idx = 0; idx < length; idx++) {
+		debug_printf(level2, "Parameter Annotation entry %u :\n", idx);
 		listAdd(entry->annotations, decodeAnnotationEntry(classFile, buffer));
 	}
 
@@ -685,10 +690,12 @@ AttributeInfo *decodeRuntimeParameterAnnotationsAttribute(
 			RuntimeParameterAnnotationsAttribute));
 
 	// Parameter Annotations Table
-	length = bufferNextShort(buffer);
+	length = bufferNextByte(buffer);
+	debug_printf(level2, "Parameter Annotation count : %u.\n", length);
 	annot->parameter_annotations = createList();
 
 	for(idx = 0; idx < length; idx++) {
+		debug_printf(level2, "Parameter Annotation %u :\n", idx);
 		listAdd(annot->parameter_annotations,
 				decodeParameterAnnotationsEntry(classFile, buffer));
 	}
