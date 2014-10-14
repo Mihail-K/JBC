@@ -6,20 +6,30 @@
 # include "ClassFile.h"
 
 int main(int argc, char **argv) {
-	FILE *file;
+	FILE *input, *output;
+	ClassFile *classFile;
 
-	if(argc < 2) {
-		fprintf(stderr, "Requires argument path.\n");
+	if(argc < 3) {
+		fprintf(stderr, "Requires arguments [input file] [output file].\n");
 		exit(EXIT_FAILURE);
 	}
 
-	if((file = fopen(argv[1], "rb")) == NULL) {
+	if((input = fopen(argv[1], "rb")) == NULL) {
 		perror("fopen");
 		exit(EXIT_FAILURE);
 	}
 
-	deleteClassFile(decodeClassFile(file));
-	fclose(file);
+	if((output = fopen(argv[2], "wb")) == NULL) {
+		perror("fopen");
+		exit(EXIT_FAILURE);
+	}
+
+	classFile = decodeClassFile(input);
+	fclose(input);
+
+	encodeClassFile(output, classFile);
+	deleteClassFile(classFile);
+	fclose(output);
 
 	printf("Done!\n");
 
