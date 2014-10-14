@@ -13,8 +13,6 @@ int encodeConstantValueAttribute(
 	ConstantValueAttribute *constant = (void *)info;
 
 	ignore_unused(classFile);
-	buildNextShort(builder, constant->name->index);
-	buildNextInt(builder, constant->attribute_length);
 	buildNextShort(builder, constant->constant_value->index);
 
 	return 0;
@@ -36,9 +34,6 @@ int encodeCodeAttribute(
 	unsigned int idx, length;
 	CodeAttribute *code = (void *)info;
 
-	buildNextShort(builder, code->name->index);
-	buildNextInt(builder, code->attribute_length);
-	
 	// Maximums
 	buildNextShort(builder, code->max_stack);
 	buildNextShort(builder, code->max_locals);
@@ -226,9 +221,6 @@ int encodeStackMapTableAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
 	StackMapTableAttribute *table = (void *)info;
-
-	buildNextShort(builder, table->name->index);
-	buildNextInt(builder, table->attribute_length);
 
 	length = listSize(table->entries);
 	buildNextShort(builder, length);
@@ -618,70 +610,83 @@ int encodeBootstrapMethodsAttribute(
 }
 
 int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	int result;
+	long int initpos;
+
 	buildNextShort(builder, info->name->index);
 	buildNextInt(builder, info->attribute_length);
 
+	initpos = builderPos(builder);
+
 	if(!strcmp("ConstantValue", (char *)info->name->bytes)) {
-		return encodeConstantValueAttribute(classFile, builder, info);
+		result = encodeConstantValueAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("Code", (char *)info->name->bytes)) {
-		return encodeCodeAttribute(classFile, builder, info);
+		result = encodeCodeAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("StackMapTable", (char *)info->name->bytes)) {
-		return encodeStackMapTableAttribute(classFile, builder, info);
+		result = encodeStackMapTableAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("Exceptions", (char *)info->name->bytes)) {
-		return encodeExceptionsAttribute(classFile, builder, info);
+		result = encodeExceptionsAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("InnerClasses", (char *)info->name->bytes)) {
-		return encodeInnerClassesAttribute(classFile, builder, info);
+		result = encodeInnerClassesAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("EnclosingMethod", (char *)info->name->bytes)) {
-		return encodeEnclosingMethodAttribute(classFile, builder, info);
+		result = encodeEnclosingMethodAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("Synthetic", (char *)info->name->bytes)) {
-		return 0;
+		result = 0;
 	} else
 	if(!strcmp("Signature", (char *)info->name->bytes)) {
-		return encodeSignatureAttribute(classFile, builder, info);
+		result = encodeSignatureAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("SourceFile", (char *)info->name->bytes)) {
-		return encodeSourceFileAttribute(classFile, builder, info);
+		result = encodeSourceFileAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("SourceDebugExtension", (char *)info->name->bytes)) {
-		return encodeSourceDebugExtensionAttribute(classFile, builder, info);
+		result = encodeSourceDebugExtensionAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("LineNumberTable", (char *)info->name->bytes)) {
-		return encodeLineNumberTableAttribute(classFile, builder, info);
+		result = encodeLineNumberTableAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("LocalVariableTable", (char *)info->name->bytes)) {
-		return encodeLocalVariableTableAttribute(classFile, builder, info);
+		result = encodeLocalVariableTableAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("LocalVariableTypeTable", (char *)info->name->bytes)) {
-		return encodeLocalVariableTypeTableAttribute(classFile, builder, info);
+		result = encodeLocalVariableTypeTableAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("Deprecated", (char *)info->name->bytes)) {
-		return 0;
+		result = 0;
 	} else
 	if(!strcmp("RuntimeVisibleAnnotations", (char *)info->name->bytes)) {
-		return encodeRuntimeAnnotationsAttribute(classFile, builder, info);
+		result = encodeRuntimeAnnotationsAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("RuntimeInvisibleAnnotations", (char *)info->name->bytes)) {
-		return encodeRuntimeAnnotationsAttribute(classFile, builder, info);
+		result = encodeRuntimeAnnotationsAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("RuntimeVisibleParameterAnnotations", (char *)info->name->bytes)) {
-		return encodeRuntimeParameterAnnotationsAttribute(classFile, builder, info);
+		result = encodeRuntimeParameterAnnotationsAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("RuntimeInvisibleParameterAnnotations", (char *)info->name->bytes)) {
-		return encodeRuntimeParameterAnnotationsAttribute(classFile, builder, info);
+		result = encodeRuntimeParameterAnnotationsAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("AnnotationDefault", (char *)info->name->bytes)) {
-		return encodeAnnotationDefaultAttribute(classFile, builder, info);
+		result = encodeAnnotationDefaultAttribute(classFile, builder, info);
 	} else
 	if(!strcmp("BootstrapMethods", (char *)info->name->bytes)) {
-		return encodeBootstrapMethodsAttribute(classFile, builder, info);
+		result = encodeBootstrapMethodsAttribute(classFile, builder, info);
 	} else {
 		return -1;
 	}
+
+	if(builderPos(builder) - initpos != info->attribute_length) {
+		fprintf(stderr, "Attribute length mismatch!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	debug_printf(level1, "Finished Attribute : %s.\n", info->name->bytes);
+	return result;
 }
 
