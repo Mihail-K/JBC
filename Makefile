@@ -19,11 +19,11 @@ jbctest: test.o libjbc.a
 
 .PHONY: clean
 clean:
-	rm -f *.o *.exe *.a
+	rm -f *.o *.exe *.a *.class
 
 Test.class : test/Test.java
 	$(JC) $(JFALGS) $<
-	mv test/Test.class .
+	mv test/*.class .
 
 test.o: test/Main.c include/*.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
