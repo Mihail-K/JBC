@@ -12,7 +12,7 @@ void deleteCodeAttribute(CodeAttribute *code) {
 		DELETE(code->code);
 	if(code->exception_table != NULL) {
 		debug_printf(level3, "Deleting exception table.\n");
-		deleteList(code->exception_table, DELETE);
+		deleteList(code->exception_table, free);
 	}
 	if(code->attributes != NULL) {
 		debug_printf(level3, "Deleting code attributes.\n");
@@ -49,9 +49,9 @@ void deleteStackMapListFrame(StackMapListFrame *frame) {
 
 void deleteStackMapFullFrame(StackMapFullFrame *frame) {
 	if(frame->locals != NULL)
-		deleteList(frame->locals, DELETE);
+		deleteList(frame->locals, free);
 	if(frame->stack != NULL)
-		deleteList(frame->stack, DELETE);
+		deleteList(frame->stack, free);
 	DELETE(frame);
 }
 
@@ -103,25 +103,25 @@ void deleteExceptionsAttribute(ExceptionsAttribute *except) {
 
 void deleteInnerClassesAttribute(InnerClassesAttribute *inner) {
 	if(inner->classes != NULL)
-		deleteList(inner->classes, DELETE);
+		deleteList(inner->classes, free);
 	DELETE(inner);
 }
 
 void deleteLineNumberTableAttribute(LineNumberTableAttribute *table) {
 	if(table->line_number_table != NULL)
-		deleteList(table->line_number_table, DELETE);
+		deleteList(table->line_number_table, free);
 	DELETE(table);
 }
 
 void deleteLocalVariableTableAttribute(LocalVariableTableAttribute *table) {
 	if(table->local_variable_table != NULL)
-		deleteList(table->local_variable_table, DELETE);
+		deleteList(table->local_variable_table, free);
 	DELETE(table);
 }
 
 void deleteLocalVariableTypeTableAttribute(LocalVariableTypeTableAttribute *table) {
 	if(table->local_variable_type_table != NULL)
-		deleteList(table->local_variable_type_table, DELETE);
+		deleteList(table->local_variable_type_table, free);
 	DELETE(table);
 }
 
