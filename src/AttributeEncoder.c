@@ -2,6 +2,7 @@
 # include <string.h>
 
 # include "Debug.h"
+# include "Defines.h"
 
 # include "ClassFile.h"
 # include "AttributeInfo.h"
@@ -10,29 +11,28 @@
 
 int encodeConstantValueAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	ConstantValueAttribute *constant = (void *)info;
-
-	ignore_unused(classFile);
+	ConstantValueAttribute *constant = static_cast(ConstantValueAttribute *, info);
 	buildNextShort(builder, constant->constant_value->index);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeExceptionTableEntry(
 		ClassFile *classFile, ClassBuilder *builder, ExceptionTableEntry *entry) {
-	ignore_unused(classFile);
 	buildNextShort(builder, entry->start_pc);
 	buildNextShort(builder, entry->end_pc);
 	buildNextShort(builder, entry->handler_pc);
 	buildNextShort(builder, entry->catch_type);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeCodeAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
-	CodeAttribute *code = (void *)info;
+	CodeAttribute *code = static_cast(CodeAttribute *, info);
 
 	// Maximums
 	buildNextShort(builder, code->max_stack);
@@ -65,7 +65,6 @@ int encodeCodeAttribute(
 
 int encodeVerificationTypeInfo(
 		ClassFile *classFile, ClassBuilder *builder, VerificationTypeInfo *info) {
-	ignore_unused(classFile);
 	buildNextByte(builder, info->tag);
 	switch(info->tag) {
 		case 0:
@@ -102,28 +101,26 @@ int encodeVerificationTypeInfo(
 			exit(EXIT_FAILURE);
 	}
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeStackMapOffFrame(ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
-	StackMapOffFrame *offFrame = (void *)frame;
-
-	ignore_unused(classFile);
+	StackMapOffFrame *offFrame = static_cast(StackMapOffFrame *, frame);
 	buildNextShort(builder, offFrame->offset_delta);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeStackMapItemFrame(ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
-	StackMapItemFrame *itemFrame = (void *)frame;
-
+	StackMapItemFrame *itemFrame = static_cast(StackMapItemFrame *, frame);
 	encodeVerificationTypeInfo(classFile, builder, itemFrame->stack);
-
 	return 0;
 }
 
 int encodeStackMapExtFrame(ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
-	StackMapExtFrame *extFrame = (void *)frame;
+	StackMapExtFrame *extFrame = static_cast(StackMapExtFrame *, frame);
 
 	buildNextShort(builder, extFrame->offset_delta);
 	encodeVerificationTypeInfo(classFile, builder, extFrame->stack);
@@ -133,10 +130,9 @@ int encodeStackMapExtFrame(ClassFile *classFile, ClassBuilder *builder, StackMap
 
 int encodeStackMapListFrame(ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
 	unsigned int idx;
-	StackMapListFrame *listFrame = (void *)frame;
+	StackMapListFrame *listFrame = static_cast(StackMapListFrame *, frame);
 
 	buildNextShort(builder, listFrame->offset_delta);
-
 	for(idx = 0; idx < (listFrame->tag - 251u); idx++) {
 		encodeVerificationTypeInfo(classFile, builder, listFrame->stack[idx]);
 	}
@@ -146,7 +142,7 @@ int encodeStackMapListFrame(ClassFile *classFile, ClassBuilder *builder, StackMa
 
 int encodeStackMapFullFrame(ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
 	unsigned int idx, length;
-	StackMapFullFrame *fullFrame = (void *)frame;
+	StackMapFullFrame *fullFrame = static_cast(StackMapFullFrame *, frame);
 
 	buildNextShort(builder, fullFrame->offset_delta);
 
@@ -220,7 +216,7 @@ int encodeStackMapFrame(
 int encodeStackMapTableAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
-	StackMapTableAttribute *table = (void *)info;
+	StackMapTableAttribute *table = static_cast(StackMapTableAttribute *, info);
 
 	length = listSize(table->entries);
 	buildNextShort(builder, length);
@@ -236,7 +232,7 @@ int encodeStackMapTableAttribute(
 int encodeExceptionsAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
-	ExceptionsAttribute *except = (void *)info;
+	ExceptionsAttribute *except = static_cast(ExceptionsAttribute *, info);
 
 	ignore_unused(classFile);
 	length = listSize(except->exception_table);
@@ -252,20 +248,19 @@ int encodeExceptionsAttribute(
 
 int encodeInnerClassEntry(
 		ClassFile *classFile, ClassBuilder *builder, InnerClassEntry *entry) {
-	ignore_unused(classFile);
-
 	buildNextShort(builder, entry->inner_class_info->index);
 	buildNextShort(builder, entry->outer_class_info->index);
 	buildNextShort(builder, entry->inner_class_name->index);
 	buildNextShort(builder, entry->inner_class_access_flags);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeInnerClassesAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
-	InnerClassesAttribute *inner = (void *)info;
+	InnerClassesAttribute *inner = static_cast(InnerClassesAttribute *, info);
 
 	length = listSize(inner->classes);
 	buildNextShort(builder, length);
@@ -280,63 +275,61 @@ int encodeInnerClassesAttribute(
 
 int encodeEnclosingMethodAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	EnclosingMethodAttribute *enclose = (void *)info;
+	EnclosingMethodAttribute *enclose = static_cast(EnclosingMethodAttribute *, info);
 
-	ignore_unused(classFile);
 	buildNextShort(builder, enclose->enclosing_class->index);
 	buildNextShort(builder, enclose->enclosing_method->index);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeSignatureAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	SignatureAttribute *signature = (void *)info;
+	SignatureAttribute *signature = static_cast(SignatureAttribute *, info);
 
-	ignore_unused(classFile);
 	buildNextShort(builder, signature->signature->index);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeSourceFileAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	SourceFileAttribute *source = (void *)info;
+	SourceFileAttribute *source = static_cast(SourceFileAttribute *, info);
 
-	ignore_unused(classFile);
 	buildNextShort(builder, source->source_file->index);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeSourceDebugExtensionAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx;
-	SourceDebugExtensionAttribute *debug = (void *)info;
-
-	ignore_unused(classFile);
+	SourceDebugExtensionAttribute *debug = static_cast(SourceDebugExtensionAttribute *, info);
 
 	for(idx = 0; idx < debug->attribute_length; idx++) {
 		buildNextByte(builder, debug->debug_extension[idx]);
 	}
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeLineNumberTableEntry(
 		ClassFile *classFile, ClassBuilder *builder, LineNumberTableEntry *entry) {
-	ignore_unused(classFile);
-
 	buildNextShort(builder, entry->start_pc);
 	buildNextShort(builder, entry->line_number);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeLineNumberTableAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
-	LineNumberTableAttribute *table = (void *)info;
+	LineNumberTableAttribute *table = static_cast(LineNumberTableAttribute *, info);
 
 	length = listSize(table->line_number_table);
 	buildNextShort(builder, length);
@@ -351,8 +344,6 @@ int encodeLineNumberTableAttribute(
 
 int encodeLocalVariableTableEntry(
 		ClassFile *classFile, ClassBuilder *builder, LocalVariableTableEntry *entry) {
-	ignore_unused(classFile);
-
 	buildNextShort(builder, entry->start_pc);
 	buildNextShort(builder, entry->length);
 
@@ -361,13 +352,15 @@ int encodeLocalVariableTableEntry(
 
 	buildNextShort(builder, entry->index);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeLocalVariableTableAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
-	LocalVariableTableAttribute *table = (void *)info;
+	LocalVariableTableAttribute *table = static_cast(
+			LocalVariableTableAttribute *, info);
 
 	length = listSize(table->local_variable_table);
 	buildNextShort(builder, length);
@@ -382,8 +375,6 @@ int encodeLocalVariableTableAttribute(
 
 int encodeLocalVariableTypeTableEntry(
 		ClassFile *classFile, ClassBuilder *builder, LocalVariableTypeTableEntry *entry) {
-	ignore_unused(classFile);
-
 	buildNextShort(builder, entry->start_pc);
 	buildNextShort(builder, entry->length);
 
@@ -392,13 +383,15 @@ int encodeLocalVariableTypeTableEntry(
 
 	buildNextShort(builder, entry->index);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeLocalVariableTypeTableAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
-	LocalVariableTypeTableAttribute *table = (void *)info;
+	LocalVariableTypeTableAttribute *table = static_cast(
+			LocalVariableTypeTableAttribute *, info);
 
 	length = listSize(table->local_variable_type_table);
 	buildNextShort(builder, length);
@@ -413,39 +406,35 @@ int encodeLocalVariableTypeTableAttribute(
 
 int encodeConstElementValue(
 		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
-	ignore_unused(classFile);
-
 	buildNextShort(builder, value->value.const_value->index);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeEnumElementValue(
 		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
-	ignore_unused(classFile);
-
 	buildNextShort(builder, value->value.enum_const_value.type_name->index);
 	buildNextShort(builder, value->value.enum_const_value.const_name->index);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeClassElementValue(
 		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
-	ignore_unused(classFile);
-
 	buildNextShort(builder, value->value.class_info->index);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeAnnotationElementValue(
 		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
 	extern int encodeAnnotationEntry(ClassFile *, ClassBuilder *, AnnotationEntry *);
-	ignore_unused(classFile);
-
 	encodeAnnotationEntry(classFile, builder, value->value.annotation_value);
 
+	ignore_unused(classFile);
 	return 0;
 }
 
@@ -454,7 +443,6 @@ int encodeArrayElementValue(
 	extern int encodeElementValue(ClassFile *, ClassBuilder *, ElementValue *);
 	unsigned int idx, length;
 
-	ignore_unused(classFile);
 	length = listSize(value->value.array_values);
 	buildNextShort(builder, length);
 
@@ -463,6 +451,7 @@ int encodeArrayElementValue(
 				value->value.array_values, idx));
 	}
 
+	ignore_unused(classFile);
 	return 0;
 }
 
@@ -523,7 +512,7 @@ int encodeAnnotationEntry(
 int encodeRuntimeAnnotationsAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
-	RuntimeAnnotationsAttribute *annot = (void *)info;
+	RuntimeAnnotationsAttribute *annot = static_cast(RuntimeAnnotationsAttribute *, info);
 
 	length = listSize(annot->annotations);
 	buildNextShort(builder, length);
@@ -554,7 +543,8 @@ int encodeParameterAnnotationsEntry(
 int encodeRuntimeParameterAnnotationsAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
-	RuntimeParameterAnnotationsAttribute *annot = (void *)info;
+	RuntimeParameterAnnotationsAttribute *annot = static_cast(
+			RuntimeParameterAnnotationsAttribute *, info);
 
 	length = listSize(annot->parameter_annotations);
 	buildNextByte(builder, length);
@@ -569,8 +559,7 @@ int encodeRuntimeParameterAnnotationsAttribute(
 
 int encodeAnnotationDefaultAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	AnnotationDefaultAttribute *annot = (void *)info;
-
+	AnnotationDefaultAttribute *annot = static_cast(AnnotationDefaultAttribute *, info);
 	encodeElementValue(classFile, builder, annot->default_value);
 
 	return 0;
@@ -580,7 +569,6 @@ int encodeBootstrapMethodEntry(
 		ClassFile *classFile, ClassBuilder *builder, BootstrapMethodEntry *entry) {
 	unsigned int idx, length;
 
-	ignore_unused(classFile);
 	buildNextShort(builder, entry->bootstrap_method_ref->index);
 	length = listSize(entry->bootstrap_arguments);
 	buildNextShort(builder, length);
@@ -590,13 +578,14 @@ int encodeBootstrapMethodEntry(
 		buildNextShort(builder, info->index);
 	}
 
+	ignore_unused(classFile);
 	return 0;
 }
 
 int encodeBootstrapMethodsAttribute(
 		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	unsigned int idx, length;
-	BootstrapMethodsAttribute *methods = (void *)info;
+	BootstrapMethodsAttribute *methods = static_cast(BootstrapMethodsAttribute *, info);
 
 	length = listSize(methods->bootstrap_methods);
 	buildNextShort(builder, length);

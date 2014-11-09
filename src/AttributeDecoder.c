@@ -2,6 +2,8 @@
 # include <string.h>
 
 # include "Debug.h"
+# include "Defines.h"
+
 # include "Zalloc.h"
 # include "ClassFile.h"
 # include "AttributeInfo.h"
@@ -10,31 +12,30 @@
 
 AttributeInfo *decodeConstantValueAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	ConstantValueAttribute *info = zalloc(sizeof(ConstantValueAttribute));
+	ConstantValueAttribute *info = NEW(ConstantValueAttribute);
 
 	// Constant Value
 	index = bufferNextShort(buffer);
 	info->constant_value = getConstant(classFile, index);
 
-	return (AttributeInfo *)info;
+	return static_cast(AttributeInfo *, info);
 }
 
 ExceptionTableEntry *decodeExceptionTableEntry(ClassFile *classFile, ClassBuffer *buffer) {
-	ExceptionTableEntry *entry = zalloc(sizeof(ExceptionTableEntry));
-
-	ignore_unused(classFile);
+	ExceptionTableEntry *entry = NEW(ExceptionTableEntry);
 
 	entry->start_pc = bufferNextShort(buffer);
 	entry->end_pc = bufferNextShort(buffer);
 	entry->handler_pc = bufferNextShort(buffer);
 	entry->catch_type = bufferNextShort(buffer);
 
+	ignore_unused(classFile);
 	return entry;
 }
 
 AttributeInfo *decodeCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	CodeAttribute *code = zalloc(sizeof(CodeAttribute));
+	CodeAttribute *code = NEW(CodeAttribute);
 
 	// Maximums
 	code->max_stack = bufferNextShort(buffer);
@@ -43,7 +44,7 @@ AttributeInfo *decodeCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	// Code
 	code->code_length = bufferNextInt(buffer);
 	debug_printf(level2, "Code length : %d.\n", code->code_length);
-	code->code = zalloc(sizeof(uint8_t) * code->code_length);
+	code->code = ALLOC(uint8_t, code->code_length);
 
 	for(idx = 0; idx < code->code_length; idx++) {
 		// TODO : Added a mass read operation
@@ -70,13 +71,13 @@ AttributeInfo *decodeCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 		listAdd(code->attributes, decodeAttribute(classFile, buffer));
 	}
 
-	return (AttributeInfo *)code;
+	return static_cast(AttributeInfo *, code);
 }
 
 VerificationTypeInfo *decodeVerificationTypeInfo(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	VerificationTypeInfo *info = zalloc(sizeof(VerificationTypeInfo));
+	VerificationTypeInfo *info = NEW(VerificationTypeInfo);
 
 	info->tag = bufferNextByte(buffer);
 	switch(info->tag) {
@@ -121,49 +122,47 @@ VerificationTypeInfo *decodeVerificationTypeInfo(
 }
 
 StackMapFrame *decodeStackMapOffFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	StackMapOffFrame *frame = zalloc(sizeof(StackMapOffFrame));
-
-	ignore_unused(classFile);
+	StackMapOffFrame *frame = NEW(StackMapOffFrame);
 	frame->offset_delta = bufferNextShort(buffer);
 
-	return (StackMapFrame *)frame;
+	ignore_unused(classFile);
+	return static_cast(StackMapFrame *, frame);
 }
 
 StackMapFrame *decodeStackMapItemFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	StackMapItemFrame *frame = zalloc(sizeof(StackMapItemFrame));
-
+	StackMapItemFrame *frame = NEW(StackMapItemFrame);
 	frame->stack = decodeVerificationTypeInfo(classFile, buffer);
 
-	return (StackMapFrame *)frame;
+	return static_cast(StackMapFrame *, frame);
 }
 
 StackMapFrame *decodeStackMapExtFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	StackMapExtFrame *frame = zalloc(sizeof(StackMapExtFrame));
+	StackMapExtFrame *frame = NEW(StackMapExtFrame);
 
 	frame->offset_delta = bufferNextShort(buffer);
 	frame->stack = decodeVerificationTypeInfo(classFile, buffer);
 
-	return (StackMapFrame *)frame;
+	return static_cast(StackMapFrame *, frame);
 }
 
 StackMapFrame *decodeStackMapListFrame(
 		ClassFile *classFile, ClassBuffer *buffer, unsigned int count) {
 	unsigned int idx;
-	StackMapListFrame *frame = zalloc(sizeof(StackMapListFrame));
+	StackMapListFrame *frame = NEW(StackMapListFrame);
 
 	frame->offset_delta = bufferNextShort(buffer);
-	frame->stack = zalloc(sizeof(VerificationTypeInfo *) * count);
+	frame->stack = ALLOC(VerificationTypeInfo *, count);
 
 	for(idx = 0; idx < count; idx++) {
 		frame->stack[idx] = decodeVerificationTypeInfo(classFile, buffer);
 	}
 
-	return (StackMapFrame *)frame;
+	return static_cast(StackMapFrame *, frame);
 }
 
 StackMapFrame *decodeStackMapFullFrame(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	StackMapFullFrame *frame = zalloc(sizeof(StackMapFullFrame));
+	StackMapFullFrame *frame = NEW(StackMapFullFrame);
 
 	frame->offset_delta = bufferNextShort(buffer);
 
@@ -183,7 +182,7 @@ StackMapFrame *decodeStackMapFullFrame(ClassFile *classFile, ClassBuffer *buffer
 		listAdd(frame->stack, decodeVerificationTypeInfo(classFile, buffer));
 	}
 
-	return (StackMapFrame *)frame;
+	return static_cast(StackMapFrame *, frame);
 }
 
 StackMapFrame *decodeStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
@@ -195,7 +194,7 @@ StackMapFrame *decodeStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
 	// Stack Map Same Frame
 	if(tag <= 63) {
 		debug_printf(level3, "Stack Map same frame.\n");
-		frame = zalloc(sizeof(StackMapFrame));
+		frame = NEW(StackMapFrame);
 	} else
 	// Stack Map Same Locals 1
 	if(tag >= 64 && tag <= 127) {
@@ -242,7 +241,7 @@ StackMapFrame *decodeStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
 
 AttributeInfo *decodeStackMapTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	StackMapTableAttribute *table = zalloc(sizeof(StackMapTableAttribute));
+	StackMapTableAttribute *table = NEW(StackMapTableAttribute);
 
 	debug_printf(level2, "Decoding StackMapTable.\n");
 
@@ -258,12 +257,12 @@ AttributeInfo *decodeStackMapTableAttribute(ClassFile *classFile, ClassBuffer *b
 
 	debug_printf(level2, "Finished StackMapTable.\n");
 
-	return (AttributeInfo *)table;
+	return static_cast(AttributeInfo *, table);
 }
 
 AttributeInfo *decodeExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	ExceptionsAttribute *except = zalloc(sizeof(ExceptionsAttribute));
+	ExceptionsAttribute *except = NEW(ExceptionsAttribute);
 
 	// Exceptions Table
 	length = bufferNextShort(buffer);
@@ -277,12 +276,12 @@ AttributeInfo *decodeExceptionsAttribute(ClassFile *classFile, ClassBuffer *buff
 		listAdd(except->exception_table, getConstant(classFile, index));
 	}
 
-	return (AttributeInfo *)except;
+	return static_cast(AttributeInfo *, except);
 }
 
 InnerClassEntry *decodeInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	InnerClassEntry *entry = zalloc(sizeof(InnerClassEntry));
+	InnerClassEntry *entry = NEW(InnerClassEntry);
 
 	// Inner Class Info
 	index = bufferNextShort(buffer);
@@ -308,7 +307,7 @@ InnerClassEntry *decodeInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer
 
 AttributeInfo *decodeInnerClassesAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	InnerClassesAttribute *inner = zalloc(sizeof(InnerClassesAttribute));
+	InnerClassesAttribute *inner = NEW(InnerClassesAttribute);
 
 	// Inner Classes Table
 	length = bufferNextShort(buffer);
@@ -320,12 +319,12 @@ AttributeInfo *decodeInnerClassesAttribute(ClassFile *classFile, ClassBuffer *bu
 		listAdd(inner->classes, decodeInnerClassEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)inner;
+	return static_cast(AttributeInfo *, inner);
 }
 
 AttributeInfo *decodeEnclosingMethodAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	EnclosingMethodAttribute *enclose = zalloc(sizeof(EnclosingMethodAttribute));
+	EnclosingMethodAttribute *enclose = NEW(EnclosingMethodAttribute);
 
 	// Enclosing Class
 	index = bufferNextShort(buffer);
@@ -335,29 +334,28 @@ AttributeInfo *decodeEnclosingMethodAttribute(ClassFile *classFile, ClassBuffer 
 	index = bufferNextShort(buffer);
 	enclose->enclosing_method = getConstant(classFile, index);
 
-	return (AttributeInfo *)enclose;
+	return static_cast(AttributeInfo *, enclose);
 }
 
 AttributeInfo *decodeSyntheticAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	ignore_unused(buffer);
-	ignore_unused(classFile);
-	return (AttributeInfo *)zalloc(sizeof(SyntheticAttribute));
+	ignore_unused(buffer); ignore_unused(classFile);
+	return static_cast(AttributeInfo *, NEW(SyntheticAttribute));
 }
 
 AttributeInfo *decodeSignatureAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	SignatureAttribute *signature = zalloc(sizeof(SignatureAttribute));
+	SignatureAttribute *signature = NEW(SignatureAttribute);
 
 	// Signature
 	index = bufferNextShort(buffer);
 	signature->signature = getConstant(classFile, index);
 
-	return (AttributeInfo *)signature;
+	return static_cast(AttributeInfo *, signature);
 }
 
 AttributeInfo *decodeSourceFileAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	SourceFileAttribute *file = zalloc(sizeof(SourceFileAttribute));
+	SourceFileAttribute *file = NEW(SourceFileAttribute);
 
 	// Source File
 	index = bufferNextShort(buffer);
@@ -365,41 +363,39 @@ AttributeInfo *decodeSourceFileAttribute(ClassFile *classFile, ClassBuffer *buff
 
 	debug_printf(level2, "Source file name : %s.\n", file->source_file->bytes);
 
-	return (AttributeInfo *)file;
+	return static_cast(AttributeInfo *, file);
 }
 
 AttributeInfo *decodeSourceDebugExtensionAttribute(
 		ClassFile *classFile, ClassBuffer *buffer, uint32_t length) {
 	unsigned int idx;
-	SourceDebugExtensionAttribute *source = zalloc(
-			sizeof(SourceDebugExtensionAttribute));
-
-	ignore_unused(classFile);
+	SourceDebugExtensionAttribute *source = NEW(SourceDebugExtensionAttribute);
 
 	// Debug Extension
-	source->debug_extension = zalloc(sizeof(uint8_t) * length);
+	source->debug_extension = ALLOC(uint8_t, length);
 
 	for(idx = 0; idx < length; idx++) {
 		// TODO : Added a mass read operation
 		source->debug_extension[idx] = bufferNextByte(buffer);
 	}
 
-	return (AttributeInfo *)source;
+	ignore_unused(classFile);
+	return static_cast(AttributeInfo *, source);
 }
 
 LineNumberTableEntry *decodeLineNumberTableEntry(ClassFile *classFile, ClassBuffer *buffer) {
-	LineNumberTableEntry *entry = zalloc(sizeof(LineNumberTableEntry));
+	LineNumberTableEntry *entry = NEW(LineNumberTableEntry);
 
-	ignore_unused(classFile);
 	entry->start_pc = bufferNextShort(buffer);
 	entry->line_number = bufferNextShort(buffer);
 
+	ignore_unused(classFile);
 	return entry;
 }
 
 AttributeInfo *decodeLineNumberTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	LineNumberTableAttribute *table = zalloc(sizeof(LineNumberTableAttribute));
+	LineNumberTableAttribute *table = NEW(LineNumberTableAttribute);
 
 	// Line Number Table
 	length = bufferNextShort(buffer);
@@ -411,13 +407,13 @@ AttributeInfo *decodeLineNumberTableAttribute(ClassFile *classFile, ClassBuffer 
 				decodeLineNumberTableEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)table;
+	return static_cast(AttributeInfo *, table);
 }
 
 LocalVariableTableEntry *decodeLocalVariableTableEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	LocalVariableTableEntry *entry = zalloc(sizeof(LocalVariableTableEntry));
+	LocalVariableTableEntry *entry = NEW(LocalVariableTableEntry);
 
 	entry->start_pc = bufferNextShort(buffer);
 	entry->length = bufferNextShort(buffer);
@@ -442,8 +438,7 @@ LocalVariableTableEntry *decodeLocalVariableTableEntry(
 AttributeInfo *decodeLocalVariableTableAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	LocalVariableTableAttribute *local = zalloc(
-			sizeof(LocalVariableTableAttribute));
+	LocalVariableTableAttribute *local = NEW(LocalVariableTableAttribute);
 
 	// Local Variable Table
 	length = bufferNextShort(buffer);
@@ -456,13 +451,13 @@ AttributeInfo *decodeLocalVariableTableAttribute(
 				decodeLocalVariableTableEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)local;
+	return static_cast(AttributeInfo *, local);
 }
 
 LocalVariableTypeTableEntry *decodeLocalVariableTypeTableEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	LocalVariableTypeTableEntry *entry = zalloc(sizeof(LocalVariableTypeTableEntry));
+	LocalVariableTypeTableEntry *entry = NEW(LocalVariableTypeTableEntry);
 
 	entry->start_pc = bufferNextShort(buffer);
 	entry->length = bufferNextShort(buffer);
@@ -501,18 +496,18 @@ AttributeInfo *decodeLocalVariableTypeTableAttribute(
 				decodeLocalVariableTypeTableEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)local;
+	return static_cast(AttributeInfo *, local);
 }
 
 AttributeInfo *decodeDeprecatedAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	ignore_unused(buffer);
 	ignore_unused(classFile);
-	return (AttributeInfo *)zalloc(sizeof(DeprecatedAttribute));
+	return static_cast(AttributeInfo *, NEW(DeprecatedAttribute));
 }
 
 ElementValue *decodeConstElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	ElementValue *value = zalloc(sizeof(ElementValue));
+	ElementValue *value = NEW(ElementValue);
 
 	// Constant Value
 	index = bufferNextShort(buffer);
@@ -523,7 +518,7 @@ ElementValue *decodeConstElementValue(ClassFile *classFile, ClassBuffer *buffer)
 
 ElementValue *decodeEnumElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	ElementValue *value = zalloc(sizeof(ElementValue));
+	ElementValue *value = NEW(ElementValue);
 
 	// Type Name
 	index = bufferNextShort(buffer);
@@ -538,7 +533,7 @@ ElementValue *decodeEnumElementValue(ClassFile *classFile, ClassBuffer *buffer) 
 
 ElementValue *decodeClassElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	ElementValue *value = zalloc(sizeof(ElementValue));
+	ElementValue *value = NEW(ElementValue);
 
 	// Class Info
 	index = bufferNextShort(buffer);
@@ -550,7 +545,7 @@ ElementValue *decodeClassElementValue(ClassFile *classFile, ClassBuffer *buffer)
 ElementValue *decodeAnnotationElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	extern AnnotationEntry *decodeAnnotationEntry(ClassFile *, ClassBuffer *);
 
-	ElementValue *value = zalloc(sizeof(ElementValue));
+	ElementValue *value = NEW(ElementValue);
 
 	// Annotation Value
 	value->value.annotation_value = decodeAnnotationEntry(classFile, buffer);
@@ -562,7 +557,7 @@ ElementValue *decodeArrayElementValue(ClassFile *classFile, ClassBuffer *buffer)
 	extern ElementValue *decodeElementValue(ClassFile *, ClassBuffer *);
 
 	unsigned int idx, length;
-	ElementValue *value = zalloc(sizeof(ElementValue));
+	ElementValue *value = NEW(ElementValue);
 
 	// Array Value Table
 	length = bufferNextShort(buffer);
@@ -612,7 +607,7 @@ ElementValue *decodeElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 ElementValuePairsEntry *decodeElementValuePairsEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	ElementValuePairsEntry *entry = zalloc(sizeof(ElementValuePairsEntry));
+	ElementValuePairsEntry *entry = NEW(ElementValuePairsEntry);
 
 	// Element Name
 	index = bufferNextShort(buffer);
@@ -628,7 +623,7 @@ ElementValuePairsEntry *decodeElementValuePairsEntry(
 AnnotationEntry *decodeAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
 	unsigned int idx, length;
-	AnnotationEntry *entry = zalloc(sizeof(AnnotationEntry));
+	AnnotationEntry *entry = NEW(AnnotationEntry);
 
 	// Annotation Entry Type
 	index = bufferNextShort(buffer);
@@ -651,8 +646,8 @@ AnnotationEntry *decodeAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer
 AttributeInfo *decodeRuntimeAnnotationsAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	RuntimeAnnotationsAttribute *annot = zalloc(sizeof(
-			RuntimeAnnotationsAttribute));
+	RuntimeAnnotationsAttribute *annot = NEW(
+			RuntimeAnnotationsAttribute);
 
 	// Annotations Table
 	length = bufferNextShort(buffer);
@@ -662,13 +657,13 @@ AttributeInfo *decodeRuntimeAnnotationsAttribute(
 		listAdd(annot->annotations, decodeAnnotationEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)annot;
+	return static_cast(AttributeInfo *, annot);
 }
 
 ParameterAnnotationsEntry *decodeParameterAnnotationsEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	ParameterAnnotationsEntry *entry = zalloc(sizeof(ParameterAnnotationsEntry));
+	ParameterAnnotationsEntry *entry = NEW(ParameterAnnotationsEntry);
 
 	// Annotations Table
 	length = bufferNextShort(buffer);
@@ -686,8 +681,8 @@ ParameterAnnotationsEntry *decodeParameterAnnotationsEntry(
 AttributeInfo *decodeRuntimeParameterAnnotationsAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	RuntimeParameterAnnotationsAttribute *annot = zalloc(sizeof(
-			RuntimeParameterAnnotationsAttribute));
+	RuntimeParameterAnnotationsAttribute *annot = NEW(
+			RuntimeParameterAnnotationsAttribute);
 
 	// Parameter Annotations Table
 	length = bufferNextByte(buffer);
@@ -700,21 +695,21 @@ AttributeInfo *decodeRuntimeParameterAnnotationsAttribute(
 				decodeParameterAnnotationsEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)annot;
+	return static_cast(AttributeInfo *, annot);
 }
 
 AttributeInfo *decodeAnnotationDefaultAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	AnnotationDefaultAttribute *annot = zalloc(sizeof(AnnotationDefaultAttribute));
+	AnnotationDefaultAttribute *annot = NEW(AnnotationDefaultAttribute);
 
 	// Default Value
 	annot->default_value = decodeElementValue(classFile, buffer);
 
-	return (AttributeInfo *)annot;
+	return static_cast(AttributeInfo *, annot);
 }
 
 BootstrapMethodEntry *decodeBootstrapMethodEntry(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	BootstrapMethodEntry *entry = zalloc(sizeof(BootstrapMethodEntry));
+	BootstrapMethodEntry *entry = NEW(BootstrapMethodEntry);
 
 	// Bootstrap Method Parameters Table
 	length = bufferNextShort(buffer);
@@ -730,7 +725,7 @@ BootstrapMethodEntry *decodeBootstrapMethodEntry(ClassFile *classFile, ClassBuff
 
 AttributeInfo *decodeBootstrapMethodsAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	BootstrapMethodsAttribute *bootstrap = zalloc(sizeof(BootstrapMethodsAttribute));
+	BootstrapMethodsAttribute *bootstrap = NEW(BootstrapMethodsAttribute);
 
 	// Bootstrap Method Table
 	length = bufferNextShort(buffer);
@@ -741,7 +736,7 @@ AttributeInfo *decodeBootstrapMethodsAttribute(ClassFile *classFile, ClassBuffer
 				decodeBootstrapMethodEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)bootstrap;
+	return static_cast(AttributeInfo *, bootstrap);
 }
 
 AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
