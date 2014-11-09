@@ -19,7 +19,7 @@ jbctest: test.o libjbc.a
 
 .PHONY: clean
 clean:
-	rm -f *.o *.exe *.a *.class
+	rm -f *.o *.exe *.a *.class *.hex
 
 Test.class : test/Test.java
 	$(JC) $(JFALGS) $<
