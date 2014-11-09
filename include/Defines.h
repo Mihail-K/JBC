@@ -28,9 +28,11 @@
 # ifndef __cplusplus
 #	define NEW(T)		(T *)zalloc(sizeof(T))
 #	define ALLOC(T, C)	(T *)zalloc(sizeof(T) * C)
+#	define DELETE(P)	free(P)
 # else /* Pure C */
 #	define NEW(T)		new T
 #	define ALLOC(T, C)	new T[C]
+#	define DELETE(P)	delete P
 # endif /* C++ */
 
 # endif /* Defines.h */
