@@ -1,4 +1,4 @@
-
+#!/bin/bash
 # A short script to confirm the program functions correctly.
 
 ./jbctest Test.class Test2.class
