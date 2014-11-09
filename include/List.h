@@ -5,11 +5,11 @@ typedef struct List List;
 
 List *createList();
 
-void deleteList(List *list, void (* destroy)());
+void deleteList(List *list, void (* destroy)(void *));
 
 List *listAdd(List *list, void *item);
 
-List *listClear(List *list, void (* destroy)());
+List *listClear(List *list, void (* destroy)(void *));
 
 void *listGet(List *list, int idx);
 

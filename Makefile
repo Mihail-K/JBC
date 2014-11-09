@@ -15,7 +15,7 @@ all: libjbc.a jbctest Test.class
 libjbc.a: libjbc.a($(objects))
 
 jbctest: test.o libjbc.a
-	$(CC) $(LDFLAGS) -L ./ -o $@ $< $(LDLIBS) -ljbc
+	$(CC) $(LDFLAGS) -L ./ -o $@ $< $(LDLIBS) -ljbc -lstdc++
 
 .PHONY: clean
 clean:
@@ -25,8 +25,8 @@ Test.class : test/Test.java
 	$(JC) $(JFALGS) $<
 	mv test/*.class .
 
-test.o: test/Main.c include/*.h
+test.o: test/Main.cpp include/*.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
-%.o: src/%.c include/*.h
+%.o: src/%.cpp include/*.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@

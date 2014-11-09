@@ -29,7 +29,7 @@
 # endif /* Level 0 */
 
 # ifdef _DEBUG
-# define debug_printf(level, fmt, ...) level(fmt, ## __VA_ARGS__)
+# define debug_printf(level, fmt, ...) level((char *)fmt, ## __VA_ARGS__)
 
 static __inline__
 void __debug_printf(int level, const char *func, char *fmt, ...) {
