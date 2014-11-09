@@ -611,7 +611,7 @@ int encodeBootstrapMethodsAttribute(
 
 int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
 	int result;
-	long int initpos;
+	unsigned long int initpos;
 
 	buildNextShort(builder, info->name->index);
 	buildNextInt(builder, info->attribute_length);

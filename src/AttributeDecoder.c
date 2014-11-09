@@ -750,7 +750,7 @@ AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t name_index = bufferNextShort(buffer);
 	uint32_t attribute_length = bufferNextInt(buffer);
 	ConstantUtf8Info *name = getConstant(classFile, name_index);
-	long int initpos = bufferPos(buffer);
+	unsigned long int initpos = bufferPos(buffer);
 
 	if(name == NULL) {
 		fprintf(stderr, "Error : Attribute with no name entry!\n");
