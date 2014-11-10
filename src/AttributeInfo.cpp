@@ -131,7 +131,10 @@ BootstrapMethodEntry::~BootstrapMethodEntry() {
 }
 
 BootstrapMethodsAttribute::~BootstrapMethodsAttribute() {
-	if(bootstrap_methods != NULL) {
-		deleteList(bootstrap_methods, operator delete);
+	if(!bootstrap_methods.empty()) {
+		for(std::vector<BootstrapMethodEntry *>::iterator itr = bootstrap_methods.begin();
+				itr != bootstrap_methods.end(); itr++) {
+			delete *itr;
+		}
 	}
 }

@@ -453,12 +453,11 @@ BootstrapMethodsAttribute *BootstrapMethodsAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
 
-	length = listSize(bootstrap_methods);
+	length = bootstrap_methods.size();
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeBootstrapMethodEntry(classFile, builder, static_cast<
-				BootstrapMethodEntry *>(listGet(bootstrap_methods, idx)));
+		encodeBootstrapMethodEntry(classFile, builder, bootstrap_methods[idx]);
 	}
 
 	return 0;

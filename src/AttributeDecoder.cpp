@@ -594,11 +594,8 @@ BootstrapMethodsAttribute *BootstrapMethodsAttribute
 
 	// Bootstrap Method Table
 	length = buffer->NextShort();
-	bootstrap_methods = createList();
-
 	for(unsigned idx = 0; idx < length; idx++) {
-		listAdd(bootstrap_methods,
-				decodeBootstrapMethodEntry(classFile, buffer));
+		bootstrap_methods.push_back(decodeBootstrapMethodEntry(classFile, buffer));
 	}
 
 	return this;

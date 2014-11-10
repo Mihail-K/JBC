@@ -590,7 +590,7 @@ struct BootstrapMethodEntry {
 struct BootstrapMethodsAttribute
 		: public AttributeInfo {
 	// Bootstrap Method Table
-	List		*bootstrap_methods;
+	std::vector<BootstrapMethodEntry *> bootstrap_methods;
 
 	BootstrapMethodsAttribute() {
 	}
