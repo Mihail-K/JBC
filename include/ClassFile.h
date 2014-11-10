@@ -1,10 +1,75 @@
 # ifndef __CLASSFILE_H__
 # define __CLASSFILE_H__
 
+# include <vector>
 # include <stdio.h>
 # include <stdlib.h>
 
-# include "Types.h"
+# include "ClassBuffer.h"
+# include "ClassBuilder.h"
+
+struct ConstantInfo;
+struct ConstantClassInfo;
+
+struct MemberInfo;
+struct AttributeInfo;
+
+class ClassFile {
+public:
+	uint32_t	magic;
+
+	// Version Info
+	uint16_t	major_version;
+	uint16_t	minor_version;
+
+	// Constants Table
+	std::vector<ConstantInfo *> constant_pool;
+
+	uint16_t	access_flags;
+
+	// This Class
+	ConstantClassInfo *this_class;
+
+	// Super Class
+	ConstantClassInfo *super_class;
+
+	// Interfaces Table
+	std::vector<ConstantClassInfo *> interfaces;
+
+	// Fields Table
+	std::vector<MemberInfo *> fields;
+
+	// Methods Table
+	std::vector<MemberInfo *> methods;
+
+	// Attributes Table
+	std::vector<AttributeInfo *> attributes;
+
+public:
+	// Constructors
+	ClassFile();
+	ClassFile(ClassBuffer *buffer);
+
+	~ClassFile();
+
+public:
+	void ReadBuffer(ClassBuffer *buffer);
+
+	void WriteBuilder(ClassBuilder *builder);
+
+private:
+	void DecodeConstants(ClassBuffer *buffer);
+
+	void DecodeClasses(ClassBuffer *buffer);
+
+	void DecodeInterfaces(ClassBuffer *buffer);
+
+	void DecodeFields(ClassBuffer *buffer);
+
+	void DecodeMethods(ClassBuffer *buffer);
+
+	void DecodeAttributes(ClassBuffer *buffer);
+};
 
 ClassFile *createClassFile();
 

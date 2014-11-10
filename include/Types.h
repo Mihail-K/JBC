@@ -5,6 +5,7 @@
 # include <stdint.h>
 
 # include "List.h"
+# include "ClassFile.h"
 
 enum ConstantType {
 	CONSTANT_UTF8	= 1,
@@ -29,16 +30,16 @@ enum ConstantType {
 
 /* Constant Info */
 
-typedef struct {
+struct ConstantInfo {
 	uint8_t		tag;
 	uint16_t	index;
-} ConstantInfo;
+};
 
-typedef struct {
+struct ConstantClassInfo {
 	uint8_t		tag;
 	uint16_t	index;
 	uint16_t	name_index;
-} ConstantClassInfo;
+};
 
 typedef struct {
 	uint8_t		tag;
@@ -139,10 +140,10 @@ enum MethodAccessFlags {
 
 /* Attribute Info */
 
-typedef struct {
+struct AttributeInfo {
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
-} AttributeInfo;
+};
 
 typedef struct {
 	ConstantUtf8Info *name;
@@ -494,12 +495,7 @@ typedef struct {
 
 /* Field/Method Info */
 
-typedef enum {
-	MT_FIELD,
-	MT_METHOD
-} MemberType;
-
-typedef struct {
+struct MemberInfo {
 	uint16_t	access_flags;
 
 	// Name
@@ -510,40 +506,9 @@ typedef struct {
 
 	// Attributes Table
 	List		*attributes;
-}
-FieldInfo,
-MethodInfo,
-MemberInfo;
+};
 
-typedef struct {
-	uint32_t	magic;
-
-	// Version Info
-	uint16_t	major_version;
-	uint16_t	minor_version;
-
-	// Constants Table
-	std::vector<ConstantInfo *> constant_pool;
-
-	uint16_t	access_flags;
-
-	// This Class
-	ConstantClassInfo *this_class;
-
-	// Super Class
-	ConstantClassInfo *super_class;
-
-	// Interfaces Table
-	std::vector<ConstantClassInfo *> interfaces;
-
-	// Fields Table
-	std::vector<FieldInfo *> fields;
-
-	// Methods Table
-	std::vector<MethodInfo *> methods;
-
-	// Attributes Table
-	std::vector<AttributeInfo *> attributes;
-} ClassFile;
+typedef MemberInfo FieldInfo;
+typedef MemberInfo MethodInfo;
 
 # endif /* Types.h */
