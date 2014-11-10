@@ -171,7 +171,7 @@ int encodeConstant(ClassBuilder *builder, ConstantInfo *info) {
 			debug_printf(level2, "Constant Invoke Dynamic.\n");
 			return encodeConstantInvokeDynamic(builder, info);
 		default:
-			fprintf(stderr, "Unknown tag : %d (%ld).\n", info->tag, builderPos(builder));
+			fprintf(stderr, "Unknown tag : %d (%zu).\n", info->tag, builderPos(builder));
 			exit(EXIT_FAILURE);
 	}
 }

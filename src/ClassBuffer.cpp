@@ -24,33 +24,35 @@ size_t ClassBuffer::Position() {
 	return ftell(input);
 }
 
+// TODO: Implement an endianness check.
+
 static inline
-void ToBigEndian(uint8_t &a, uint8_t &b) {
+void Swap(uint8_t &a, uint8_t &b) {
 	uint8_t t = a;
 	a = b;
 	b = t;
 }
 
 static inline
-uint16_t ToBigEndian(uint16_t l) {
+uint16_t FromBigEndian(uint16_t l) {
 	union {
 		uint16_t l;
 		uint8_t b[2];
 	} u = { l };
 
-	ToBigEndian(u.b[0], u.b[1]);
+	Swap(u.b[0], u.b[1]);
 	return u.l;
 }
 
 static inline
-uint32_t ToBigEndian(uint32_t l) {
+uint32_t FromBigEndian(uint32_t l) {
 	union {
 		uint32_t l;
 		uint8_t b[4];
 	} u = { l };
 
-	ToBigEndian(u.b[0], u.b[3]);
-	ToBigEndian(u.b[1], u.b[2]);
+	Swap(u.b[0], u.b[3]);
+	Swap(u.b[1], u.b[2]);
 	return u.l;
 }
 
@@ -71,7 +73,7 @@ uint16_t ClassBuffer::NextShort() {
 	if((read = fread(&value, 1, sizeof(uint16_t), input))
 			!= sizeof(uint16_t))
 		throw BufferError(strerror(errno));
-	return ToBigEndian(value);
+	return FromBigEndian(value);
 }
 
 uint32_t ClassBuffer::NextInt() {
@@ -81,5 +83,5 @@ uint32_t ClassBuffer::NextInt() {
 	if((read = fread(&value, 1, sizeof(uint32_t), input))
 			!= sizeof(uint32_t))
 		throw BufferError(strerror(errno));
-	return ToBigEndian(value);
+	return FromBigEndian(value);
 }
