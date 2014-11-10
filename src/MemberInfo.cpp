@@ -16,7 +16,7 @@ MemberInfo::~MemberInfo() {
 		debug_printf(level2, "Deleting member attributes.\n");
 		for(std::vector<AttributeInfo *>::iterator itr = attributes.begin();
 				itr != attributes.end(); itr++) {
-			deleteAttribute(*itr);
+			delete *itr;
 		}
 	}
 }

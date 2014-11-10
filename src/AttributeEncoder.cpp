@@ -9,13 +9,10 @@
 
 # define ignore_unused(x) ((void)x)
 
-int encodeConstantValueAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	ConstantValueAttribute *constant = (ConstantValueAttribute *)info;
-	builder->NextShort(constant->constant_value->index);
-
-	ignore_unused(classFile);
-	return 0;
+ConstantValueAttribute *ConstantValueAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	builder->NextShort(constant_value->index);
+	return this;
 }
 
 int encodeExceptionTableEntry(
@@ -29,38 +26,35 @@ int encodeExceptionTableEntry(
 	return 0;
 }
 
-int encodeCodeAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx, length;
-	CodeAttribute *code = (CodeAttribute *)info;
+CodeAttribute *CodeAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
 	// Maximums
-	builder->NextShort(code->max_stack);
-	builder->NextShort(code->max_locals);
+	builder->NextShort(max_stack);
+	builder->NextShort(max_locals);
 
 	// Code
-	builder->NextInt(code->code_length);
-	for(idx = 0; idx < code->code_length; idx++) {
-		builder->NextByte(code->code[idx]);
+	builder->NextInt(code_length);
+	for(unsigned idx = 0; idx < code_length; idx++) {
+		builder->NextByte(code[idx]);
 	}
 
 	// Exception Table
-	length = listSize(code->exception_table);
+	length = exception_table.size();
 	builder->NextShort(length);
-	for(idx = 0; idx < length; idx++) {
-		encodeExceptionTableEntry(classFile, builder, static_cast<
-				ExceptionTableEntry *>(listGet(code->exception_table, idx)));
+	for(unsigned idx = 0; idx < length; idx++) {
+		encodeExceptionTableEntry(classFile, builder, exception_table[idx]);
 	}
 
 	// Attribute Table
-	length = listSize(code->attributes);
+	length = attributes.size();
 	builder->NextShort(length);
-	for(idx = 0; idx < length; idx++) {
-		encodeAttribute(classFile, builder, static_cast<
-				AttributeInfo *>(listGet(code->attributes, idx)));
+	for(unsigned idx = 0; idx < length; idx++) {
+		attributes[idx]->EncodeAttribute(builder, classFile);
 	}
 
-	return 0;
+	return this;
 }
 
 int encodeStackMapFrame(
@@ -110,37 +104,34 @@ int encodeStackMapFrame(
 	return 0;
 }
 
-int encodeStackMapTableAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx, length;
-	StackMapTableAttribute *table = (StackMapTableAttribute *)info;
+StackMapTableAttribute *StackMapTableAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
-	length = table->entries.size();
+	length = entries.size();
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
-		encodeStackMapFrame(classFile, builder, table->entries[idx]);
+	for(unsigned idx = 0; idx < length; idx++) {
+		encodeStackMapFrame(classFile, builder, entries[idx]);
 	}
 
-	return 0;
+	return this;
 }
 
-int encodeExceptionsAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx, length;
-	ExceptionsAttribute *except = (ExceptionsAttribute *)info;
+ExceptionsAttribute *ExceptionsAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	uint16_t length;
 
-	ignore_unused(classFile);
-	length = listSize(except->exception_table);
+	length = exception_table->size();
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		ConstantInfo *constant = static_cast<ConstantInfo *>(listGet(
-				except->exception_table, idx));
+				exception_table, idx));
 		builder->NextShort(constant->index);
 	}
 
-	return 0;
+	return this;
 }
 
 int encodeInnerClassEntry(
@@ -154,64 +145,50 @@ int encodeInnerClassEntry(
 	return 0;
 }
 
-int encodeInnerClassesAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx, length;
-	InnerClassesAttribute *inner = (InnerClassesAttribute *)info;
+InnerClassesAttribute *InnerClassesAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
-	length = listSize(inner->classes);
+	length = listSize(classes);
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		encodeInnerClassEntry(classFile, builder, static_cast<
-				InnerClassEntry *>(listGet(inner->classes, idx)));
+				InnerClassEntry *>(listGet(classes, idx)));
 	}
 
-	return 0;
+	return this;
 }
 
-int encodeEnclosingMethodAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	EnclosingMethodAttribute *enclose = (EnclosingMethodAttribute *)info;
+EnclosingMethodAttribute *EnclosingMethodAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	builder->NextShort(enclosing_class->index);
+	builder->NextShort(enclosing_method->index);
 
-	builder->NextShort(enclose->enclosing_class->index);
-	builder->NextShort(enclose->enclosing_method->index);
-
-	ignore_unused(classFile);
-	return 0;
+	return this;
 }
 
-int encodeSignatureAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	SignatureAttribute *signature = (SignatureAttribute *)info;
+SignatureAttribute *SignatureAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	builder->NextShort(signature->index);
 
-	builder->NextShort(signature->signature->index);
-
-	ignore_unused(classFile);
-	return 0;
+	return this;
 }
 
-int encodeSourceFileAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	SourceFileAttribute *source = (SourceFileAttribute *)info;
+SourceFileAttribute *SourceFileAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	builder->NextShort(source_file->index);
 
-	builder->NextShort(source->source_file->index);
-
-	ignore_unused(classFile);
-	return 0;
+	return this;
 }
 
-int encodeSourceDebugExtensionAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx;
-	SourceDebugExtensionAttribute *debug = (SourceDebugExtensionAttribute *)info;
-
-	for(idx = 0; idx < debug->attribute_length; idx++) {
-		builder->NextByte(debug->debug_extension[idx]);
+SourceDebugExtensionAttribute *SourceDebugExtensionAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	for(unsigned idx = 0; idx < attribute_length; idx++) {
+		builder->NextByte(debug_extension[idx]);
 	}
 
-	ignore_unused(classFile);
-	return 0;
+	return this;
 }
 
 int encodeLineNumberTableEntry(
@@ -223,20 +200,19 @@ int encodeLineNumberTableEntry(
 	return 0;
 }
 
-int encodeLineNumberTableAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx, length;
-	LineNumberTableAttribute *table = (LineNumberTableAttribute *)info;
+LineNumberTableAttribute *LineNumberTableAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
-	length = listSize(table->line_number_table);
+	length = listSize(line_number_table);
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		encodeLineNumberTableEntry(classFile, builder, static_cast<
-				LineNumberTableEntry *>(listGet(table->line_number_table, idx)));
+				LineNumberTableEntry *>(listGet(line_number_table, idx)));
 	}
 
-	return 0;
+	return this;
 }
 
 int encodeLocalVariableTableEntry(
@@ -253,21 +229,19 @@ int encodeLocalVariableTableEntry(
 	return 0;
 }
 
-int encodeLocalVariableTableAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx, length;
-	LocalVariableTableAttribute *table =
-			(LocalVariableTableAttribute *)info;
+LocalVariableTableAttribute *LocalVariableTableAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
-	length = listSize(table->local_variable_table);
+	length = listSize(local_variable_table);
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		encodeLocalVariableTableEntry(classFile, builder, static_cast<
-				LocalVariableTableEntry *>(listGet(table->local_variable_table, idx)));
+				LocalVariableTableEntry *>(listGet(local_variable_table, idx)));
 	}
 
-	return 0;
+	return this;
 }
 
 int encodeLocalVariableTypeTableEntry(
@@ -284,22 +258,20 @@ int encodeLocalVariableTypeTableEntry(
 	return 0;
 }
 
-int encodeLocalVariableTypeTableAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx, length;
-	LocalVariableTypeTableAttribute *table =
-			(LocalVariableTypeTableAttribute *)info;
+LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
-	length = listSize(table->local_variable_type_table);
+	length = listSize(local_variable_type_table);
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		encodeLocalVariableTypeTableEntry(classFile, builder, static_cast<
 				LocalVariableTypeTableEntry *>(listGet(
-						table->local_variable_type_table, idx)));
+						local_variable_type_table, idx)));
 	}
 
-	return 0;
+	return this;
 }
 
 int encodeConstElementValue(
@@ -407,17 +379,16 @@ int encodeAnnotationEntry(
 	return 0;
 }
 
-int encodeRuntimeAnnotationsAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx, length;
-	RuntimeAnnotationsAttribute *annot = (RuntimeAnnotationsAttribute *)info;
+RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
-	length = listSize(annot->annotations);
+	length = listSize(annotations);
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		encodeAnnotationEntry(classFile, builder, static_cast<
-				AnnotationEntry *>(listGet(annot->annotations, idx)));
+				AnnotationEntry *>(listGet(annotations, idx)));
 	}
 
 	return 0;
@@ -438,29 +409,26 @@ int encodeParameterAnnotationsEntry(
 	return 0;
 }
 
-int encodeRuntimeParameterAnnotationsAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx, length;
-	RuntimeParameterAnnotationsAttribute *annot =
-			(RuntimeParameterAnnotationsAttribute *)info;
+RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
-	length = listSize(annot->parameter_annotations);
+	length = listSize(parameter_annotations);
 	builder->NextByte(length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		encodeParameterAnnotationsEntry(classFile, builder, static_cast<
-				ParameterAnnotationsEntry *>(listGet(annot->parameter_annotations, idx)));
+				ParameterAnnotationsEntry *>(listGet(parameter_annotations, idx)));
 	}
 
-	return 0;
+	return this;
 }
 
-int encodeAnnotationDefaultAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	AnnotationDefaultAttribute *annot = (AnnotationDefaultAttribute *)info;
-	encodeElementValue(classFile, builder, annot->default_value);
+AnnotationDefaultAttribute *AnnotationDefaultAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	encodeElementValue(classFile, builder, default_value);
 
-	return 0;
+	return this;
 }
 
 int encodeBootstrapMethodEntry(
@@ -481,100 +449,26 @@ int encodeBootstrapMethodEntry(
 	return 0;
 }
 
-int encodeBootstrapMethodsAttribute(
-		ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	unsigned int idx, length;
-	BootstrapMethodsAttribute *methods = (BootstrapMethodsAttribute *)info;
+BootstrapMethodsAttribute *BootstrapMethodsAttribute
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
-	length = listSize(methods->bootstrap_methods);
+	length = listSize(bootstrap_methods);
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		encodeBootstrapMethodEntry(classFile, builder, static_cast<
-				BootstrapMethodEntry *>(listGet(methods->bootstrap_methods, idx)));
+				BootstrapMethodEntry *>(listGet(bootstrap_methods, idx)));
 	}
 
 	return 0;
 }
 
 int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
-	int result;
-	unsigned long int initpos;
-
 	builder->NextShort(info->name->index);
 	builder->NextInt(info->attribute_length);
+	info->EncodeAttribute(builder, classFile);
 
-	initpos = builderPos(builder);
-
-	if(!strcmp("ConstantValue", (char *)info->name->bytes)) {
-		result = encodeConstantValueAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("Code", (char *)info->name->bytes)) {
-		result = encodeCodeAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("StackMapTable", (char *)info->name->bytes)) {
-		result = encodeStackMapTableAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("Exceptions", (char *)info->name->bytes)) {
-		result = encodeExceptionsAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("InnerClasses", (char *)info->name->bytes)) {
-		result = encodeInnerClassesAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("EnclosingMethod", (char *)info->name->bytes)) {
-		result = encodeEnclosingMethodAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("Synthetic", (char *)info->name->bytes)) {
-		result = 0;
-	} else
-	if(!strcmp("Signature", (char *)info->name->bytes)) {
-		result = encodeSignatureAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("SourceFile", (char *)info->name->bytes)) {
-		result = encodeSourceFileAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("SourceDebugExtension", (char *)info->name->bytes)) {
-		result = encodeSourceDebugExtensionAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("LineNumberTable", (char *)info->name->bytes)) {
-		result = encodeLineNumberTableAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("LocalVariableTable", (char *)info->name->bytes)) {
-		result = encodeLocalVariableTableAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("LocalVariableTypeTable", (char *)info->name->bytes)) {
-		result = encodeLocalVariableTypeTableAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("Deprecated", (char *)info->name->bytes)) {
-		result = 0;
-	} else
-	if(!strcmp("RuntimeVisibleAnnotations", (char *)info->name->bytes)) {
-		result = encodeRuntimeAnnotationsAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("RuntimeInvisibleAnnotations", (char *)info->name->bytes)) {
-		result = encodeRuntimeAnnotationsAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("RuntimeVisibleParameterAnnotations", (char *)info->name->bytes)) {
-		result = encodeRuntimeParameterAnnotationsAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("RuntimeInvisibleParameterAnnotations", (char *)info->name->bytes)) {
-		result = encodeRuntimeParameterAnnotationsAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("AnnotationDefault", (char *)info->name->bytes)) {
-		result = encodeAnnotationDefaultAttribute(classFile, builder, info);
-	} else
-	if(!strcmp("BootstrapMethods", (char *)info->name->bytes)) {
-		result = encodeBootstrapMethodsAttribute(classFile, builder, info);
-	} else {
-		return -1;
-	}
-
-	if(builderPos(builder) - initpos != info->attribute_length) {
-		fprintf(stderr, "Attribute length mismatch!\n");
-		exit(EXIT_FAILURE);
-	}
-
-	debug_printf(level1, "Finished Attribute : %s.\n", info->name->bytes);
-	return result;
+	return 0;
 }
 

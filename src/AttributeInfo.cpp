@@ -7,60 +7,68 @@
 # include "ClassFile.h"
 # include "AttributeInfo.h"
 
-void deleteCodeAttribute(CodeAttribute *code) {
-	if(code->code != NULL)
-		delete code->code;
-	if(code->exception_table != NULL) {
+CodeAttribute::~CodeAttribute() {
+	if(code != NULL)
+		delete code;
+	if(!exception_table.empty()) {
 		debug_printf(level3, "Deleting exception table.\n");
-		deleteList(code->exception_table, free);
-	}
-	if(code->attributes != NULL) {
-		debug_printf(level3, "Deleting code attributes.\n");
-		deleteList(code->attributes, (void(*)(void *))
-				deleteAttribute);
-	}
-	delete code;
-}
-
-void deleteStackMapTableAttribute(StackMapTableAttribute *table) {
-	if(!table->entries.empty()) {
-		for(std::vector<StackMapFrame *>::iterator itr = table->entries.begin();
-				itr != table->entries.end(); itr++) {
+		for(std::vector<ExceptionTableEntry *>::iterator itr = exception_table.begin();
+				itr != exception_table.end(); itr++) {
 			delete *itr;
 		}
 	}
-
-	delete table;
+	if(!attributes.empty()) {
+		debug_printf(level3, "Deleting code attributes.\n");
+		for(std::vector<AttributeInfo *>::iterator itr = attributes.begin();
+				itr != attributes.end(); itr++) {
+			delete *itr;
+		}
+	}
 }
 
-void deleteExceptionsAttribute(ExceptionsAttribute *except) {
-	if(except->exception_table != NULL)
-		deleteList(except->exception_table, NULL);
-	delete except;
+StackMapTableAttribute::~StackMapTableAttribute() {
+	if(!entries.empty()) {
+		for(std::vector<StackMapFrame *>::iterator itr = entries.begin();
+				itr != entries.end(); itr++) {
+			delete *itr;
+		}
+	}
 }
 
-void deleteInnerClassesAttribute(InnerClassesAttribute *inner) {
-	if(inner->classes != NULL)
-		deleteList(inner->classes, free);
-	delete inner;
+ExceptionsAttribute::~ExceptionsAttribute() {
+	if(exception_table != NULL) {
+		deleteList(exception_table, NULL);
+	}
 }
 
-void deleteLineNumberTableAttribute(LineNumberTableAttribute *table) {
-	if(table->line_number_table != NULL)
-		deleteList(table->line_number_table, free);
-	delete table;
+InnerClassesAttribute::~InnerClassesAttribute() {
+	if(classes != NULL) {
+		deleteList(classes, free);
+	}
 }
 
-void deleteLocalVariableTableAttribute(LocalVariableTableAttribute *table) {
-	if(table->local_variable_table != NULL)
-		deleteList(table->local_variable_table, free);
-	delete table;
+SourceDebugExtensionAttribute::~SourceDebugExtensionAttribute() {
+	if(debug_extension != NULL) {
+		delete debug_extension;
+	}
 }
 
-void deleteLocalVariableTypeTableAttribute(LocalVariableTypeTableAttribute *table) {
-	if(table->local_variable_type_table != NULL)
-		deleteList(table->local_variable_type_table, free);
-	delete table;
+LineNumberTableAttribute::~LineNumberTableAttribute() {
+	if(line_number_table != NULL) {
+		deleteList(line_number_table, free);
+	}
+}
+
+LocalVariableTableAttribute::~LocalVariableTableAttribute() {
+	if(local_variable_table != NULL) {
+		deleteList(local_variable_table, free);
+	}
+}
+
+LocalVariableTypeTableAttribute::~LocalVariableTypeTableAttribute() {
+	if(local_variable_type_table != NULL) {
+		deleteList(local_variable_type_table, free);
+	}
 }
 
 void deleteElementValue(ElementValue *value) {
@@ -92,115 +100,38 @@ void deleteAnnotationEntry(AnnotationEntry *entry) {
 	delete entry;
 }
 
-void deleteRuntimeAnnotationsAttribute(RuntimeAnnotationsAttribute *annot) {
-	if(annot->annotations != NULL)
-		deleteList(annot->annotations, (void(*)(void *))
-				deleteAnnotationEntry);
-	delete annot;
-}
-
-void deleteParameterAnnotationsEntry(ParameterAnnotationsEntry *entry) {
-	if(entry->annotations != NULL)
-		deleteList(entry->annotations, (void(*)(void *))
-				deleteAnnotationEntry);
-	delete entry;
-}
-
-void deleteRuntimeParameterAnnotationsAttribute(RuntimeParameterAnnotationsAttribute *annot) {
-	if(annot->parameter_annotations != NULL)
-		deleteList(annot->parameter_annotations, (void(*)(void *))
-				deleteParameterAnnotationsEntry);
-	delete annot;
-}
-
-void deleteAnnotationDefaultAttribute(AnnotationDefaultAttribute *value) {
-	if(value->default_value != NULL)
-		deleteElementValue(value->default_value);
-	delete value;
-}
-
-void deleteBootstrapMethodEntry(BootstrapMethodEntry *entry) {
-	if(entry->bootstrap_arguments != NULL)
-		deleteList(entry->bootstrap_arguments, NULL);
-	delete entry;
-}
-
-void deleteBootstrapMethodsAttribute(BootstrapMethodsAttribute *bootstrap) {
-	if(bootstrap->bootstrap_methods != NULL)
-		deleteList(bootstrap->bootstrap_methods, (void(*)(void *))
-				deleteBootstrapMethodEntry);
-	delete bootstrap;
-}
-
-void deleteAttribute(AttributeInfo *info) {
-	ConstantUtf8Info *name;
-	if(info == NULL) return;
-
-	name = info->name;
-	if(name == NULL || name->bytes == NULL) {
-		delete info;
-		return;
+RuntimeAnnotationsAttribute::~RuntimeAnnotationsAttribute() {
+	if(annotations != NULL) {
+		deleteList(annotations, (void(*)(void *))deleteAnnotationEntry);
 	}
+}
 
-	debug_printf(level2, "Deleting attribute : %s.\n", name->bytes);
+ParameterAnnotationsEntry::~ParameterAnnotationsEntry() {
+	if(annotations != NULL) {
+		deleteList(annotations, (void(*)(void *))deleteAnnotationEntry);
+	}
+}
 
-	// Code Attribute
-	if(!strcmp("Code", (char *)name->bytes)) {
-		deleteCodeAttribute((CodeAttribute *)info);
-	} else
-	// Stack Map Table Attribute
-	if(!strcmp("StackMapTable", (char *)name->bytes)) {
-		deleteStackMapTableAttribute((StackMapTableAttribute *)info);
-	} else
-	// Exceptions Attribute
-	if(!strcmp("Exceptions", (char *)name->bytes)) {
-		deleteExceptionsAttribute((ExceptionsAttribute *)info);
-	} else
-	// Inner Classes Attribute
-	if(!strcmp("InnerClasses", (char *)name->bytes)) {
-		deleteInnerClassesAttribute((InnerClassesAttribute *)info);
-	} else
-	// Source Debug Extension Attribute
-	if(!strcmp("SourceDebugExtension", (char *)name->bytes)) {
-		delete ((SourceDebugExtensionAttribute *)info)->debug_extension;
-		delete info;
-	} else
-	// Line Number Table Attribute
-	if(!strcmp("LineNumberTable", (char *)name->bytes)) {
-		deleteLineNumberTableAttribute((LineNumberTableAttribute *)info);
-	} else
-	// Local Variable Table Attribute
-	if(!strcmp("LocalVariableTable", (char *)name->bytes)) {
-		deleteLocalVariableTableAttribute((LocalVariableTableAttribute *)info);
-	} else
-	// Local Variable Type Table Attribute
-	if(!strcmp("LocalVariableTypeTable", (char *)name->bytes)) {
-		deleteLocalVariableTypeTableAttribute((LocalVariableTypeTableAttribute *)info);
-	} else
-	// Runtime Visible Annotations Attribute
-	if(!strcmp("RuntimeVisibleAnnotations", (char *)name->bytes)) {
-		deleteRuntimeAnnotationsAttribute((RuntimeAnnotationsAttribute *)info);
-	} else
-	// Runtime Invisible Annotations Attribute
-	if(!strcmp("RuntimeInvisibleAnnotations", (char *)name->bytes)) {
-		deleteRuntimeAnnotationsAttribute((RuntimeAnnotationsAttribute *)info);
-	} else
-	// Runtime Visible Parameter Annotations Attribute
-	if(!strcmp("RuntimeVisibleParameterAnnotations", (char *)name->bytes)) {
-		deleteRuntimeParameterAnnotationsAttribute((RuntimeParameterAnnotationsAttribute *)info);
-	} else
-	// Runtime Visible Parameter Annotations Attribute
-	if(!strcmp("RuntimeInvisibleParameterAnnotations", (char *)name->bytes)) {
-		deleteRuntimeParameterAnnotationsAttribute((RuntimeParameterAnnotationsAttribute *)info);
-	} else
-	// Annotation Default Attribute
-	if(!strcmp("AnnotationDefault", (char *)name->bytes)) {
-		deleteAnnotationDefaultAttribute((AnnotationDefaultAttribute *)info);
-	} else
-	// Bootstrap Methods Attribute
-	if(!strcmp("BootstrapMethods", (char *)name->bytes)) {
-		deleteBootstrapMethodsAttribute((BootstrapMethodsAttribute *)info);
-	} else {
-		delete info;
+RuntimeParameterAnnotationsAttribute::~RuntimeParameterAnnotationsAttribute() {
+	if(parameter_annotations != NULL) {
+		deleteList(parameter_annotations, operator delete);
+	}
+}
+
+AnnotationDefaultAttribute::~AnnotationDefaultAttribute() {
+	if(default_value != NULL) {
+		deleteElementValue(default_value);
+	}
+}
+
+BootstrapMethodEntry::~BootstrapMethodEntry() {
+	if(bootstrap_arguments != NULL) {
+		deleteList(bootstrap_arguments, NULL);
+	}
+}
+
+BootstrapMethodsAttribute::~BootstrapMethodsAttribute() {
+	if(bootstrap_methods != NULL) {
+		deleteList(bootstrap_methods, operator delete);
 	}
 }

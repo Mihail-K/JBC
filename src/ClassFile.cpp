@@ -46,7 +46,7 @@ ClassFile::~ClassFile() {
 	if(!attributes.empty()) {
 		for(std::vector<AttributeInfo *>::iterator itr = attributes.begin();
 				itr != attributes.end(); itr++)
-			deleteAttribute(*itr);
+			delete *itr;
 		attributes.clear();
 	}
 

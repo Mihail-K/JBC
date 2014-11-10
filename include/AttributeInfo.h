@@ -55,6 +55,12 @@ struct AttributeInfo {
 	virtual
 	~AttributeInfo() {
 	}
+
+	virtual
+	AttributeInfo *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) = 0;
+
+	virtual
+	AttributeInfo *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) = 0;
 };
 
 struct ConstantValueAttribute
@@ -68,6 +74,10 @@ struct ConstantValueAttribute
 	ConstantValueAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	ConstantValueAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	ConstantValueAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct ExceptionTableEntry {
@@ -91,10 +101,10 @@ struct CodeAttribute
 	uint8_t		*code;
 
 	// Exception Table
-	List		*exception_table;
+	std::vector<ExceptionTableEntry *> exception_table;
 
 	// Attribute Table
-	List		*attributes;
+	std::vector<AttributeInfo *> attributes;
 
 	CodeAttribute() {
 	}
@@ -102,6 +112,12 @@ struct CodeAttribute
 	CodeAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~CodeAttribute();
+
+	CodeAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	CodeAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct StackMapTableAttribute
@@ -115,6 +131,12 @@ struct StackMapTableAttribute
 	StackMapTableAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~StackMapTableAttribute();
+
+	StackMapTableAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	StackMapTableAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct ExceptionsAttribute
@@ -128,6 +150,12 @@ struct ExceptionsAttribute
 	ExceptionsAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~ExceptionsAttribute();
+
+	ExceptionsAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	ExceptionsAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 typedef enum {
@@ -171,6 +199,12 @@ struct InnerClassesAttribute
 	InnerClassesAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~InnerClassesAttribute();
+
+	InnerClassesAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	InnerClassesAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct EnclosingMethodAttribute
@@ -187,6 +221,10 @@ struct EnclosingMethodAttribute
 	EnclosingMethodAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	EnclosingMethodAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	EnclosingMethodAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct SyntheticAttribute
@@ -197,6 +235,16 @@ struct SyntheticAttribute
 
 	SyntheticAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
+	}
+
+	inline
+	SyntheticAttribute *DecodeAttribute(ClassBuffer *, ClassFile *) {
+		return this;
+	}
+
+	inline
+	SyntheticAttribute *EncodeAttribute(ClassBuilder *, ClassFile *) {
+		return this;
 	}
 };
 
@@ -211,6 +259,10 @@ struct SignatureAttribute
 	SignatureAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	SignatureAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	SignatureAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct SourceFileAttribute
@@ -224,6 +276,10 @@ struct SourceFileAttribute
 	SourceFileAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	SourceFileAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	SourceFileAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct SourceDebugExtensionAttribute
@@ -237,6 +293,12 @@ struct SourceDebugExtensionAttribute
 	SourceDebugExtensionAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~SourceDebugExtensionAttribute();
+
+	SourceDebugExtensionAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	SourceDebugExtensionAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct LineNumberTableEntry {
@@ -258,6 +320,12 @@ struct LineNumberTableAttribute
 	LineNumberTableAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~LineNumberTableAttribute();
+
+	LineNumberTableAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	LineNumberTableAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct LocalVariableTableEntry {
@@ -287,6 +355,12 @@ struct LocalVariableTableAttribute
 	LocalVariableTableAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~LocalVariableTableAttribute();
+
+	LocalVariableTableAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	LocalVariableTableAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct LocalVariableTypeTableEntry {
@@ -316,6 +390,12 @@ struct LocalVariableTypeTableAttribute
 	LocalVariableTypeTableAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~LocalVariableTypeTableAttribute();
+
+	LocalVariableTypeTableAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	LocalVariableTypeTableAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct DeprecatedAttribute
@@ -326,6 +406,16 @@ struct DeprecatedAttribute
 
 	DeprecatedAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
+	}
+
+	inline
+	DeprecatedAttribute *DecodeAttribute(ClassBuffer *, ClassFile *) {
+		return this;
+	}
+
+	inline
+	DeprecatedAttribute *EncodeAttribute(ClassBuilder *, ClassFile *) {
+		return this;
 	}
 };
 
@@ -386,6 +476,14 @@ struct RuntimeAnnotationsAttribute
 	RuntimeAnnotationsAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~RuntimeAnnotationsAttribute();
+
+	RuntimeAnnotationsAttribute *DecodeAttribute(
+			ClassBuffer *buffer, ClassFile *classFile);
+
+	RuntimeAnnotationsAttribute *EncodeAttribute(
+			ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct RuntimeVisibleAnnotationsAttribute
@@ -410,10 +508,12 @@ struct RuntimeInvisibleAnnotationsAttribute
 	}
 };
 
-typedef struct {
+struct ParameterAnnotationsEntry {
 	// Annotations Table
 	List		*annotations;
-} ParameterAnnotationsEntry;
+
+	~ParameterAnnotationsEntry();
+};
 
 struct RuntimeParameterAnnotationsAttribute
 		: public AttributeInfo {
@@ -426,6 +526,14 @@ struct RuntimeParameterAnnotationsAttribute
 	RuntimeParameterAnnotationsAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~RuntimeParameterAnnotationsAttribute();
+
+	RuntimeParameterAnnotationsAttribute *DecodeAttribute(
+			ClassBuffer *buffer, ClassFile *classFile);
+
+	RuntimeParameterAnnotationsAttribute *EncodeAttribute(
+			ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct RuntimeVisibleParameterAnnotationsAttribute
@@ -461,15 +569,23 @@ struct AnnotationDefaultAttribute
 	AnnotationDefaultAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
+
+	~AnnotationDefaultAttribute();
+
+	AnnotationDefaultAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	AnnotationDefaultAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
-typedef struct {
+struct BootstrapMethodEntry {
 	// Bootstrap Method Reference
 	ConstantMethodHandleInfo *bootstrap_method_ref;
 
 	// Bootstrap Argument Table
 	List		*bootstrap_arguments;
-} BootstrapMethodEntry;
+
+	~BootstrapMethodEntry();
+};
 
 struct BootstrapMethodsAttribute
 		: public AttributeInfo {
@@ -482,9 +598,13 @@ struct BootstrapMethodsAttribute
 	BootstrapMethodsAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
-};
 
-void deleteAttribute(AttributeInfo *info);
+	~BootstrapMethodsAttribute();
+
+	BootstrapMethodsAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
+
+	BootstrapMethodsAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
+};
 
 int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info);
 

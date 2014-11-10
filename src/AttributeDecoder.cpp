@@ -9,15 +9,15 @@
 
 # define ignore_unused(x) ((void)x)
 
-AttributeInfo *decodeConstantValueAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+ConstantValueAttribute *ConstantValueAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
-	ConstantValueAttribute *info = new ConstantValueAttribute;
 
 	// Constant Value
 	index = buffer->NextShort();
-	info->constant_value = classFile->constant_pool[index];
+	constant_value = classFile->constant_pool[index];
 
-	return (AttributeInfo *)info;
+	return this;
 }
 
 ExceptionTableEntry *decodeExceptionTableEntry(ClassFile *classFile, ClassBuffer *buffer) {
@@ -32,45 +32,43 @@ ExceptionTableEntry *decodeExceptionTableEntry(ClassFile *classFile, ClassBuffer
 	return entry;
 }
 
-AttributeInfo *decodeCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	CodeAttribute *code = new CodeAttribute;
+CodeAttribute *CodeAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t length;
 
 	// Maximums
-	code->max_stack = buffer->NextShort();
-	code->max_locals = buffer->NextShort();
+	max_stack = buffer->NextShort();
+	max_locals = buffer->NextShort();
 
 	// Code
-	code->code_length = buffer->NextInt();
-	debug_printf(level2, "Code length : %d.\n", code->code_length);
-	code->code = new uint8_t[code->code_length];
+	code_length = buffer->NextInt();
+	debug_printf(level2, "Code length : %d.\n", code_length);
 
-	for(idx = 0; idx < code->code_length; idx++) {
+	code = new uint8_t[code_length];
+	for(unsigned idx = 0; idx < code_length; idx++) {
 		// TODO : Added a mass read operation
-		code->code[idx] = buffer->NextByte();
+		code[idx] = buffer->NextByte();
 	}
 
 	// Exception Table
 	length = buffer->NextShort();
-	code->exception_table = createList();
 	debug_printf(level2, "Code Exception table length : %d.\n", length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Code Exception table entry %d :\n", idx);
-		listAdd(code->exception_table, decodeExceptionTableEntry(classFile, buffer));
+		exception_table.push_back(decodeExceptionTableEntry(classFile, buffer));
 	}
 
 	// Attributes Table
 	length = buffer->NextShort();
-	code->attributes = createList();
 	debug_printf(level2, "Code Attributes count : %d.\n", length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Code Attribute %d :\n", idx);
-		listAdd(code->attributes, decodeAttribute(classFile, buffer));
+		attributes.push_back(decodeAttribute(classFile, buffer));
 	}
 
-	return (AttributeInfo *)code;
+	return this;
 }
 
 StackMapFrame *decodeStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
@@ -120,9 +118,9 @@ StackMapFrame *decodeStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
 	}
 }
 
-AttributeInfo *decodeStackMapTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	StackMapTableAttribute *table = new StackMapTableAttribute;
+StackMapTableAttribute *StackMapTableAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t length;
 
 	debug_printf(level2, "Decoding StackMapTable.\n");
 
@@ -130,33 +128,33 @@ AttributeInfo *decodeStackMapTableAttribute(ClassFile *classFile, ClassBuffer *b
 	length = buffer->NextShort();
 	debug_printf(level2, "Stack Frame count : %d.\n", length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Stack Map Frame %d :\n", idx);
-		table->entries.push_back(decodeStackMapFrame(classFile, buffer));
+		entries.push_back(decodeStackMapFrame(classFile, buffer));
 	}
 
 	debug_printf(level2, "Finished StackMapTable.\n");
 
-	return (AttributeInfo *)table;
+	return this;
 }
 
-AttributeInfo *decodeExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	ExceptionsAttribute *except = new ExceptionsAttribute;
+ExceptionsAttribute *ExceptionsAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t length;
 
 	// Exceptions Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Exceptions count : %d.\n", length);
 
-	except->exception_table = createList();
+	exception_table = createList();
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		uint16_t index = buffer->NextShort();
 		debug_printf(level2, "Exception entry %d :\n", idx);
-		listAdd(except->exception_table, classFile->constant_pool[index]);
+		listAdd(exception_table, classFile->constant_pool[index]);
 	}
 
-	return (AttributeInfo *)except;
+	return this;
 }
 
 InnerClassEntry *decodeInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer) {
@@ -189,84 +187,77 @@ InnerClassEntry *decodeInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer
 	return entry;
 }
 
-AttributeInfo *decodeInnerClassesAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	InnerClassesAttribute *inner = new InnerClassesAttribute;
+InnerClassesAttribute *InnerClassesAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t length;
 
 	// Inner Classes Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Inner classes count : %d.\n", length);
-	inner->classes = createList();
+	classes = createList();
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Inner class %d :\n", idx);
-		listAdd(inner->classes, decodeInnerClassEntry(classFile, buffer));
+		listAdd(classes, decodeInnerClassEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)inner;
+	return this;
 }
 
-AttributeInfo *decodeEnclosingMethodAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+EnclosingMethodAttribute *EnclosingMethodAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
-	EnclosingMethodAttribute *enclose = new EnclosingMethodAttribute;
 
 	// Enclosing Class
 	index = buffer->NextShort();
-	enclose->enclosing_class = static_cast<ConstantClassInfo *>(
+	enclosing_class = static_cast<ConstantClassInfo *>(
 			classFile->constant_pool[index]);
 
 	//Enclosing Method
 	index = buffer->NextShort();
-	enclose->enclosing_method = static_cast<ConstantNameAndTypeInfo *>(
+	enclosing_method = static_cast<ConstantNameAndTypeInfo *>(
 			classFile->constant_pool[index]);
 
-	return (AttributeInfo *)enclose;
+	return this;
 }
 
-AttributeInfo *decodeSyntheticAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	ignore_unused(buffer); ignore_unused(classFile);
-	return (AttributeInfo *)new SyntheticAttribute;
-}
-
-AttributeInfo *decodeSignatureAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+SignatureAttribute *SignatureAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
-	SignatureAttribute *signature = new SignatureAttribute;
 
 	// Signature
 	index = buffer->NextShort();
-	signature->signature = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	signature = static_cast<ConstantUtf8Info *>(
+			classFile->constant_pool[index]);
 
-	return (AttributeInfo *)signature;
+	return this;
 }
 
-AttributeInfo *decodeSourceFileAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+SourceFileAttribute *SourceFileAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
-	SourceFileAttribute *file = new SourceFileAttribute;
 
 	// Source File
 	index = buffer->NextShort();
-	file->source_file = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	source_file = static_cast<ConstantUtf8Info *>(
+			classFile->constant_pool[index]);
 
-	debug_printf(level2, "Source file name : %s.\n", file->source_file->bytes);
+	debug_printf(level2, "Source file name : %s.\n", source_file->bytes);
 
-	return (AttributeInfo *)file;
+	return this;
 }
 
-AttributeInfo *decodeSourceDebugExtensionAttribute(
-		ClassFile *classFile, ClassBuffer *buffer, uint32_t length) {
-	unsigned int idx;
-	SourceDebugExtensionAttribute *source = new SourceDebugExtensionAttribute;
-
+SourceDebugExtensionAttribute *SourceDebugExtensionAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *) {
 	// Debug Extension
-	source->debug_extension = new uint8_t[length];
+	debug_extension = new uint8_t[attribute_length];
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < attribute_length; idx++) {
 		// TODO : Added a mass read operation
-		source->debug_extension[idx] = buffer->NextByte();
+		debug_extension[idx] = buffer->NextByte();
 	}
 
-	ignore_unused(classFile);
-	return (AttributeInfo *)source;
+	return this;
 }
 
 LineNumberTableEntry *decodeLineNumberTableEntry(ClassFile *classFile, ClassBuffer *buffer) {
@@ -279,21 +270,21 @@ LineNumberTableEntry *decodeLineNumberTableEntry(ClassFile *classFile, ClassBuff
 	return entry;
 }
 
-AttributeInfo *decodeLineNumberTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	LineNumberTableAttribute *table = new LineNumberTableAttribute;
+LineNumberTableAttribute *LineNumberTableAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t length;
 
 	// Line Number Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Line Number Table length : %d.\n", length);
-	table->line_number_table = createList();
+	line_number_table = createList();
 
-	for(idx = 0; idx < length; idx++) {
-		listAdd(table->line_number_table,
+	for(unsigned idx = 0; idx < length; idx++) {
+		listAdd(line_number_table,
 				decodeLineNumberTableEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)table;
+	return this;
 }
 
 LocalVariableTableEntry *decodeLocalVariableTableEntry(
@@ -321,23 +312,22 @@ LocalVariableTableEntry *decodeLocalVariableTableEntry(
 	return entry;
 }
 
-AttributeInfo *decodeLocalVariableTableAttribute(
-		ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	LocalVariableTableAttribute *local = new LocalVariableTableAttribute;
+LocalVariableTableAttribute *LocalVariableTableAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t length;
 
 	// Local Variable Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Local Variable Table length : %d.\n", length);
 
-	local->local_variable_table = createList();
+	local_variable_table = createList();
 
-	for(idx = 0; idx < length; idx++) {
-		listAdd(local->local_variable_table,
+	for(unsigned idx = 0; idx < length; idx++) {
+		listAdd(local_variable_table,
 				decodeLocalVariableTableEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)local;
+	return this;
 }
 
 LocalVariableTypeTableEntry *decodeLocalVariableTypeTableEntry(
@@ -365,29 +355,22 @@ LocalVariableTypeTableEntry *decodeLocalVariableTypeTableEntry(
 	return entry;
 }
 
-AttributeInfo *decodeLocalVariableTypeTableAttribute(
-		ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	LocalVariableTypeTableAttribute *local = new LocalVariableTypeTableAttribute;
+LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t length;
 
 	// Local Variable Type Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Local Variable Type Table length : %d.\n", length);
 
-	local->local_variable_type_table = createList();
+	local_variable_type_table = createList();
 
-	for(idx = 0; idx < length; idx++) {
-		listAdd(local->local_variable_type_table,
+	for(unsigned idx = 0; idx < length; idx++) {
+		listAdd(local_variable_type_table,
 				decodeLocalVariableTypeTableEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)local;
-}
-
-AttributeInfo *decodeDeprecatedAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	ignore_unused(buffer);
-	ignore_unused(classFile);
-	return (AttributeInfo *)new DeprecatedAttribute;
+	return this;
 }
 
 ElementValue *decodeConstElementValue(ClassFile *classFile, ClassBuffer *buffer) {
@@ -530,20 +513,19 @@ AnnotationEntry *decodeAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer
 	return entry;
 }
 
-AttributeInfo *decodeRuntimeAnnotationsAttribute(
-		ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	RuntimeAnnotationsAttribute *annot = new RuntimeAnnotationsAttribute;
+RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t length;
 
 	// Annotations Table
 	length = buffer->NextShort();
-	annot->annotations = createList();
+	annotations = createList();
 
-	for(idx = 0; idx < length; idx++) {
-		listAdd(annot->annotations, decodeAnnotationEntry(classFile, buffer));
+	for(unsigned idx = 0; idx < length; idx++) {
+		listAdd(annotations, decodeAnnotationEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)annot;
+	return this;
 }
 
 ParameterAnnotationsEntry *decodeParameterAnnotationsEntry(
@@ -564,32 +546,30 @@ ParameterAnnotationsEntry *decodeParameterAnnotationsEntry(
 	return entry;
 }
 
-AttributeInfo *decodeRuntimeParameterAnnotationsAttribute(
-		ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	RuntimeParameterAnnotationsAttribute *annot = new RuntimeParameterAnnotationsAttribute;
+RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t length;
 
 	// Parameter Annotations Table
 	length = buffer->NextByte();
 	debug_printf(level2, "Parameter Annotation count : %u.\n", length);
-	annot->parameter_annotations = createList();
+	parameter_annotations = createList();
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Parameter Annotation %u :\n", idx);
-		listAdd(annot->parameter_annotations,
+		listAdd(parameter_annotations,
 				decodeParameterAnnotationsEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)annot;
+	return this;
 }
 
-AttributeInfo *decodeAnnotationDefaultAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	AnnotationDefaultAttribute *annot = new AnnotationDefaultAttribute;
-
+AnnotationDefaultAttribute *AnnotationDefaultAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	// Default Value
-	annot->default_value = decodeElementValue(classFile, buffer);
+	default_value = decodeElementValue(classFile, buffer);
 
-	return (AttributeInfo *)annot;
+	return this;
 }
 
 BootstrapMethodEntry *decodeBootstrapMethodEntry(ClassFile *classFile, ClassBuffer *buffer) {
@@ -608,25 +588,23 @@ BootstrapMethodEntry *decodeBootstrapMethodEntry(ClassFile *classFile, ClassBuff
 	return entry;
 }
 
-AttributeInfo *decodeBootstrapMethodsAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	BootstrapMethodsAttribute *bootstrap = new BootstrapMethodsAttribute;
+BootstrapMethodsAttribute *BootstrapMethodsAttribute
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t length;
 
 	// Bootstrap Method Table
 	length = buffer->NextShort();
-	bootstrap->bootstrap_methods = createList();
+	bootstrap_methods = createList();
 
-	for(idx = 0; idx < length; idx++) {
-		listAdd(bootstrap->bootstrap_methods,
+	for(unsigned idx = 0; idx < length; idx++) {
+		listAdd(bootstrap_methods,
 				decodeBootstrapMethodEntry(classFile, buffer));
 	}
 
-	return (AttributeInfo *)bootstrap;
+	return this;
 }
 
 AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	AttributeInfo *info;
-
 	uint16_t name_index = buffer->NextShort();
 	uint32_t attribute_length = buffer->NextInt();
 	ConstantUtf8Info *name = static_cast<ConstantUtf8Info *>(
@@ -642,84 +620,101 @@ AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 	// Constant Value Attribute
 	if(!strcmp("ConstantValue", (char *)name->bytes)) {
-		info = decodeConstantValueAttribute(classFile, buffer);
+		return (new ConstantValueAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Code Attribute
 	if(!strcmp("Code", (char *)name->bytes)) {
-		info = decodeCodeAttribute(classFile, buffer);
+		return (new CodeAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Stack Map Table Attribute
 	if(!strcmp("StackMapTable", (char *)name->bytes)) {
-		info = decodeStackMapTableAttribute(classFile, buffer);
+		return (new StackMapTableAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Exceptions Attribute
 	if(!strcmp("Exceptions", (char *)name->bytes)) {
-		info = decodeExceptionsAttribute(classFile, buffer);
+		return (new ExceptionsAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Inner Classes Attribute
 	if(!strcmp("InnerClasses", (char *)name->bytes)) {
-		info = decodeInnerClassesAttribute(classFile, buffer);
+		return (new InnerClassesAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Enclosing Method Attribute
 	if(!strcmp("EnclosingMethod", (char *)name->bytes)) {
-		info = decodeEnclosingMethodAttribute(classFile, buffer);
+		return (new EnclosingMethodAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Synthetic Attribute
 	if(!strcmp("Synthetic", (char *)name->bytes)) {
-		info = decodeSyntheticAttribute(classFile, buffer);
+		return new SyntheticAttribute(name, attribute_length);
 	} else
 	// Signature Attribute
 	if(!strcmp("Signature", (char *)name->bytes)) {
-		info = decodeSignatureAttribute(classFile, buffer);
+		return (new SignatureAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Source File Attribute
 	if(!strcmp("SourceFile", (char *)name->bytes)) {
-		info = decodeSourceFileAttribute(classFile, buffer);
+		return (new SourceFileAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Source Debug Extension Attribute
 	if(!strcmp("SourceDebugExtension", (char *)name->bytes)) {
-		info = decodeSourceDebugExtensionAttribute(
-				classFile, buffer, attribute_length);
+		return (new SourceDebugExtensionAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Line Number Table Attribute
 	if(!strcmp("LineNumberTable", (char *)name->bytes)) {
-		info = decodeLineNumberTableAttribute(classFile, buffer);
+		return (new LineNumberTableAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Local Variable Table Attribute
 	if(!strcmp("LocalVariableTable", (char *)name->bytes)) {
-		info = decodeLocalVariableTableAttribute(classFile, buffer);
+		return (new LocalVariableTableAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Local Variable Type Table Attribute
 	if(!strcmp("LocalVariableTypeTable", (char *)name->bytes)) {
-		info = decodeLocalVariableTypeTableAttribute(classFile, buffer);
+		return (new LocalVariableTypeTableAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Deprecated Attribute
 	if(!strcmp("Deprecated", (char *)name->bytes)) {
-		info = decodeDeprecatedAttribute(classFile, buffer);
+		return new DeprecatedAttribute(name, attribute_length);
 	} else
 	// Runtime Visible Annotations Attribute
 	if(!strcmp("RuntimeVisibleAnnotations", (char *)name->bytes)) {
-		info = decodeRuntimeAnnotationsAttribute(classFile, buffer);
+		return (new RuntimeVisibleAnnotationsAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Runtime Invisible Annotations Attribute
 	if(!strcmp("RuntimeInvisibleAnnotations", (char *)name->bytes)) {
-		info = decodeRuntimeAnnotationsAttribute(classFile, buffer);
+		return (new RuntimeVisibleAnnotationsAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Runtime Visible Parameter Annotations Attribute
 	if(!strcmp("RuntimeVisibleParameterAnnotations", (char *)name->bytes)) {
-		info = decodeRuntimeParameterAnnotationsAttribute(classFile, buffer);
+		return (new RuntimeVisibleParameterAnnotationsAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Runtime Visible Parameter Annotations Attribute
 	if(!strcmp("RuntimeInvisibleParameterAnnotations", (char *)name->bytes)) {
-		info = decodeRuntimeParameterAnnotationsAttribute(classFile, buffer);
+		return (new RuntimeVisibleParameterAnnotationsAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Annotation Default Attribute
 	if(!strcmp("AnnotationDefault", (char *)name->bytes)) {
-		info = decodeAnnotationDefaultAttribute(classFile, buffer);
+		return (new AnnotationDefaultAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else
 	// Bootstrap Methods Attribute
 	if(!strcmp("BootstrapMethods", (char *)name->bytes)) {
-		info = decodeBootstrapMethodsAttribute(classFile, buffer);
+		return (new BootstrapMethodsAttribute(name, attribute_length))
+				->DecodeAttribute(buffer, classFile);
 	} else {
 		debug_printf(level2, "Unknown Attribute type : %s; Skipping.\n", name->bytes);
 		while(bufferPos(buffer) - initpos < attribute_length) {
@@ -728,14 +723,5 @@ AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 		}
 	}
 
-	if(bufferPos(buffer) - initpos != attribute_length) {
-		fprintf(stderr, "Attribute length mismatch!\n");
-		exit(EXIT_FAILURE);
-	}
-
-	debug_printf(level1, "Finished Attribute : %s.\n", name->bytes);
-	info->attribute_length = attribute_length;
-	info->name = name;
-
-	return info;
+	return NULL;
 }
