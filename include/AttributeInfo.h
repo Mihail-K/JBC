@@ -2,6 +2,7 @@
 # define __ATTRIBUTEINFO_H__
 
 # include "List.h"
+# include <vector>
 
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
@@ -106,7 +107,7 @@ struct CodeAttribute
 struct StackMapTableAttribute
 		: public AttributeInfo {
 	// Stack Frame Map Entries
-	List		*entries;
+	std::vector<StackMapFrame *> entries;
 
 	StackMapTableAttribute() {
 	}

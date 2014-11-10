@@ -129,11 +129,10 @@ AttributeInfo *decodeStackMapTableAttribute(ClassFile *classFile, ClassBuffer *b
 	// Stack Map Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Stack Frame count : %d.\n", length);
-	table->entries = createList();
 
 	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Stack Map Frame %d :\n", idx);
-		listAdd(table->entries, decodeStackMapFrame(classFile, buffer));
+		table->entries.push_back(decodeStackMapFrame(classFile, buffer));
 	}
 
 	debug_printf(level2, "Finished StackMapTable.\n");

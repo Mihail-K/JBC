@@ -59,21 +59,21 @@ VariableInfo *DecodeVariableInfo(ClassBuffer *buffer, ClassFile *classFile) {
 /* Verification Type encode */
 
 ObjectVariableInfo *ObjectVariableInfo
-		::EncodeInfo(ClassBuffer *builder, ClassFile *) {
+		::EncodeInfo(ClassBuilder *builder, ClassFile *) {
 	if(object != NULL)
-		bulder->NextShort(object->index);
+		builder->NextShort(object->index);
 	return this;
 }
 
 UninitializedVariableInfo *UninitializedVariableInfo
-		::EncodeInfo(ClassBuffer *builder, ClassFile *) {
+		::EncodeInfo(ClassBuilder *builder, ClassFile *) {
 	builder->NextShort(offset);
 	return this;
 }
 
 void EncodeVariableInfo(
-		ClassFile *classFile, ClassBuilder *builder, VariableInfo *info) {
-	builder->NextByte(tag);
+		ClassBuilder *builder, ClassFile *classFile, VariableInfo *info) {
+	builder->NextByte(info->tag);
 	info->EncodeInfo(builder, classFile);
 }
 
@@ -132,64 +132,95 @@ StackMapFullFrame *StackMapFullFrame
 
 /* Stack Map Frame encode */
 
-int encodeStackMapOffFrame(ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
-	StackMapOffFrame *offFrame = (StackMapOffFrame *)frame;
-	builder->NextShort(offFrame->offset_delta);
-
-	ignore_unused(classFile);
-	return 0;
+StackMapOffFrame *StackMapOffFrame
+		::EncodeFrame(ClassBuilder *builder, ClassFile *) {
+	builder->NextShort(offset_delta);
+	return this;
 }
 
-int encodeStackMapItemFrame(ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
-	StackMapItemFrame *itemFrame = (StackMapItemFrame *)frame;
-	EncodeVariableInfo(builder, classFile, itemFrame->stack);
-	return 0;
+StackMapItemFrame *StackMapItemFrame
+		::EncodeFrame(ClassBuilder *builder, ClassFile *classFile) {
+	EncodeVariableInfo(builder, classFile, stack);
+	return this;
 }
 
-int encodeStackMapExtFrame(ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
-	StackMapExtFrame *extFrame = (StackMapExtFrame *)frame;
+StackMapExtFrame *StackMapExtFrame
+		::EncodeFrame(ClassBuilder *builder, ClassFile *classFile) {
+	builder->NextShort(offset_delta);
+	EncodeVariableInfo(builder, classFile, stack);
 
-	builder->NextShort(extFrame->offset_delta);
-	EncodeVariableInfo(builder, classFile, extFrame->stack);
-
-	return 0;
+	return this;
 }
 
-int encodeStackMapListFrame(ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
-	unsigned int idx;
-	StackMapListFrame *listFrame = (StackMapListFrame *)frame;
-
-	builder->NextShort(listFrame->offset_delta);
-	for(idx = 0; idx < (listFrame->tag - 251u); idx++) {
-		EncodeVariableInfo(builder, EncodeVariableInfo, listFrame->stack[idx]);
+StackMapListFrame *StackMapListFrame
+		::EncodeFrame(ClassBuilder *builder, ClassFile *classFile) {
+	builder->NextShort(offset_delta);
+	for(unsigned idx = 0; idx < (tag - 251u); idx++) {
+		EncodeVariableInfo(builder, classFile, stack[idx]);
 	}
 
-	return 0;
+	return this;
 }
 
-int encodeStackMapFullFrame(ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
-	unsigned int idx, length;
-	StackMapFullFrame *fullFrame = (StackMapFullFrame *)frame;
+StackMapFullFrame *StackMapFullFrame
+		::EncodeFrame(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
-	builder->NextShort(fullFrame->offset_delta);
+	builder->NextShort(offset_delta);
 
 	// Stack Frame Locals
-	length = listSize(fullFrame->locals);
+	length = locals.size();
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
-		EncodeVariableInfo(builder, classFile, static_cast<
-				VerificationTypeInfo *>(listGet(fullFrame->locals, idx)));
+	for(unsigned idx = 0; idx < length; idx++) {
+		EncodeVariableInfo(builder, classFile, locals[idx]);
 	}
 
 	// Stack Frame Items
-	length = listSize(fullFrame->stack);
+	length = stack.size();
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
-		EncodeVariableInfo(builder, classFile, static_cast<
-				VerificationTypeInfo *>(listGet(fullFrame->stack, idx)));
+	for(unsigned idx = 0; idx < length; idx++) {
+		EncodeVariableInfo(builder, classFile, stack[idx]);
 	}
 
-	return 0;
+	return this;
+}
+
+/* Stack Map Frame destructors */
+
+StackMapItemFrame::~StackMapItemFrame() {
+	if(stack != NULL) {
+		delete stack;
+	}
+}
+
+StackMapExtFrame::~StackMapExtFrame() {
+	if(stack != NULL) {
+		delete stack;
+	}
+}
+
+StackMapListFrame::~StackMapListFrame() {
+	if(stack != NULL) {
+		for(unsigned idx = 0; idx < tag - 251u; idx++)
+			delete stack[idx];
+		delete stack;
+	}
+}
+
+StackMapFullFrame::~StackMapFullFrame() {
+	if(!locals.empty()) {
+		for(std::vector<VariableInfo *>::iterator itr = locals.begin();
+				itr != locals.end(); itr++) {
+			delete *itr;
+		}
+	}
+
+	if(!stack.empty()) {
+		for(std::vector<VariableInfo *>::iterator itr = stack.begin();
+				itr != stack.end(); itr++) {
+			delete *itr;
+		}
+	}
 }

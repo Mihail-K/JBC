@@ -9,7 +9,7 @@
 
 void deleteCodeAttribute(CodeAttribute *code) {
 	if(code->code != NULL)
-		DELETE(code->code);
+		delete code->code;
 	if(code->exception_table != NULL) {
 		debug_printf(level3, "Deleting exception table.\n");
 		deleteList(code->exception_table, free);
@@ -19,112 +19,48 @@ void deleteCodeAttribute(CodeAttribute *code) {
 		deleteList(code->attributes, (void(*)(void *))
 				deleteAttribute);
 	}
-	DELETE(code);
-}
-
-void deleteStackMapOffFrame(StackMapOffFrame *frame) {
-	DELETE(frame);
-}
-
-void deleteStackMapItemFrame(StackMapItemFrame *frame) {
-	if(frame->stack != NULL)
-		DELETE(frame->stack);
-	DELETE(frame);
-}
-
-void deleteStackMapExtFrame(StackMapExtFrame *frame) {
-	if(frame->stack != NULL)
-		DELETE(frame->stack);
-	DELETE(frame);
-}
-
-void deleteStackMapListFrame(StackMapListFrame *frame) {
-	int idx, count = frame->tag - 251;
-	if(frame->stack != NULL) {
-		for(idx = 0; idx < count; idx++)
-			DELETE(frame->stack[idx]);
-		DELETE(frame->stack);
-	}
-	DELETE(frame);
-}
-
-void deleteStackMapFullFrame(StackMapFullFrame *frame) {
-	if(frame->locals != NULL)
-		deleteList(frame->locals, free);
-	if(frame->stack != NULL)
-		deleteList(frame->stack, free);
-	DELETE(frame);
-}
-
-void deleteStackMapFrame(StackMapFrame *frame) {
-	if(frame->tag <= 63) {
-		DELETE(frame);
-	} else
-	// Stack Map Same Locals 1
-	if(frame->tag <= 127) {
-		deleteStackMapItemFrame((StackMapItemFrame *)frame);
-	} else
-	// Reserved Values
-	if(frame->tag <= 246) {
-		DELETE(frame);
-	} else
-	// Stack Map Same Locals 1 Extended
-	if(frame->tag == 247) {
-		deleteStackMapExtFrame((StackMapExtFrame *)frame);
-	} else
-	// Stack Map Chop Frame
-	if(frame->tag <= 250) {
-		deleteStackMapOffFrame((StackMapOffFrame *)frame);
-	} else
-	// Stack Map Same Frame Extended
-	if(frame->tag == 251) {
-		deleteStackMapOffFrame((StackMapOffFrame *)frame);
-	} else
-	// Stack Map Append Frame
-	if(frame->tag <= 254) {
-		deleteStackMapListFrame((StackMapListFrame *)frame);
-	}
-	// Stack Map Full Frame
-	else {
-		deleteStackMapFullFrame((StackMapFullFrame *)frame);
-	}
+	delete code;
 }
 
 void deleteStackMapTableAttribute(StackMapTableAttribute *table) {
-	if(table->entries != NULL)
-		deleteList(table->entries, (void(*)(void *))
-				deleteStackMapFrame);
-	DELETE(table);
+	if(!table->entries.empty()) {
+		for(std::vector<StackMapFrame *>::iterator itr = table->entries.begin();
+				itr != table->entries.end(); itr++) {
+			delete *itr;
+		}
+	}
+
+	delete table;
 }
 
 void deleteExceptionsAttribute(ExceptionsAttribute *except) {
 	if(except->exception_table != NULL)
 		deleteList(except->exception_table, NULL);
-	DELETE(except);
+	delete except;
 }
 
 void deleteInnerClassesAttribute(InnerClassesAttribute *inner) {
 	if(inner->classes != NULL)
 		deleteList(inner->classes, free);
-	DELETE(inner);
+	delete inner;
 }
 
 void deleteLineNumberTableAttribute(LineNumberTableAttribute *table) {
 	if(table->line_number_table != NULL)
 		deleteList(table->line_number_table, free);
-	DELETE(table);
+	delete table;
 }
 
 void deleteLocalVariableTableAttribute(LocalVariableTableAttribute *table) {
 	if(table->local_variable_table != NULL)
 		deleteList(table->local_variable_table, free);
-	DELETE(table);
+	delete table;
 }
 
 void deleteLocalVariableTypeTableAttribute(LocalVariableTypeTableAttribute *table) {
 	if(table->local_variable_type_table != NULL)
 		deleteList(table->local_variable_type_table, free);
-	DELETE(table);
+	delete table;
 }
 
 void deleteElementValue(ElementValue *value) {
@@ -140,60 +76,60 @@ void deleteElementValue(ElementValue *value) {
 						deleteElementValue);
 			break;
 	}
-	DELETE(value);
+	delete value;
 }
 
 void deleteElementValuePairsEntry(ElementValuePairsEntry *entry) {
 	if(entry->value != NULL)
 		deleteElementValue(entry->value);
-	DELETE(entry);
+	delete entry;
 }
 
 void deleteAnnotationEntry(AnnotationEntry *entry) {
 	if(entry->element_value_pairs != NULL)
 		deleteList(entry->element_value_pairs, (void(*)(void *))
 				deleteElementValuePairsEntry);
-	DELETE(entry);
+	delete entry;
 }
 
 void deleteRuntimeAnnotationsAttribute(RuntimeAnnotationsAttribute *annot) {
 	if(annot->annotations != NULL)
 		deleteList(annot->annotations, (void(*)(void *))
 				deleteAnnotationEntry);
-	DELETE(annot);
+	delete annot;
 }
 
 void deleteParameterAnnotationsEntry(ParameterAnnotationsEntry *entry) {
 	if(entry->annotations != NULL)
 		deleteList(entry->annotations, (void(*)(void *))
 				deleteAnnotationEntry);
-	DELETE(entry);
+	delete entry;
 }
 
 void deleteRuntimeParameterAnnotationsAttribute(RuntimeParameterAnnotationsAttribute *annot) {
 	if(annot->parameter_annotations != NULL)
 		deleteList(annot->parameter_annotations, (void(*)(void *))
 				deleteParameterAnnotationsEntry);
-	DELETE(annot);
+	delete annot;
 }
 
 void deleteAnnotationDefaultAttribute(AnnotationDefaultAttribute *value) {
 	if(value->default_value != NULL)
 		deleteElementValue(value->default_value);
-	DELETE(value);
+	delete value;
 }
 
 void deleteBootstrapMethodEntry(BootstrapMethodEntry *entry) {
 	if(entry->bootstrap_arguments != NULL)
 		deleteList(entry->bootstrap_arguments, NULL);
-	DELETE(entry);
+	delete entry;
 }
 
 void deleteBootstrapMethodsAttribute(BootstrapMethodsAttribute *bootstrap) {
 	if(bootstrap->bootstrap_methods != NULL)
 		deleteList(bootstrap->bootstrap_methods, (void(*)(void *))
 				deleteBootstrapMethodEntry);
-	DELETE(bootstrap);
+	delete bootstrap;
 }
 
 void deleteAttribute(AttributeInfo *info) {
@@ -202,7 +138,7 @@ void deleteAttribute(AttributeInfo *info) {
 
 	name = info->name;
 	if(name == NULL || name->bytes == NULL) {
-		DELETE(info);
+		delete info;
 		return;
 	}
 
@@ -226,8 +162,8 @@ void deleteAttribute(AttributeInfo *info) {
 	} else
 	// Source Debug Extension Attribute
 	if(!strcmp("SourceDebugExtension", (char *)name->bytes)) {
-		DELETE(((SourceDebugExtensionAttribute *)info)->debug_extension);
-		DELETE(info);
+		delete ((SourceDebugExtensionAttribute *)info)->debug_extension;
+		delete info;
 	} else
 	// Line Number Table Attribute
 	if(!strcmp("LineNumberTable", (char *)name->bytes)) {
@@ -265,6 +201,6 @@ void deleteAttribute(AttributeInfo *info) {
 	if(!strcmp("BootstrapMethods", (char *)name->bytes)) {
 		deleteBootstrapMethodsAttribute((BootstrapMethodsAttribute *)info);
 	} else {
-		DELETE(info);
+		delete info;
 	}
 }

@@ -48,16 +48,16 @@ int encodeCodeAttribute(
 	length = listSize(code->exception_table);
 	builder->NextShort(length);
 	for(idx = 0; idx < length; idx++) {
-		encodeExceptionTableEntry(classFile, builder, static_cast(
-				ExceptionTableEntry *, listGet(code->exception_table, idx)));
+		encodeExceptionTableEntry(classFile, builder, static_cast<
+				ExceptionTableEntry *>(listGet(code->exception_table, idx)));
 	}
 
 	// Attribute Table
 	length = listSize(code->attributes);
 	builder->NextShort(length);
 	for(idx = 0; idx < length; idx++) {
-		encodeAttribute(classFile, builder, static_cast(
-				AttributeInfo *, listGet(code->attributes, idx)));
+		encodeAttribute(classFile, builder, static_cast<
+				AttributeInfo *>(listGet(code->attributes, idx)));
 	}
 
 	return 0;
@@ -70,12 +70,11 @@ int encodeStackMapFrame(
 	// Stack Map Same Frame
 	if(frame->tag <= 63) {
 		debug_printf(level3, "Stack Map same frame.\n");
-		return 0;
 	} else
 	// Stack Map Same Locals 1
 	if(frame->tag <= 127) {
 		debug_printf(level3, "Stack Map same locals.\n");
-		return encodeStackMapItemFrame(classFile, builder, frame);
+		frame->EncodeFrame(builder, classFile);
 	} else
 	// Reserved Values
 	if(frame->tag <= 246) {
@@ -85,28 +84,30 @@ int encodeStackMapFrame(
 	// Stack Map Same Locals 1 Extended
 	if(frame->tag == 247) {
 		debug_printf(level3, "Stack Map same locals extended.\n");
-		return encodeStackMapExtFrame(classFile, builder, frame);
+		frame->EncodeFrame(builder, classFile);
 	} else
 	// Stack Map Chop Frame
 	if(frame->tag <= 250) {
 		debug_printf(level3, "Stack Map chop frame.\n");
-		return encodeStackMapOffFrame(classFile, builder, frame);
+		frame->EncodeFrame(builder, classFile);
 	} else
 	// Stack Map Same Frame Extended
 	if(frame->tag == 251) {
 		debug_printf(level3, "Stack Map same frame extended.\n");
-		return encodeStackMapOffFrame(classFile, builder, frame);
+		frame->EncodeFrame(builder, classFile);
 	} else
 	// Stack Map Append Frame
 	if(frame->tag <= 254) {
 		debug_printf(level3, "Stack Map append frame.\n");
-		return encodeStackMapListFrame(classFile, builder, frame);
+		frame->EncodeFrame(builder, classFile);
 	}
 	// Stack Map Full Frame
 	else {
 		debug_printf(level3, "Stack Map full frame.\n");
-		return encodeStackMapFullFrame(classFile, builder, frame);
+		frame->EncodeFrame(builder, classFile);
 	}
+
+	return 0;
 }
 
 int encodeStackMapTableAttribute(
@@ -114,12 +115,11 @@ int encodeStackMapTableAttribute(
 	unsigned int idx, length;
 	StackMapTableAttribute *table = (StackMapTableAttribute *)info;
 
-	length = listSize(table->entries);
+	length = table->entries.size();
 	builder->NextShort(length);
 
 	for(idx = 0; idx < length; idx++) {
-		encodeStackMapFrame(classFile, builder, static_cast<
-				StackMapFrame *>(listGet(table->entries, idx)));
+		encodeStackMapFrame(classFile, builder, table->entries[idx]);
 	}
 
 	return 0;

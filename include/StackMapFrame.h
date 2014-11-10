@@ -18,6 +18,10 @@ struct VariableInfo {
 		: tag(tag) {
 	}
 
+	virtual
+	~VariableInfo() {
+	}
+
 	virtual inline
 	VariableInfo *DecodeInfo(ClassBuffer *, ClassFile *) {
 		// Placeholder prototype for children.
@@ -78,10 +82,18 @@ struct StackMapFrame {
 	}
 
 	virtual
-	StackMapFrame *DecodeFrame(ClassBuffer *buffer, ClassFile *classFile);
+	~StackMapFrame() {
+	}
 
-	virtual
-	StackMapFrame *EncodeFrame(ClassBuilder *builder, ClassFile *classFile);
+	virtual inline
+	StackMapFrame *DecodeFrame(ClassBuffer *, ClassFile *) {
+		return this;
+	}
+
+	virtual inline
+	StackMapFrame *EncodeFrame(ClassBuilder *, ClassFile *) {
+		return this;
+	}
 };
 
 struct StackMapOffFrame
@@ -112,6 +124,8 @@ struct StackMapItemFrame
 		: StackMapFrame(tag) {
 	}
 
+	~StackMapItemFrame();
+
 	StackMapItemFrame *DecodeFrame(ClassBuffer *buffer, ClassFile *classFile);
 
 	StackMapItemFrame *EncodeFrame(ClassBuilder *builder, ClassFile *classFile);
@@ -131,6 +145,8 @@ struct StackMapExtFrame
 		: StackMapFrame(tag) {
 	}
 
+	~StackMapExtFrame();
+
 	StackMapExtFrame *DecodeFrame(ClassBuffer *buffer, ClassFile *classFile);
 
 	StackMapExtFrame *EncodeFrame(ClassBuilder *builder, ClassFile *classFile);
@@ -149,6 +165,8 @@ struct StackMapListFrame
 	StackMapListFrame(uint8_t tag)
 		: StackMapFrame(tag) {
 	}
+
+	~StackMapListFrame();
 
 	StackMapListFrame *DecodeFrame(ClassBuffer *buffer, ClassFile *classFile);
 
@@ -171,6 +189,8 @@ struct StackMapFullFrame
 	StackMapFullFrame(uint8_t tag)
 		: StackMapFrame(tag) {
 	}
+
+	~StackMapFullFrame();
 
 	StackMapFullFrame *DecodeFrame(ClassBuffer *buffer, ClassFile *classFile);
 
