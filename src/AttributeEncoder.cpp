@@ -11,12 +11,16 @@
 
 ConstantValueAttribute *ConstantValueAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	debug_printf(level3, "Encoding Constant Value Attribute.\n");
+
 	builder->NextShort(constant_value->index);
 	return this;
 }
 
 ExceptionTableEntry *ExceptionTableEntry
 		::EncodeEntry(ClassBuilder *builder) {
+	debug_printf(level3, "Encoding Exception Table Entry.\n");
+
 	builder->NextShort(start_pc);
 	builder->NextShort(end_pc);
 	builder->NextShort(handler_pc);
@@ -28,6 +32,8 @@ ExceptionTableEntry *ExceptionTableEntry
 CodeAttribute *CodeAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
+
+	debug_printf(level3, "Encoding Code Attribute.\n");
 
 	// Maximums
 	builder->NextShort(max_stack);
@@ -60,6 +66,8 @@ StackMapTableAttribute *StackMapTableAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
 
+	debug_printf(level3, "Encoding Stack Map Table Attribute.\n");
+
 	length = entries.size();
 	builder->NextShort(length);
 
@@ -74,6 +82,8 @@ ExceptionsAttribute *ExceptionsAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
 	uint16_t length;
 
+	debug_printf(level3, "Encoding Exceptions Attribute.\n");
+
 	length = exception_table.size();
 	builder->NextShort(length);
 
@@ -87,6 +97,8 @@ ExceptionsAttribute *ExceptionsAttribute
 
 int encodeInnerClassEntry(
 		ClassFile *classFile, ClassBuilder *builder, InnerClassEntry *entry) {
+	debug_printf(level3, "Encoding Inner Class Entry.\n");
+
 	builder->NextShort(entry->inner_class_info->index);
 	builder->NextShort(entry->outer_class_info->index);
 	builder->NextShort(entry->inner_class_name->index);
@@ -99,6 +111,8 @@ int encodeInnerClassEntry(
 InnerClassesAttribute *InnerClassesAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
+
+	debug_printf(level3, "Encoding Inner Classes Attribute.\n");
 
 	length = listSize(classes);
 	builder->NextShort(length);
@@ -113,6 +127,8 @@ InnerClassesAttribute *InnerClassesAttribute
 
 EnclosingMethodAttribute *EnclosingMethodAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	debug_printf(level3, "Encoding Enclosing Method Attribute.\n");
+
 	builder->NextShort(enclosing_class->index);
 	builder->NextShort(enclosing_method->index);
 
@@ -121,6 +137,8 @@ EnclosingMethodAttribute *EnclosingMethodAttribute
 
 SignatureAttribute *SignatureAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	debug_printf(level3, "Encoding Signature Attribute.\n");
+
 	builder->NextShort(signature->index);
 
 	return this;
@@ -128,6 +146,8 @@ SignatureAttribute *SignatureAttribute
 
 SourceFileAttribute *SourceFileAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	debug_printf(level3, "Encoding Souce File Attribute.\n");
+
 	builder->NextShort(source_file->index);
 
 	return this;
@@ -135,6 +155,8 @@ SourceFileAttribute *SourceFileAttribute
 
 SourceDebugExtensionAttribute *SourceDebugExtensionAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
+	debug_printf(level3, "Encoding Source Debug Extension Attribute.\n");
+
 	for(unsigned idx = 0; idx < attribute_length; idx++) {
 		builder->NextByte(debug_extension[idx]);
 	}
@@ -144,6 +166,8 @@ SourceDebugExtensionAttribute *SourceDebugExtensionAttribute
 
 int encodeLineNumberTableEntry(
 		ClassFile *classFile, ClassBuilder *builder, LineNumberTableEntry *entry) {
+	debug_printf(level3, "Encoding Line Number Table Entry.\n");
+
 	builder->NextShort(entry->start_pc);
 	builder->NextShort(entry->line_number);
 
@@ -154,6 +178,8 @@ int encodeLineNumberTableEntry(
 LineNumberTableAttribute *LineNumberTableAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
+
+	debug_printf(level3, "Encoding Line Number Table Attribute.\n");
 
 	length = listSize(line_number_table);
 	builder->NextShort(length);
@@ -168,6 +194,8 @@ LineNumberTableAttribute *LineNumberTableAttribute
 
 int encodeLocalVariableTableEntry(
 		ClassFile *classFile, ClassBuilder *builder, LocalVariableTableEntry *entry) {
+	debug_printf(level3, "Encoding Local Variable Table Entry.\n");
+
 	builder->NextShort(entry->start_pc);
 	builder->NextShort(entry->length);
 
@@ -182,6 +210,8 @@ int encodeLocalVariableTableEntry(
 
 LocalVariableTableAttribute *LocalVariableTableAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	debug_printf(level3, "Encoding Local Variable Table Attribute.\n");
+
 	uint16_t length;
 
 	length = listSize(local_variable_table);
@@ -197,6 +227,8 @@ LocalVariableTableAttribute *LocalVariableTableAttribute
 
 int encodeLocalVariableTypeTableEntry(
 		ClassFile *classFile, ClassBuilder *builder, LocalVariableTypeTableEntry *entry) {
+	debug_printf(level3, "Encoding Local Variable Type Table Entry.\n");
+
 	builder->NextShort(entry->start_pc);
 	builder->NextShort(entry->length);
 
@@ -213,6 +245,8 @@ LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
 
+	debug_printf(level3, "Encoding Local Variable Type Table Attribute.\n");
+
 	length = listSize(local_variable_type_table);
 	builder->NextShort(length);
 
@@ -226,10 +260,11 @@ LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
 }
 
 int encodeConstElementValue(
-		ClassFile *classFile, ClassBuilder *builder, ElementValue *value) {
+		ClassFile *, ClassBuilder *builder, ElementValue *value) {
+	debug_printf(level3, "Encoding Const Element Value.\n");
+
 	builder->NextShort(value->value.const_value->index);
 
-	ignore_unused(classFile);
 	return 0;
 }
 
@@ -334,6 +369,8 @@ RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
 
+	debug_printf(level3, "Encoding Runtime Annotations Attribute.\n");
+
 	length = listSize(annotations);
 	builder->NextShort(length);
 
@@ -348,6 +385,8 @@ RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
 int encodeParameterAnnotationsEntry(
 		ClassFile *classFile, ClassBuilder *builder, ParameterAnnotationsEntry *entry) {
 	unsigned int idx, length;
+
+	debug_printf(level3, "Encoding Parameter Annotations Entry.\n");
 
 	length = listSize(entry->annotations);
 	builder->NextShort(length);
@@ -364,6 +403,8 @@ RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
 
+	debug_printf(level3, "Encoding Parameter Annotations Attribute.\n");
+
 	length = listSize(parameter_annotations);
 	builder->NextByte(length);
 
@@ -377,6 +418,8 @@ RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
 
 AnnotationDefaultAttribute *AnnotationDefaultAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+	debug_printf(level3, "Encoding Annotation Default Attribute.\n");
+
 	encodeElementValue(classFile, builder, default_value);
 
 	return this;
@@ -385,6 +428,8 @@ AnnotationDefaultAttribute *AnnotationDefaultAttribute
 int encodeBootstrapMethodEntry(
 		ClassFile *classFile, ClassBuilder *builder, BootstrapMethodEntry *entry) {
 	unsigned int idx, length;
+
+	debug_printf(level3, "Encoding Bootstrap Method Entry.\n");
 
 	builder->NextShort(entry->bootstrap_method_ref->index);
 	length = listSize(entry->bootstrap_arguments);
@@ -404,6 +449,8 @@ BootstrapMethodsAttribute *BootstrapMethodsAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
 
+	debug_printf(level3, "Encoding Bootstrap Methods Attribute.\n");
+
 	length = bootstrap_methods.size();
 	builder->NextShort(length);
 
@@ -415,6 +462,8 @@ BootstrapMethodsAttribute *BootstrapMethodsAttribute
 }
 
 int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+	debug_printf(level3, "Encoding Attribute.\n");
+
 	builder->NextShort(info->name->index);
 	builder->NextInt(info->attribute_length);
 	info->EncodeAttribute(builder, classFile);

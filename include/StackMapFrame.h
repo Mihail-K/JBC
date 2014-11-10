@@ -82,8 +82,7 @@ struct StackMapFrame {
 	}
 
 	virtual
-	~StackMapFrame() {
-	}
+	~StackMapFrame();
 
 	virtual inline
 	StackMapFrame *DecodeFrame(ClassBuffer *, ClassFile *) {

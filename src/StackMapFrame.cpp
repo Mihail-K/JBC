@@ -283,19 +283,26 @@ int encodeStackMapFrame(
 
 /* Stack Map Frame destructors */
 
+StackMapFrame::~StackMapFrame() {
+	debug_printf(level3, "Deleting Stack Map Frame.\n");
+}
+
 StackMapItemFrame::~StackMapItemFrame() {
+	debug_printf(level3, "Deleting Stack Map Item Frame.\n");
 	if(stack != NULL) {
 		delete stack;
 	}
 }
 
 StackMapExtFrame::~StackMapExtFrame() {
+	debug_printf(level3, "Deleting Stack Map Ext Frame.\n");
 	if(stack != NULL) {
 		delete stack;
 	}
 }
 
 StackMapListFrame::~StackMapListFrame() {
+	debug_printf(level3, "Deleting Stack Map List Frame.\n");
 	if(stack != NULL) {
 		for(unsigned idx = 0; idx < tag - 251u; idx++)
 			delete stack[idx];
@@ -304,6 +311,7 @@ StackMapListFrame::~StackMapListFrame() {
 }
 
 StackMapFullFrame::~StackMapFullFrame() {
+	debug_printf(level3, "Deleting Stack Map Full Frame.\n");
 	if(!locals.empty()) {
 		for(std::vector<VariableInfo *>::iterator itr = locals.begin();
 				itr != locals.end(); itr++) {
