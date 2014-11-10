@@ -17,7 +17,7 @@ ClassFile::ClassFile()
 }
 
 ClassFile::ClassFile(ClassBuffer *buffer) {
-	this->ReadBuffer(buffer);
+	this->DecodeClassFile(buffer);
 }
 
 ClassFile::~ClassFile() {
@@ -55,16 +55,7 @@ ClassFile::~ClassFile() {
 	if(!constant_pool.empty()) {
 		for(std::vector<ConstantInfo *>::iterator itr = constant_pool.begin();
 				itr != constant_pool.end(); itr++)
-			deleteConstant(*itr);
+			delete *itr;
 		constant_pool.clear();
 	}
-}
-
-ClassFile *createClassFile() {
-	return NEW(ClassFile);
-}
-
-void deleteClassFile(ClassFile *classFile) {
-	if(classFile == NULL) return;
-	DELETE(classFile);
 }

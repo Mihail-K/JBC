@@ -106,7 +106,7 @@ void ClassFile::EncodeAttributes(ClassBuilder *builder) {
 	}
 }
 
-void ClassFile::WriteBuilder(ClassBuilder *builder) {
+void ClassFile::EncodeClassFile(ClassBuilder *builder) {
 	debug_printf(level0, "Magic : %#X.\n", magic);
 	debug_printf(level0, "Major Version : %d.\n", major_version);
 	debug_printf(level0, "Minor Version : %d.\n", minor_version);
@@ -128,19 +128,12 @@ void ClassFile::WriteBuilder(ClassBuilder *builder) {
 	EncodeAttributes(builder);
 }
 
-int encodeClassData(ClassFile *classFile, ClassBuilder *builder) {
-	if(classFile == NULL) return -1;
-	classFile->WriteBuilder(builder);
-	return 0;
-}
-
 int encodeClassFile(FILE *source, ClassFile *classFile) {
-	int result;
-
 	debug_printf(level0, "Creating Class builder.\n");
 	ClassBuilder *builder = createBuilder(source);
 	debug_printf(level0, "Encoding Class file :\n");
-	result = encodeClassData(classFile, builder);
+	classFile->EncodeClassFile(builder);
 	debug_printf(level0, "Finished Class file.\n");
-	return result;
+	delete builder;
+	return 0;
 }

@@ -5,176 +5,160 @@
 
 # define createConstant (void *)createConstant
 
-ConstantInfo *decodeConstantUtf8(ClassBuffer *buffer) {
+ConstantUtf8Info *ConstantUtf8Info
+		::DecodeConstant(ClassBuffer *buffer) {
 	unsigned int idx;
-	ConstantUtf8Info *utf8Info;
-	utf8Info = static_cast(ConstantUtf8Info *, createConstant(CONSTANT_UTF8));
 
-	utf8Info->length = bufferNextShort(buffer);
-	debug_printf(level3, "Constant Length : %d.\n", utf8Info->length);
+	length = buffer->NextShort();
+	debug_printf(level3, "Constant Length : %d.\n", length);
 
-	utf8Info->bytes = ALLOC(uint8_t, utf8Info->length + 1);
-	utf8Info->bytes[utf8Info->length] = '\0';
+	bytes = new uint8_t[length + 1];
+	bytes[length] = '\0';
 
-	for(idx = 0; idx < utf8Info->length; idx++)
+	for(idx = 0; idx < length; idx++)
 		// TODO : Potentially add a mass-read operation
-		utf8Info->bytes[idx] = bufferNextByte(buffer);
-	debug_printf(level3, "Constant Data : %s.\n", utf8Info->bytes);
-	return (ConstantInfo *)utf8Info;
+		bytes[idx] = buffer->NextByte();
+	debug_printf(level3, "Constant Data : %s.\n", bytes);
+	return this;
 }
 
-ConstantInfo *decodeConstantInteger(ClassBuffer *buffer) {
-	ConstantIntegerInfo *intInfo;
-	intInfo = static_cast(ConstantIntegerInfo *, createConstant(CONSTANT_INTEGER));
-
-	intInfo->bytes = bufferNextInt(buffer);
-	return (ConstantInfo *)intInfo;
+ConstantIntegerInfo *ConstantIntegerInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	bytes = buffer->NextInt();
+	return this;
 }
 
-ConstantInfo *decodeConstantFloat(ClassBuffer *buffer) {
-	ConstantFloatInfo *floatInfo;
-	floatInfo = static_cast(ConstantFloatInfo *, createConstant(CONSTANT_FLOAT));
-
-	floatInfo->bytes = bufferNextInt(buffer);
-	return (ConstantInfo *)floatInfo;
+ConstantFloatInfo *ConstantFloatInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	bytes = buffer->NextInt();
+	return this;
 }
 
-ConstantInfo *decodeConstantLong(ClassBuffer *buffer) {
-	ConstantLongInfo *longInfo;
-	longInfo = static_cast(ConstantLongInfo *, createConstant(CONSTANT_LONG));
-
-	longInfo->high_bytes = bufferNextInt(buffer);
-	longInfo->low_bytes = bufferNextInt(buffer);
-	return (ConstantInfo *)longInfo;
+ConstantLongInfo *ConstantLongInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	high_bytes = buffer->NextInt();
+	low_bytes = buffer->NextInt();
+	return this;
 }
 
-ConstantInfo *decodeConstantDouble(ClassBuffer *buffer) {
-	ConstantDoubleInfo *doubleInfo;
-	doubleInfo = static_cast(ConstantDoubleInfo *, createConstant(CONSTANT_DOUBLE));
-
-	doubleInfo->high_bytes = bufferNextInt(buffer);
-	doubleInfo->low_bytes = bufferNextInt(buffer);
-	return (ConstantInfo *)doubleInfo;
+ConstantDoubleInfo *ConstantDoubleInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	high_bytes = buffer->NextInt();
+	low_bytes = buffer->NextInt();
+	return this;
 }
 
-ConstantInfo *decodeConstantClass(ClassBuffer *buffer) {
-	ConstantClassInfo *classInfo;
-	classInfo = static_cast(ConstantClassInfo *, createConstant(CONSTANT_CLASS));
-
-	classInfo->name_index = bufferNextShort(buffer);
-	return (ConstantInfo *)classInfo;
+ConstantClassInfo *ConstantClassInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	name_index = buffer->NextShort();
+	return this;
 }
 
-ConstantInfo *decodeConstantString(ClassBuffer *buffer) {
-	ConstantStringInfo *stringInfo;
-	stringInfo = static_cast(ConstantStringInfo *, createConstant(CONSTANT_STRING));
-
-	stringInfo->string_index = bufferNextShort(buffer);
-	return (ConstantInfo *)stringInfo;
+ConstantStringInfo *ConstantStringInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	string_index = buffer->NextShort();
+	return this;
 }
 
-# define decodeConstantFieldRef(buffer) \
-	decodeConstantRef((buffer), CONSTANT_FIELD_REF)
-# define decodeConstantMethodRef(buffer) \
-	decodeConstantRef((buffer), CONSTANT_METHOD_REF)
-# define decodeConstantInterfaceMethodRef(buffer) \
-	decodeConstantRef((buffer), CONSTANT_INTERFACE_METHOD_REF)
-
-ConstantInfo *decodeConstantRef(ClassBuffer *buffer, uint8_t tag) {
-	ConstantRefInfo *refInfo;
-	refInfo = static_cast(ConstantRefInfo *, createConstant(tag));
-
-	refInfo->class_index = bufferNextShort(buffer);
-	refInfo->name_and_type_index = bufferNextShort(buffer);
-	return (ConstantInfo *)refInfo;
+ConstantFieldRefInfo *ConstantFieldRefInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	class_index = buffer->NextShort();
+	name_and_type_index = buffer->NextShort();
+	return this;
 }
 
-ConstantInfo *decodeConstantNameAndType(ClassBuffer *buffer) {
-	ConstantNameAndTypeInfo *nameAndTypeInfo;
-	nameAndTypeInfo = static_cast(ConstantNameAndTypeInfo *, createConstant(CONSTANT_NAME_AND_TYPE));
-
-	nameAndTypeInfo->name_index = bufferNextShort(buffer);
-	nameAndTypeInfo->descriptor_index = bufferNextShort(buffer);
-	return (ConstantInfo *)nameAndTypeInfo;
+ConstantMethodRefInfo *ConstantMethodRefInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	class_index = buffer->NextShort();
+	name_and_type_index = buffer->NextShort();
+	return this;
 }
 
-ConstantInfo *decodeConstantMethodHandle(ClassBuffer *buffer) {
-	ConstantMethodHandleInfo *methodHandleInfo;
-	methodHandleInfo = static_cast(ConstantMethodHandleInfo *, createConstant(CONSTANT_METHOD_HANDLE));
-
-	methodHandleInfo->reference_kind = bufferNextByte(buffer);
-	methodHandleInfo->reference_index = bufferNextShort(buffer);
-	return (ConstantInfo *)methodHandleInfo;
+ConstantInterfaceMethodRefInfo *ConstantInterfaceMethodRefInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	class_index = buffer->NextShort();
+	name_and_type_index = buffer->NextShort();
+	return this;
 }
 
-ConstantInfo *decodeConstantMethodType(ClassBuffer *buffer) {
-	ConstantMethodTypeInfo *methodTypeInfo;
-	methodTypeInfo = static_cast(ConstantMethodTypeInfo *, createConstant(CONSTANT_METHOD_TYPE));
-
-	methodTypeInfo->descriptor_index = bufferNextShort(buffer);
-	return (ConstantInfo *)methodTypeInfo;
+ConstantNameAndTypeInfo *ConstantNameAndTypeInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	name_index = buffer->NextShort();
+	descriptor_index = buffer->NextShort();
+	return this;
 }
 
-ConstantInfo *decodeConstantInvokeDynamic(ClassBuffer *buffer) {
-	ConstantInvokeDynamicInfo *invokeDynamicInfo;
-	invokeDynamicInfo = static_cast(ConstantInvokeDynamicInfo *, createConstant(CONSTANT_INVOKE_DYNAMIC));
+ConstantMethodHandleInfo *ConstantMethodHandleInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	reference_kind = buffer->NextByte();
+	reference_index = buffer->NextShort();
+	return this;
+}
 
-	invokeDynamicInfo->bootstrap_method_attr_index = bufferNextShort(buffer);
-	invokeDynamicInfo->name_and_type_index = bufferNextShort(buffer);
-	return (ConstantInfo *)invokeDynamicInfo;
+ConstantMethodTypeInfo *ConstantMethodTypeInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	descriptor_index = buffer->NextShort();
+	return this;
+}
+
+ConstantInvokeDynamicInfo *ConstantInvokeDynamicInfo
+		::DecodeConstant(ClassBuffer *buffer) {
+	bootstrap_method_attr_index = buffer->NextShort();
+	name_and_type_index = buffer->NextShort();
+	return this;
 }
 
 ConstantInfo *decodeConstant(ClassBuffer *buffer) {
-	uint8_t tag = bufferNextByte(buffer);
+	uint8_t tag = buffer->NextByte();
 
 	switch(tag) {
 		case CONSTANT_UTF8:
 			debug_printf(level2, "Constant UTF8.\n");
-			return decodeConstantUtf8(buffer);
+			return (new ConstantUtf8Info)->DecodeConstant(buffer);
 		case CONSTANT_INTEGER:
 			debug_printf(level2, "Constant Integer.\n");
-			return decodeConstantInteger(buffer);
+			return (new ConstantIntegerInfo)->DecodeConstant(buffer);
 		case CONSTANT_FLOAT:
 			debug_printf(level2, "Constant Float.\n");
-			return decodeConstantFloat(buffer);
+			return (new ConstantFloatInfo)->DecodeConstant(buffer);
 		case CONSTANT_LONG:
 			debug_printf(level2, "Constant Long.\n");
-			return decodeConstantLong(buffer);
+			return (new ConstantLongInfo)->DecodeConstant(buffer);
 		case CONSTANT_DOUBLE:
 			debug_printf(level2, "Constant Double.\n");
-			return decodeConstantDouble(buffer);
+			return (new ConstantDoubleInfo)->DecodeConstant(buffer);
 		case CONSTANT_CLASS:
 			debug_printf(level2, "Constant Class.\n");
-			return decodeConstantClass(buffer);
+			return (new ConstantClassInfo)->DecodeConstant(buffer);
 		case CONSTANT_STRING:
 			debug_printf(level2, "Constant String.\n");
-			return decodeConstantString(buffer);
+			return (new ConstantStringInfo)->DecodeConstant(buffer);
 		case CONSTANT_FIELD_REF:
 			debug_printf(level2, "Constant Field Ref.\n");
-			return decodeConstantFieldRef(buffer);
+			return (new ConstantFieldRefInfo)->DecodeConstant(buffer);
 		case CONSTANT_METHOD_REF:
 			debug_printf(level2, "Constant Method Ref.\n");
-			return decodeConstantMethodRef(buffer);
+			return (new ConstantMethodRefInfo)->DecodeConstant(buffer);
 		case CONSTANT_INTERFACE_METHOD_REF:
 			debug_printf(level2, "Constant Interface Method Ref.\n");
-			return decodeConstantInterfaceMethodRef(buffer);
+			return (new ConstantInterfaceMethodRefInfo)->DecodeConstant(buffer);
 		case CONSTANT_NAME_AND_TYPE:
 			debug_printf(level2, "Constant Name And Type.\n");
-			return decodeConstantNameAndType(buffer);
+			return (new ConstantNameAndTypeInfo)->DecodeConstant(buffer);
 		case CONSTANT_METHOD_HANDLE:
 			debug_printf(level2, "Constant Method Handle.\n");
-			return decodeConstantMethodHandle(buffer);
+			return (new ConstantMethodHandleInfo)->DecodeConstant(buffer);
 		case CONSTANT_METHOD_TYPE:
 			debug_printf(level2, "Constant Method Type.\n");
-			return decodeConstantMethodType(buffer);
+			return (new ConstantMethodTypeInfo)->DecodeConstant(buffer);
 		case CONSTANT_INVOKE_DYNAMIC:
 			debug_printf(level2, "Constant Invoke Dynamic.\n");
-			return decodeConstantInvokeDynamic(buffer);
+			return (new ConstantInvokeDynamicInfo)->DecodeConstant(buffer);
 		case (uint8_t)-1:
-			fprintf(stderr, "Unexpected end of file.\n");
-			exit(EXIT_FAILURE);
+			throw ConstantError("Unexpected end of file.\n");
 		default:
-			fprintf(stderr, "Unknown tag : %d (%zu).\n", tag, bufferPos(buffer));
-			exit(EXIT_FAILURE);
+			char message[256];
+			sprintf(message, "Unknown tag : %d (%zu).\n", tag, bufferPos(buffer));
+			throw ConstantError(message);
 	}
 }

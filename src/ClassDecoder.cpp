@@ -99,7 +99,7 @@ void ClassFile::DecodeAttributes(ClassBuffer *buffer) {
 	}
 }
 
-void ClassFile::ReadBuffer(ClassBuffer *buffer) {
+void ClassFile::DecodeClassFile(ClassBuffer *buffer) {
 	magic = bufferNextInt(buffer);
 	major_version = bufferNextShort(buffer);
 	minor_version = bufferNextShort(buffer);
@@ -121,15 +121,12 @@ void ClassFile::ReadBuffer(ClassBuffer *buffer) {
 	DecodeAttributes(buffer);
 }
 
-ClassFile *decodeClassData(ClassBuffer *buffer) {
-	return new ClassFile(buffer);
-}
-
 ClassFile *decodeClassFile(FILE *source) {
 	debug_printf(level0, "Creating Class buffer.\n");
 	ClassBuffer *buffer = createBuffer(source);
 	debug_printf(level0, "Decoding Class file :\n");
-	ClassFile *classFile = decodeClassData(buffer);
+	ClassFile *classFile = new ClassFile(buffer);
 	debug_printf(level0, "Finished Class file.\n");
+	delete buffer;
 	return classFile;
 }

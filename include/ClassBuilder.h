@@ -1,15 +1,16 @@
 # ifndef __CLASSBUILDER_H__
 # define __CLASSBUILDER_H__
 
+# include <string>
 # include <stdio.h>
 # include <stdint.h>
 
 struct BuilderError {
-	const char *msg;
+	const std::string msg;
 
 	inline
 	BuilderError(const char *msg)
-		: msg(msg) {
+		: msg(std::string(msg)) {
 	}
 };
 

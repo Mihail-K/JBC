@@ -4,174 +4,158 @@
 # include "Debug.h"
 # include "ConstantInfo.h"
 
-int encodeConstantUtf8(ClassBuilder *builder, ConstantInfo *info) {
-	unsigned int idx;
-	ConstantUtf8Info *utf8Info = (ConstantUtf8Info *)info;
+ConstantUtf8Info *ConstantUtf8Info
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant UTF8.\n");
 
-	buildNextByte(builder, utf8Info->tag);
-	buildNextShort(builder, utf8Info->length);
-	for(idx = 0; idx < utf8Info->length; idx++)
-		buildNextByte(builder, utf8Info->bytes[idx]);
-	return 0;
+	builder->NextByte(tag);
+	builder->NextShort(length);
+
+	for(unsigned idx = 0; idx < length; idx++)
+		builder->NextByte(bytes[idx]);
+	return this;
 }
 
-int encodeConstantInteger(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantIntegerInfo *intInfo = (ConstantIntegerInfo *)info;
+ConstantIntegerInfo *ConstantIntegerInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Integer.\n");
 
-	buildNextByte(builder, intInfo->tag);
-	buildNextInt(builder, intInfo->bytes);
+	builder->NextByte(tag);
+	builder->NextInt(bytes);
 
-	return 0;
+	return this;
 }
 
-int encodeConstantFloat(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantFloatInfo *floatInfo = (ConstantFloatInfo *)info;
+ConstantFloatInfo *ConstantFloatInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Float.\n");
 
-	buildNextByte(builder, floatInfo->tag);
-	buildNextInt(builder, floatInfo->bytes);
+	builder->NextByte(tag);
+	builder->NextInt(bytes);
 
-	return 0;
+	return this;
 }
 
-int encodeConstantLong(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantLongInfo *longInfo = (ConstantLongInfo *)info;
+ConstantLongInfo *ConstantLongInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Long.\n");
 
-	buildNextByte(builder, longInfo->tag);
-	buildNextInt(builder, longInfo->high_bytes);
-	buildNextInt(builder, longInfo->low_bytes);
+	builder->NextByte(tag);
+	builder->NextInt(high_bytes);
+	builder->NextInt(low_bytes);
 
-	return 0;
+	return this;
 }
 
-int encodeConstantDouble(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantDoubleInfo *doubleInfo = (ConstantDoubleInfo *)info;
+ConstantDoubleInfo *ConstantDoubleInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Double.\n");
 
-	buildNextByte(builder, doubleInfo->tag);
-	buildNextInt(builder, doubleInfo->high_bytes);
-	buildNextInt(builder, doubleInfo->low_bytes);
+	builder->NextByte(tag);
+	builder->NextInt(high_bytes);
+	builder->NextInt(low_bytes);
 
-	return 0;
+	return this;
 }
 
-int encodeConstantClass(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantClassInfo *classInfo = (ConstantClassInfo *)info;
+ConstantClassInfo *ConstantClassInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Class.\n");
 
-	buildNextByte(builder, classInfo->tag);
-	buildNextShort(builder, classInfo->name_index);
+	builder->NextByte(tag);
+	builder->NextShort(name_index);
 
-	return 0;
+	return this;
 }
 
-int encodeConstantString(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantStringInfo *stringInfo = (ConstantStringInfo *)info;
+ConstantStringInfo *ConstantStringInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant String.\n");
 
-	buildNextByte(builder, stringInfo->tag);
-	buildNextShort(builder, stringInfo->string_index);
+	builder->NextByte(tag);
+	builder->NextShort(string_index);
 
-	return 0;
+	return this;
 }
 
-# define encodeConstantFieldRef encodeConstantRef
-# define encodeConstantMethodRef encodeConstantRef
-# define encodeConstantInterfaceMethodRef encodeConstantRef
+ConstantFieldRefInfo *ConstantFieldRefInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Field Ref.\n");
 
-int encodeConstantRef(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantRefInfo *refInfo = (ConstantRefInfo *)info;
+	builder->NextByte(tag);
+	builder->NextShort(class_index);
+	builder->NextShort(name_and_type_index);
 
-	buildNextByte(builder, refInfo->tag);
-	buildNextShort(builder, refInfo->class_index);
-	buildNextShort(builder, refInfo->name_and_type_index);
-
-	return 0;
+	return this;
 }
 
-int encodeConstantNameAndType(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantNameAndTypeInfo *nameAndTypeInfo = (ConstantNameAndTypeInfo *)info;
+ConstantMethodRefInfo *ConstantMethodRefInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Method Ref.\n");
 
-	buildNextByte(builder, nameAndTypeInfo->tag);
-	buildNextShort(builder, nameAndTypeInfo->name_index);
-	buildNextShort(builder, nameAndTypeInfo->descriptor_index);
+	builder->NextByte(tag);
+	builder->NextShort(class_index);
+	builder->NextShort(name_and_type_index);
 
-	return 0;
+	return this;
 }
 
-int encodeConstantMethodHandle(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantMethodHandleInfo *methodHandleInfo = (ConstantMethodHandleInfo *)info;
+ConstantInterfaceMethodRefInfo *ConstantInterfaceMethodRefInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Interface Method Ref.\n");
 
-	buildNextByte(builder, methodHandleInfo->tag);
-	buildNextByte(builder, methodHandleInfo->reference_kind);
-	buildNextShort(builder, methodHandleInfo->reference_index);
+	builder->NextByte(tag);
+	builder->NextShort(class_index);
+	builder->NextShort(name_and_type_index);
 
-	return 0;
+	return this;
 }
 
-int encodeConstantMethodType(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantMethodTypeInfo *methodTypeInfo = (ConstantMethodTypeInfo *)info;
+ConstantNameAndTypeInfo *ConstantNameAndTypeInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Name And Type.\n");
 
-	buildNextByte(builder, methodTypeInfo->tag);
-	buildNextShort(builder, methodTypeInfo->descriptor_index);
+	builder->NextByte(tag);
+	builder->NextShort(name_index);
+	builder->NextShort(descriptor_index);
 
-	return 0;
+	return this;
 }
 
-int encodeConstantInvokeDynamic(ClassBuilder *builder, ConstantInfo *info) {
-	ConstantInvokeDynamicInfo *invokeDynamicInfo = (ConstantInvokeDynamicInfo *)info;
+ConstantMethodHandleInfo *ConstantMethodHandleInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Method Handle.\n");
 
-	buildNextByte(builder, invokeDynamicInfo->tag);
-	buildNextShort(builder, invokeDynamicInfo->bootstrap_method_attr_index);
-	buildNextShort(builder, invokeDynamicInfo->name_and_type_index);
+	builder->NextByte(tag);
+	builder->NextByte(reference_kind);
+	builder->NextShort(reference_index);
 
-	return 0;
+	return this;
+}
+
+ConstantMethodTypeInfo *ConstantMethodTypeInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Method Type.\n");
+
+	builder->NextByte(tag);
+	builder->NextShort(descriptor_index);
+
+	return this;
+}
+
+ConstantInvokeDynamicInfo *ConstantInvokeDynamicInfo
+		::EncodeConstant(ClassBuilder *builder) {
+	debug_printf(level2, "Encoding Constant Invoke Dynamic.\n");
+
+	builder->NextByte(tag);
+	builder->NextShort(bootstrap_method_attr_index);
+	builder->NextShort(name_and_type_index);
+
+	return this;
 }
 
 int encodeConstant(ClassBuilder *builder, ConstantInfo *info) {
 	if(builder == NULL || info == NULL) return -1;
-
-	switch(info->tag) {
-		case CONSTANT_UTF8:
-			debug_printf(level2, "Constant UTF8.\n");
-			return encodeConstantUtf8(builder, info);
-		case CONSTANT_INTEGER:
-			debug_printf(level2, "Constant Integer.\n");
-			return encodeConstantInteger(builder, info);
-		case CONSTANT_FLOAT:
-			debug_printf(level2, "Constant Float.\n");
-			return encodeConstantFloat(builder, info);
-		case CONSTANT_LONG:
-			debug_printf(level2, "Constant Long.\n");
-			return encodeConstantLong(builder, info);
-		case CONSTANT_DOUBLE:
-			debug_printf(level2, "Constant Double.\n");
-			return encodeConstantDouble(builder, info);
-		case CONSTANT_CLASS:
-			debug_printf(level2, "Constant Class.\n");
-			return encodeConstantClass(builder, info);
-		case CONSTANT_STRING:
-			debug_printf(level2, "Constant String.\n");
-			return encodeConstantString(builder, info);
-		case CONSTANT_FIELD_REF:
-			debug_printf(level2, "Constant Field Ref.\n");
-			return encodeConstantFieldRef(builder, info);
-		case CONSTANT_METHOD_REF:
-			debug_printf(level2, "Constant Method Ref.\n");
-			return encodeConstantMethodRef(builder, info);
-		case CONSTANT_INTERFACE_METHOD_REF:
-			debug_printf(level2, "Constant Interface Method Ref.\n");
-			return encodeConstantInterfaceMethodRef(builder, info);
-		case CONSTANT_NAME_AND_TYPE:
-			debug_printf(level2, "Constant Name And Type.\n");
-			return encodeConstantNameAndType(builder, info);
-		case CONSTANT_METHOD_HANDLE:
-			debug_printf(level2, "Constant Method Handle.\n");
-			return encodeConstantMethodHandle(builder, info);
-		case CONSTANT_METHOD_TYPE:
-			debug_printf(level2, "Constant Method Type.\n");
-			return encodeConstantMethodType(builder, info);
-		case CONSTANT_INVOKE_DYNAMIC:
-			debug_printf(level2, "Constant Invoke Dynamic.\n");
-			return encodeConstantInvokeDynamic(builder, info);
-		default:
-			fprintf(stderr, "Unknown tag : %d (%zu).\n", info->tag, builderPos(builder));
-			exit(EXIT_FAILURE);
-	}
+	info->EncodeConstant(builder);
+	return 0;
 }

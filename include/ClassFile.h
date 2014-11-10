@@ -53,9 +53,8 @@ public:
 	~ClassFile();
 
 public:
-	void ReadBuffer(ClassBuffer *buffer);
-
-	void WriteBuilder(ClassBuilder *builder);
+	void DecodeClassFile(ClassBuffer *buffer);
+	void EncodeClassFile(ClassBuilder *builder);
 
 private:
 	void DecodeConstants(ClassBuffer *buffer);
@@ -77,13 +76,9 @@ private:
 	void EncodeAttributes(ClassBuilder *builder);
 };
 
-ClassFile *createClassFile();
-
-void deleteClassFile(ClassFile *classFile);
+ClassFile *decodeClassFile(FILE *source);
 
 int encodeClassFile(FILE *target, ClassFile *classFile);
-
-ClassFile *decodeClassFile(FILE *source);
 
 static inline
 void *getConstant(ClassFile *classFile, unsigned int idx) {

@@ -1,15 +1,16 @@
 # ifndef __CLASSBUFFER_H__
 # define __CLASSBUFFER_H__
 
+# include <string>
 # include <stdio.h>
 # include <stdint.h>
 
 struct BufferError {
-	const char *msg;
+	const std::string msg;
 
 	inline
 	BufferError(const char *msg)
-		: msg(msg) {
+		: msg(std::string(msg)) {
 	}
 };
 
