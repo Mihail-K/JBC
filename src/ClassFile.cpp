@@ -12,26 +12,34 @@
 # include "AttributeInfo.h"
 
 ClassFile *createClassFile() {
-	ClassFile *classFile = NEW(ClassFile);
-	return static_cast(ClassFile *, memset(classFile, 0, sizeof(ClassFile)));
+	return NEW(ClassFile);
 }
 
 void deleteClassFile(ClassFile *classFile) {
 	if(classFile == NULL) return;
-	if(classFile->interfaces != NULL) {
-		deleteList(classFile->interfaces, NULL);
+	if(!classFile->interfaces.empty()) {
+		// These are disposed of later.
+		classFile->interfaces.clear();
 	}
-	if(classFile->fields != NULL) {
-		deleteList(classFile->fields, (void(*)(void *))deleteMember);
+	if(!classFile->fields.empty()) {
+		for(unsigned idx = 0; idx < classFile->fields.size(); idx++)
+			deleteMember(classFile->fields[idx]);
+		classFile->fields.clear();
 	}
-	if(classFile->methods != NULL) {
-		deleteList(classFile->methods, (void(*)(void *))deleteMember);
+	if(!classFile->methods.empty()) {
+		for(unsigned idx = 0; idx < classFile->methods.size(); idx++)
+			deleteMember(classFile->methods[idx]);
+		classFile->methods.clear();
 	}
-	if(classFile->attributes != NULL) {
-		deleteList(classFile->attributes, (void(*)(void *))deleteAttribute);
+	if(!classFile->attributes.empty()) {
+		for(unsigned idx = 0; idx < classFile->attributes.size(); idx++)
+			deleteAttribute(classFile->attributes[idx]);
+		classFile->attributes.clear();
 	}
-	if(classFile->constant_pool != NULL) {
-		deleteList(classFile->constant_pool, (void(*)(void *))deleteConstant);
+	if(!classFile->constant_pool.empty()) {
+		for(unsigned idx = 1; idx < classFile->constant_pool.size(); idx++)
+			deleteConstant(classFile->constant_pool[idx]);
+		classFile->constant_pool.clear();
 	}
 	DELETE(classFile);
 }

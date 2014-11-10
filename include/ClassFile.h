@@ -15,14 +15,14 @@ int encodeClassFile(FILE *target, ClassFile *classFile);
 ClassFile *decodeClassFile(FILE *source);
 
 static inline
-void *getConstant(ClassFile *classFile, int idx) {
-	if(idx < 0 || idx > listSize(classFile->constant_pool)) {
+void *getConstant(ClassFile *classFile, unsigned int idx) {
+	if(idx > classFile->constant_pool.size()) {
 		fprintf(stderr, "Constant not found. (ID : %d/%d)\n", idx,
-				listSize(classFile->constant_pool));
+				classFile->constant_pool.size());
 		exit(EXIT_FAILURE);
 	}
 
-	return listGet(classFile->constant_pool, idx);
+	return (void *)classFile->constant_pool[idx];
 }
 
 # endif /* ClassFile.h */

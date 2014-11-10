@@ -4,7 +4,7 @@ JC = javac
 CFLAGS = -Werror -Wall -Wextra
 CPPFLAGS = -D _DEBUG=3 -I include/
 
-objects = ClassBuffer.o ClassBuilder.o List.o \
+objects = ClassBuffer.o ClassBuilder.o \
 	ClassFile.o ClassDecoder.o ClassEncoder.o \
 	ConstantDecoder.o ConstantEncoder.o ConstantInfo.o \
 	MemberDecoder.o MemberEncoder.o MemberInfo.o \

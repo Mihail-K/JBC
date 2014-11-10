@@ -1,6 +1,7 @@
 # ifndef __TYPES_H__
 # define __TYPES_H__
 
+# include <vector>
 # include <stdint.h>
 
 # include "List.h"
@@ -522,7 +523,7 @@ typedef struct {
 	uint16_t	minor_version;
 
 	// Constants Table
-	List		*constant_pool;
+	std::vector<ConstantInfo *> constant_pool;
 
 	uint16_t	access_flags;
 
@@ -533,16 +534,16 @@ typedef struct {
 	ConstantClassInfo *super_class;
 
 	// Interfaces Table
-	List		*interfaces;
+	std::vector<ConstantClassInfo *> interfaces;
 
 	// Fields Table
-	List		*fields;
+	std::vector<FieldInfo *> fields;
 
 	// Methods Table
-	List		*methods;
+	std::vector<MethodInfo *> methods;
 
 	// Attributes Table
-	List		*attributes;
+	std::vector<AttributeInfo *> attributes;
 } ClassFile;
 
 # endif /* Types.h */

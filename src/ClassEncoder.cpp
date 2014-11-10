@@ -9,27 +9,21 @@
 # include "AttributeInfo.h"
 
 void encodeConstantPool(ClassFile *classFile, ClassBuilder *builder) {
-	if(classFile->constant_pool != NULL) {
-		unsigned int idx, length;
+	unsigned int length;
 
-		buildNextShort(builder, length = listSize(classFile->constant_pool));
-		debug_printf(level1, "Constant Pool Count : %d.\n", length);
+	buildNextShort(builder, length = classFile->constant_pool.size());
+	debug_printf(level1, "Constant Pool Count : %d.\n", length);
 
-		for(idx = 1; idx < length; idx++) {
-			ConstantInfo *info;
-			debug_printf(level2, "Constant %d :\n", idx);
-			info = static_cast(ConstantInfo *, listGet(classFile->constant_pool, idx));
+	for(unsigned idx = 1; idx < length; idx++) {
+		ConstantInfo *info;
+		debug_printf(level2, "Constant %d :\n", idx);
+		info = static_cast(ConstantInfo *, classFile->constant_pool[idx]);
 
-			encodeConstant(builder, info);
-			if(isLongConstant(info)) {
-				debug_printf(level2, "Long Constant; Skipping index.\n");
-				idx++;
-			}
+		encodeConstant(builder, info);
+		if(isLongConstant(info)) {
+			debug_printf(level2, "Long Constant; Skipping index.\n");
+			idx++;
 		}
-	} else {
-		// No Constant Pool
-		debug_printf(level1, "Constant Pool Count : 0.\n");
-		buildNextShort(builder, 0);
 	}
 }
 
@@ -58,27 +52,21 @@ void encodeSuperClass(ClassFile *classFile, ClassBuilder *builder) {
 }
 
 void encodeInterfaces(ClassFile *classFile, ClassBuilder *builder) {
-	if(classFile->interfaces != NULL) {
-		unsigned int idx, length;
+	unsigned length;
 
-		length = listSize(classFile->interfaces);
-		debug_printf(level1, "Interfaces Count : %d.\n", length);
-		buildNextShort(builder, length);
+	length = classFile->interfaces.size();
+	debug_printf(level1, "Interfaces Count : %d.\n", length);
+	buildNextShort(builder, length);
 
-		for(idx = 0; idx < length; idx++) {
-			ConstantInfo *info = static_cast(ConstantInfo *, listGet(classFile->interfaces, idx));
-			debug_printf(level2, "Interface %d : %d.\n", idx, info->index);
-			buildNextShort(builder, info->index);
-		}
-	} else {
-		// No Interfaces
-		debug_printf(level1, "Interfaces Count : 0.\n");
-		buildNextShort(builder, 0);
+	for(unsigned idx = 0; idx < length; idx++) {
+		ConstantInfo *info = (ConstantInfo *)classFile->interfaces[idx];
+		debug_printf(level2, "Interface %d : %d.\n", idx, info->index);
+		buildNextShort(builder, info->index);
 	}
 }
 
 int encodeClassData(ClassFile *classFile, ClassBuilder *builder) {
-	unsigned int idx, length;
+	unsigned int length;
 
 	debug_printf(level0, "Magic : %#X.\n", classFile->magic);
 	debug_printf(level0, "Major Version : %d.\n", classFile->major_version);
@@ -98,54 +86,36 @@ int encodeClassData(ClassFile *classFile, ClassBuilder *builder) {
 	encodeInterfaces(classFile, builder);
 
 	// Fields Table
-	if(classFile->fields != NULL) {
-		length = listSize(classFile->fields);
-		debug_printf(level1, "Fields Count : %d.\n", length);
-		buildNextShort(builder, length);
+	length = classFile->fields.size();
+	debug_printf(level1, "Fields Count : %d.\n", length);
+	buildNextShort(builder, length);
 
-		for(idx = 0; idx < length; idx++) {
-			debug_printf(level2, "Field %d :\n", idx);
-			encodeField(classFile, builder, static_cast(MemberInfo *,
-					listGet(classFile->fields, idx)));
-		}
-	} else {
-		// No Fields
-		debug_printf(level1, "Fields Count : 0.\n");
-		buildNextShort(builder, 0);
+	for(unsigned idx = 0; idx < length; idx++) {
+		debug_printf(level2, "Field %d :\n", idx);
+		encodeField(classFile, builder, static_cast(MemberInfo *,
+				classFile->fields[idx]));
 	}
 
 	// Methods Table
-	if(classFile->methods != NULL) {
-		length = listSize(classFile->methods);
-		debug_printf(level1, "Methods Count : %d.\n", length);
-		buildNextShort(builder, length);
+	length = classFile->methods.size();
+	debug_printf(level1, "Methods Count : %d.\n", length);
+	buildNextShort(builder, length);
 
-		for(idx = 0; idx < length; idx++) {
-			debug_printf(level2, "Method %d :\n", idx);
-			encodeMethod(classFile, builder, static_cast(MemberInfo *,
-					listGet(classFile->methods, idx)));
-		}
-	} else {
-		// No Methods
-		debug_printf(level1, "Methods Count : 0.\n");
-		buildNextShort(builder, 0);
+	for(unsigned idx = 0; idx < length; idx++) {
+		debug_printf(level2, "Method %d :\n", idx);
+		encodeMethod(classFile, builder, static_cast(MemberInfo *,
+				classFile->methods[idx]));
 	}
 
 	// Attributes Table
-	if(classFile->attributes != NULL) {
-		length = listSize(classFile->attributes);
-		debug_printf(level1, "Attributes Count : %d.\n", length);
-		buildNextShort(builder, length);
+	length = classFile->attributes.size();
+	debug_printf(level1, "Attributes Count : %d.\n", length);
+	buildNextShort(builder, length);
 
-		for(idx = 0; idx < length; idx++) {
-			debug_printf(level2, "Attribute %d :\n", idx);
-			encodeAttribute(classFile, builder, static_cast(AttributeInfo *,
-					listGet(classFile->attributes, idx)));
-		}
-	} else {
-		// No Attributes
-		debug_printf(level1, "Attributes Count : 0.\n");
-		buildNextShort(builder, 0);
+	for(unsigned  idx = 0; idx < length; idx++) {
+		debug_printf(level2, "Attribute %d :\n", idx);
+		encodeAttribute(classFile, builder, static_cast(AttributeInfo *,
+				classFile->attributes[idx]));
 	}
 
 	return 0;

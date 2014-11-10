@@ -15,19 +15,18 @@ void decodeConstantPool(ClassFile *classFile, ClassBuffer *buffer) {
 	length = bufferNextShort(buffer);
 	debug_printf(level1, "Constant Pool Count : %d.\n", length);
 
-	classFile->constant_pool = createList();
-	listAdd(classFile->constant_pool, NULL);
-
+	classFile->constant_pool.push_back(NULL);
 	for(idx = 1; idx < length; idx++) {
 		ConstantInfo *info;
 		debug_printf(level2, "Constant %d :\n", idx);
 		info = decodeConstant(buffer);
 		info->index = idx;
 
-		listAdd(classFile->constant_pool, info);
+		classFile->constant_pool.push_back(info);
+
 		if(isLongConstant(info)) {
 			debug_printf(level2, "Long Constant; Skipping index.\n");
-			listAdd(classFile->constant_pool, NULL);
+			classFile->constant_pool.push_back(NULL);
 			idx++;
 		}
 	}
@@ -50,12 +49,11 @@ void decodeInterfaces(ClassFile *classFile, ClassBuffer *buffer) {
 
 	length = bufferNextShort(buffer);
 	debug_printf(level1, "Interfaces Count : %d.\n", length);
-	classFile->interfaces = createList();
 
 	for(idx = 0; idx < length; idx++) {
 		uint16_t index = bufferNextShort(buffer);
 		debug_printf(level2, "Interface %d : %d.\n", idx, index);
-		listAdd(classFile->interfaces, getConstant(classFile, index));
+		classFile->interfaces.push_back((ConstantClassInfo *)getConstant(classFile, index));
 	}
 }
 
@@ -83,31 +81,28 @@ ClassFile *decodeClassData(ClassBuffer *buffer) {
 	// Fields Table
 	length = bufferNextShort(buffer);
 	debug_printf(level1, "Fields Count : %d.\n", length);
-	classFile->fields = createList();
 
 	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Field %d :\n", idx);
-		listAdd(classFile->fields, decodeField(classFile, buffer));
+		classFile->fields.push_back(decodeField(classFile, buffer));
 	}
 
 	// Methods Table
 	length = bufferNextShort(buffer);
 	debug_printf(level1, "Methods Count : %d.\n", length);
-	classFile->methods = createList();
 
 	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Method %d :\n", idx);
-		listAdd(classFile->methods, decodeMethod(classFile, buffer));
+		classFile->methods.push_back(decodeMethod(classFile, buffer));
 	}
 
 	// Attributes Table
 	length = bufferNextShort(buffer);
 	debug_printf(level1, "Attributes Count : %d.\n", length);
-	classFile->attributes = createList();
 
 	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Attribute %d :\n", idx);
-		listAdd(classFile->attributes, decodeAttribute(classFile, buffer));
+		classFile->attributes.push_back(decodeAttribute(classFile, buffer));
 	}
 
 	return classFile;
