@@ -16,8 +16,8 @@ ClassFile *decodeClassFile(FILE *source);
 
 static inline
 void *getConstant(ClassFile *classFile, unsigned int idx) {
-	if(idx > classFile->constant_pool.size()) {
-		fprintf(stderr, "Constant not found. (ID : %d/%d)\n", idx,
+	if(idx > (unsigned int)classFile->constant_pool.size()) {
+		fprintf(stderr, "Constant not found. (ID : %d/%zu)\n", idx,
 				classFile->constant_pool.size());
 		exit(EXIT_FAILURE);
 	}
