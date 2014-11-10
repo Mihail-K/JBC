@@ -17,28 +17,42 @@ ClassFile *createClassFile() {
 
 void deleteClassFile(ClassFile *classFile) {
 	if(classFile == NULL) return;
+
+	// Clear interface list.
 	if(!classFile->interfaces.empty()) {
 		// These are disposed of later.
 		classFile->interfaces.clear();
 	}
+
+	// Clear and release Fields.
 	if(!classFile->fields.empty()) {
-		for(unsigned idx = 0; idx < classFile->fields.size(); idx++)
-			deleteMember(classFile->fields[idx]);
+		for(std::vector<FieldInfo *>::iterator itr = classFile->fields.begin();
+				itr != classFile->fields.end(); itr++)
+			deleteMember(*itr);
 		classFile->fields.clear();
 	}
+
+	// Clear and release Methods.
 	if(!classFile->methods.empty()) {
-		for(unsigned idx = 0; idx < classFile->methods.size(); idx++)
-			deleteMember(classFile->methods[idx]);
+		for(std::vector<MethodInfo *>::iterator itr = classFile->methods.begin();
+				itr != classFile->methods.end(); itr++)
+			deleteMember(*itr);
 		classFile->methods.clear();
 	}
+
+	// Clear and release Attributes.
 	if(!classFile->attributes.empty()) {
-		for(unsigned idx = 0; idx < classFile->attributes.size(); idx++)
-			deleteAttribute(classFile->attributes[idx]);
+		for(std::vector<AttributeInfo *>::iterator itr = classFile->attributes.begin();
+				itr != classFile->attributes.end(); itr++)
+			deleteAttribute(*itr);
 		classFile->attributes.clear();
 	}
+
+	// Finally, release the Constant Pool.
 	if(!classFile->constant_pool.empty()) {
-		for(unsigned idx = 1; idx < classFile->constant_pool.size(); idx++)
-			deleteConstant(classFile->constant_pool[idx]);
+		for(std::vector<ConstantInfo *>::iterator itr = classFile->constant_pool.begin();
+				itr != classFile->constant_pool.end(); itr++)
+			deleteConstant(*itr);
 		classFile->constant_pool.clear();
 	}
 	DELETE(classFile);
