@@ -9,10 +9,11 @@
 # include "AttributeInfo.h"
 
 void encodeConstantPool(ClassFile *classFile, ClassBuilder *builder) {
-	unsigned int length;
+	size_t length;
 
-	buildNextShort(builder, length = classFile->constant_pool.size());
-	debug_printf(level1, "Constant Pool Count : %d.\n", length);
+	length = classFile->constant_pool.size();
+	buildNextShort(builder, (uint16_t)length);
+	debug_printf(level1, "Constant Pool Count : %zu.\n", length);
 
 	for(unsigned idx = 1; idx < length; idx++) {
 		ConstantInfo *info;
@@ -52,11 +53,11 @@ void encodeSuperClass(ClassFile *classFile, ClassBuilder *builder) {
 }
 
 void encodeInterfaces(ClassFile *classFile, ClassBuilder *builder) {
-	unsigned length;
+	size_t length;
 
 	length = classFile->interfaces.size();
 	debug_printf(level1, "Interfaces Count : %d.\n", length);
-	buildNextShort(builder, length);
+	buildNextShort(builder, (uint16_t)length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		ConstantInfo *info = (ConstantInfo *)classFile->interfaces[idx];
@@ -66,7 +67,7 @@ void encodeInterfaces(ClassFile *classFile, ClassBuilder *builder) {
 }
 
 int encodeClassData(ClassFile *classFile, ClassBuilder *builder) {
-	unsigned int length;
+	size_t length;
 
 	debug_printf(level0, "Magic : %#X.\n", classFile->magic);
 	debug_printf(level0, "Major Version : %d.\n", classFile->major_version);
@@ -88,7 +89,7 @@ int encodeClassData(ClassFile *classFile, ClassBuilder *builder) {
 	// Fields Table
 	length = classFile->fields.size();
 	debug_printf(level1, "Fields Count : %d.\n", length);
-	buildNextShort(builder, length);
+	buildNextShort(builder, (uint16_t)length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Field %d :\n", idx);
@@ -99,7 +100,7 @@ int encodeClassData(ClassFile *classFile, ClassBuilder *builder) {
 	// Methods Table
 	length = classFile->methods.size();
 	debug_printf(level1, "Methods Count : %d.\n", length);
-	buildNextShort(builder, length);
+	buildNextShort(builder, (uint16_t)length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Method %d :\n", idx);
@@ -110,7 +111,7 @@ int encodeClassData(ClassFile *classFile, ClassBuilder *builder) {
 	// Attributes Table
 	length = classFile->attributes.size();
 	debug_printf(level1, "Attributes Count : %d.\n", length);
-	buildNextShort(builder, length);
+	buildNextShort(builder, (uint16_t)length);
 
 	for(unsigned  idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Attribute %d :\n", idx);
