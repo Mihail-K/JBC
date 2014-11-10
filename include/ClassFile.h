@@ -59,16 +59,22 @@ public:
 
 private:
 	void DecodeConstants(ClassBuffer *buffer);
+	void EncodeConstants(ClassBuilder *builder);
 
 	void DecodeClasses(ClassBuffer *buffer);
+	void EncodeClasses(ClassBuilder *builder);
 
 	void DecodeInterfaces(ClassBuffer *buffer);
+	void EncodeInterfaces(ClassBuilder *builder);
 
 	void DecodeFields(ClassBuffer *buffer);
+	void EncodeFields(ClassBuilder *builder);
 
 	void DecodeMethods(ClassBuffer *buffer);
+	void EncodeMethods(ClassBuilder *builder);
 
 	void DecodeAttributes(ClassBuffer *buffer);
+	void EncodeAttributes(ClassBuilder *builder);
 };
 
 ClassFile *createClassFile();
