@@ -20,16 +20,14 @@ ConstantValueAttribute *ConstantValueAttribute
 	return this;
 }
 
-ExceptionTableEntry *decodeExceptionTableEntry(ClassFile *classFile, ClassBuffer *buffer) {
-	ExceptionTableEntry *entry = new ExceptionTableEntry;
+ExceptionTableEntry *ExceptionTableEntry
+		::DecodeEntry(ClassBuffer *buffer) {
+	start_pc = buffer->NextShort();
+	end_pc = buffer->NextShort();
+	handler_pc = buffer->NextShort();
+	catch_type = buffer->NextShort();
 
-	entry->start_pc = buffer->NextShort();
-	entry->end_pc = buffer->NextShort();
-	entry->handler_pc = buffer->NextShort();
-	entry->catch_type = buffer->NextShort();
-
-	ignore_unused(classFile);
-	return entry;
+	return this;
 }
 
 CodeAttribute *CodeAttribute
@@ -56,7 +54,7 @@ CodeAttribute *CodeAttribute
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Code Exception table entry %d :\n", idx);
-		exception_table.push_back(decodeExceptionTableEntry(classFile, buffer));
+		exception_table.push_back((new ExceptionTableEntry)->DecodeEntry(buffer));
 	}
 
 	// Attributes Table
@@ -99,12 +97,10 @@ ExceptionsAttribute *ExceptionsAttribute
 	length = buffer->NextShort();
 	debug_printf(level2, "Exceptions count : %d.\n", length);
 
-	exception_table = createList();
-
 	for(unsigned idx = 0; idx < length; idx++) {
 		uint16_t index = buffer->NextShort();
 		debug_printf(level2, "Exception entry %d :\n", idx);
-		listAdd(exception_table, classFile->constant_pool[index]);
+		exception_table.push_back(classFile->constant_pool[index]);
 	}
 
 	return this;

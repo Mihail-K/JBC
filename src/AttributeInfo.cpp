@@ -8,6 +8,7 @@
 # include "AttributeInfo.h"
 
 CodeAttribute::~CodeAttribute() {
+	debug_printf(level3, "Deleting Code Attribute.\n");
 	if(code != NULL)
 		delete code;
 	if(!exception_table.empty()) {
@@ -27,6 +28,7 @@ CodeAttribute::~CodeAttribute() {
 }
 
 StackMapTableAttribute::~StackMapTableAttribute() {
+	debug_printf(level3, "Deleting Stack Map Table Attribute.\n");
 	if(!entries.empty()) {
 		for(std::vector<StackMapFrame *>::iterator itr = entries.begin();
 				itr != entries.end(); itr++) {
@@ -36,36 +38,40 @@ StackMapTableAttribute::~StackMapTableAttribute() {
 }
 
 ExceptionsAttribute::~ExceptionsAttribute() {
-	if(exception_table != NULL) {
-		deleteList(exception_table, NULL);
-	}
+	debug_printf(level3, "Deleting Exceptions Attribute.\n");
+	exception_table.clear();
 }
 
 InnerClassesAttribute::~InnerClassesAttribute() {
+	debug_printf(level3, "Deleting Inner Classes Attribute.\n");
 	if(classes != NULL) {
 		deleteList(classes, free);
 	}
 }
 
 SourceDebugExtensionAttribute::~SourceDebugExtensionAttribute() {
+	debug_printf(level3, "Deleting Source Debug Extension Attribute.\n");
 	if(debug_extension != NULL) {
 		delete debug_extension;
 	}
 }
 
 LineNumberTableAttribute::~LineNumberTableAttribute() {
+	debug_printf(level3, "Deleting Line Number Table Attribute.\n");
 	if(line_number_table != NULL) {
 		deleteList(line_number_table, free);
 	}
 }
 
 LocalVariableTableAttribute::~LocalVariableTableAttribute() {
+	debug_printf(level3, "Deleting Local Variable Table Attribute.\n");
 	if(local_variable_table != NULL) {
 		deleteList(local_variable_table, free);
 	}
 }
 
 LocalVariableTypeTableAttribute::~LocalVariableTypeTableAttribute() {
+	debug_printf(level3, "Deleting Local Variable Type Table Attribute.\n");
 	if(local_variable_type_table != NULL) {
 		deleteList(local_variable_type_table, free);
 	}
@@ -101,36 +107,42 @@ void deleteAnnotationEntry(AnnotationEntry *entry) {
 }
 
 RuntimeAnnotationsAttribute::~RuntimeAnnotationsAttribute() {
+	debug_printf(level3, "Deleting Runtime Annotations Attribute.\n");
 	if(annotations != NULL) {
 		deleteList(annotations, (void(*)(void *))deleteAnnotationEntry);
 	}
 }
 
 ParameterAnnotationsEntry::~ParameterAnnotationsEntry() {
+	debug_printf(level3, "Deleting Parameter Annotations Entry.\n");
 	if(annotations != NULL) {
 		deleteList(annotations, (void(*)(void *))deleteAnnotationEntry);
 	}
 }
 
 RuntimeParameterAnnotationsAttribute::~RuntimeParameterAnnotationsAttribute() {
+	debug_printf(level3, "Deleting Runtime Parameter Annotations Attribute.\n");
 	if(parameter_annotations != NULL) {
 		deleteList(parameter_annotations, operator delete);
 	}
 }
 
 AnnotationDefaultAttribute::~AnnotationDefaultAttribute() {
+	debug_printf(level3, "Deleting Annotation Default Attribute.\n");
 	if(default_value != NULL) {
 		deleteElementValue(default_value);
 	}
 }
 
 BootstrapMethodEntry::~BootstrapMethodEntry() {
+	debug_printf(level3, "Deleting Bootstrap Method Entry.\n");
 	if(bootstrap_arguments != NULL) {
 		deleteList(bootstrap_arguments, NULL);
 	}
 }
 
 BootstrapMethodsAttribute::~BootstrapMethodsAttribute() {
+	debug_printf(level3, "Deleting Bootstrap Methods Attribute.\n");
 	if(!bootstrap_methods.empty()) {
 		for(std::vector<BootstrapMethodEntry *>::iterator itr = bootstrap_methods.begin();
 				itr != bootstrap_methods.end(); itr++) {

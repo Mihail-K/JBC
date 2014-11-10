@@ -88,6 +88,10 @@ struct ExceptionTableEntry {
 
 	ExceptionTableEntry() {
 	}
+
+	ExceptionTableEntry *DecodeEntry(ClassBuffer *buffer);
+
+	ExceptionTableEntry *EncodeEntry(ClassBuilder *builder);
 };
 
 struct CodeAttribute
@@ -142,7 +146,7 @@ struct StackMapTableAttribute
 struct ExceptionsAttribute
 		: public AttributeInfo {
 	// Exception Table
-	List		*exception_table;
+	std::vector<ConstantInfo *> exception_table;
 
 	ExceptionsAttribute() {
 	}

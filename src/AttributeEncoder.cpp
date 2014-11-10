@@ -15,15 +15,14 @@ ConstantValueAttribute *ConstantValueAttribute
 	return this;
 }
 
-int encodeExceptionTableEntry(
-		ClassFile *classFile, ClassBuilder *builder, ExceptionTableEntry *entry) {
-	builder->NextShort(entry->start_pc);
-	builder->NextShort(entry->end_pc);
-	builder->NextShort(entry->handler_pc);
-	builder->NextShort(entry->catch_type);
+ExceptionTableEntry *ExceptionTableEntry
+		::EncodeEntry(ClassBuilder *builder) {
+	builder->NextShort(start_pc);
+	builder->NextShort(end_pc);
+	builder->NextShort(handler_pc);
+	builder->NextShort(catch_type);
 
-	ignore_unused(classFile);
-	return 0;
+	return this;
 }
 
 CodeAttribute *CodeAttribute
@@ -44,7 +43,7 @@ CodeAttribute *CodeAttribute
 	length = exception_table.size();
 	builder->NextShort(length);
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeExceptionTableEntry(classFile, builder, exception_table[idx]);
+		exception_table[idx]->EncodeEntry(builder);
 	}
 
 	// Attribute Table
@@ -75,12 +74,11 @@ ExceptionsAttribute *ExceptionsAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
 	uint16_t length;
 
-	length = exception_table->size();
+	length = exception_table.size();
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		ConstantInfo *constant = static_cast<ConstantInfo *>(listGet(
-				exception_table, idx));
+		ConstantInfo *constant = exception_table[idx];
 		builder->NextShort(constant->index);
 	}
 
