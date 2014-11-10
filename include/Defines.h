@@ -21,7 +21,6 @@
 # else /* Pure C */
 #	define const_cast(T, V)			const_cast<T>(V)
 #	define static_cast(T, V)		static_cast<T>(V)
-#	define dynamic_cast(T, V)		dynamic_cast<T>(V)
 #	define reinterpret_cast(T, V)	reinterpret_cast<T>(V)
 # endif /* C++ */
 

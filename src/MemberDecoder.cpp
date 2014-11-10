@@ -1,5 +1,4 @@
 
-# include "List.h"
 # include "Debug.h"
 
 # include "ClassFile.h"
@@ -7,32 +6,30 @@
 # include "ConstantInfo.h"
 # include "AttributeInfo.h"
 
-MemberInfo *decodeMember(ClassFile *classFile, ClassBuffer *buffer) {
-	uint16_t index;
-	unsigned int idx, length;
-	MemberInfo *member = createMember();
+MemberInfo *MemberInfo::DecodeMember(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t index, length;
 
-	member->access_flags = bufferNextShort(buffer);
+	// Access Flags
+	access_flags = buffer->NextShort();
 
 	// Member Name
-	index = bufferNextShort(buffer);
-	member->name = static_cast(ConstantUtf8Info *, getConstant(classFile, index));
-	debug_printf(level1, "Member Name : %s.\n", member->name->bytes);
+	index = buffer->NextShort();
+	name = dynamic_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	debug_printf(level1, "Member Name : %s.\n", name->bytes);
 
 	// Member Descriptor
-	index = bufferNextShort(buffer);
-	member->descriptor = static_cast(ConstantUtf8Info *, getConstant(classFile, index));
-	debug_printf(level1, "Member Descriptor : %s.\n", member->descriptor->bytes);
+	index = buffer->NextShort();
+	descriptor = dynamic_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	debug_printf(level1, "Member Descriptor : %s.\n", descriptor->bytes);
 
 	// Member Attributes Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level1, "Member Attributes Count : %d.\n", length);
-	member->attributes = createList();
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Member Attribute %d :\n", idx);
-		listAdd(member->attributes, decodeAttribute(classFile, buffer));
+		attributes.push_back(decodeAttribute(classFile, buffer));
 	}
 
-	return member;
+	return this;
 }

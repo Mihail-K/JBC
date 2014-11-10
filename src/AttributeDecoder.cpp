@@ -11,22 +11,22 @@
 
 AttributeInfo *decodeConstantValueAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	ConstantValueAttribute *info = NEW(ConstantValueAttribute);
+	ConstantValueAttribute *info = new ConstantValueAttribute;
 
 	// Constant Value
-	index = bufferNextShort(buffer);
-	info->constant_value = static_cast(ConstantInfo *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	info->constant_value = classFile->constant_pool[index];
 
 	return (AttributeInfo *)info;
 }
 
 ExceptionTableEntry *decodeExceptionTableEntry(ClassFile *classFile, ClassBuffer *buffer) {
-	ExceptionTableEntry *entry = NEW(ExceptionTableEntry);
+	ExceptionTableEntry *entry = new ExceptionTableEntry;
 
-	entry->start_pc = bufferNextShort(buffer);
-	entry->end_pc = bufferNextShort(buffer);
-	entry->handler_pc = bufferNextShort(buffer);
-	entry->catch_type = bufferNextShort(buffer);
+	entry->start_pc = buffer->NextShort();
+	entry->end_pc = buffer->NextShort();
+	entry->handler_pc = buffer->NextShort();
+	entry->catch_type = buffer->NextShort();
 
 	ignore_unused(classFile);
 	return entry;
@@ -34,24 +34,24 @@ ExceptionTableEntry *decodeExceptionTableEntry(ClassFile *classFile, ClassBuffer
 
 AttributeInfo *decodeCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	CodeAttribute *code = NEW(CodeAttribute);
+	CodeAttribute *code = new CodeAttribute;
 
 	// Maximums
-	code->max_stack = bufferNextShort(buffer);
-	code->max_locals = bufferNextShort(buffer);
+	code->max_stack = buffer->NextShort();
+	code->max_locals = buffer->NextShort();
 
 	// Code
-	code->code_length = bufferNextInt(buffer);
+	code->code_length = buffer->NextInt();
 	debug_printf(level2, "Code length : %d.\n", code->code_length);
 	code->code = ALLOC(uint8_t, code->code_length);
 
 	for(idx = 0; idx < code->code_length; idx++) {
 		// TODO : Added a mass read operation
-		code->code[idx] = bufferNextByte(buffer);
+		code->code[idx] = buffer->NextByte();
 	}
 
 	// Exception Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	code->exception_table = createList();
 	debug_printf(level2, "Code Exception table length : %d.\n", length);
 
@@ -61,7 +61,7 @@ AttributeInfo *decodeCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	}
 
 	// Attributes Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	code->attributes = createList();
 	debug_printf(level2, "Code Attributes count : %d.\n", length);
 
@@ -76,9 +76,9 @@ AttributeInfo *decodeCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 VerificationTypeInfo *decodeVerificationTypeInfo(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	VerificationTypeInfo *info = NEW(VerificationTypeInfo);
+	VerificationTypeInfo *info = new VerificationTypeInfo;
 
-	info->tag = bufferNextByte(buffer);
+	info->tag = buffer->NextByte();
 	switch(info->tag) {
 		case 0:
 			debug_printf(level3, "Top variable info.\n");
@@ -103,13 +103,13 @@ VerificationTypeInfo *decodeVerificationTypeInfo(
 			break;
 		case 7:
 			debug_printf(level3, "Object variable info.\n");
-			index = bufferNextShort(buffer);
-			info->object_variable_info.object = static_cast(ConstantClassInfo *,
-					getConstant(classFile, index));
+			index = buffer->NextShort();
+			info->object_variable_info.object = static_cast<ConstantClassInfo *>(
+					classFile->constant_pool[index]);
 			break;
 		case 8:
 			debug_printf(level3, "Uninitialized variable info.\n");
-			index = bufferNextShort(buffer);
+			index = buffer->NextShort();
 			info->uninitialized_variable_info.offset = index;
 			break;
 		default:
@@ -121,24 +121,24 @@ VerificationTypeInfo *decodeVerificationTypeInfo(
 }
 
 StackMapFrame *decodeStackMapOffFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	StackMapOffFrame *frame = NEW(StackMapOffFrame);
-	frame->offset_delta = bufferNextShort(buffer);
+	StackMapOffFrame *frame = new StackMapOffFrame;
+	frame->offset_delta = buffer->NextShort();
 
 	ignore_unused(classFile);
 	return (StackMapFrame *)frame;
 }
 
 StackMapFrame *decodeStackMapItemFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	StackMapItemFrame *frame = NEW(StackMapItemFrame);
+	StackMapItemFrame *frame = new StackMapItemFrame;
 	frame->stack = decodeVerificationTypeInfo(classFile, buffer);
 
 	return (StackMapFrame *)frame;
 }
 
 StackMapFrame *decodeStackMapExtFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	StackMapExtFrame *frame = NEW(StackMapExtFrame);
+	StackMapExtFrame *frame = new StackMapExtFrame;
 
-	frame->offset_delta = bufferNextShort(buffer);
+	frame->offset_delta = buffer->NextShort();
 	frame->stack = decodeVerificationTypeInfo(classFile, buffer);
 
 	return (StackMapFrame *)frame;
@@ -147,9 +147,9 @@ StackMapFrame *decodeStackMapExtFrame(ClassFile *classFile, ClassBuffer *buffer)
 StackMapFrame *decodeStackMapListFrame(
 		ClassFile *classFile, ClassBuffer *buffer, unsigned int count) {
 	unsigned int idx;
-	StackMapListFrame *frame = NEW(StackMapListFrame);
+	StackMapListFrame *frame = new StackMapListFrame;
 
-	frame->offset_delta = bufferNextShort(buffer);
+	frame->offset_delta = buffer->NextShort();
 	frame->stack = ALLOC(VerificationTypeInfo *, count);
 
 	for(idx = 0; idx < count; idx++) {
@@ -161,12 +161,12 @@ StackMapFrame *decodeStackMapListFrame(
 
 StackMapFrame *decodeStackMapFullFrame(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	StackMapFullFrame *frame = NEW(StackMapFullFrame);
+	StackMapFullFrame *frame = new StackMapFullFrame;
 
-	frame->offset_delta = bufferNextShort(buffer);
+	frame->offset_delta = buffer->NextShort();
 
 	// Stack Frame Locals
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	frame->locals = createList();
 
 	for(idx = 0; idx < length; idx++) {
@@ -174,7 +174,7 @@ StackMapFrame *decodeStackMapFullFrame(ClassFile *classFile, ClassBuffer *buffer
 	}
 
 	// Stack Frame Items
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	frame->stack = createList();
 
 	for(idx = 0; idx < length; idx++) {
@@ -186,14 +186,14 @@ StackMapFrame *decodeStackMapFullFrame(ClassFile *classFile, ClassBuffer *buffer
 
 StackMapFrame *decodeStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
 	StackMapFrame *frame;
-	uint8_t tag = bufferNextByte(buffer);
+	uint8_t tag = buffer->NextByte();
 
 	debug_printf(level3, "Decoding Stack Frame type : %d.\n", tag);
 
 	// Stack Map Same Frame
 	if(tag <= 63) {
 		debug_printf(level3, "Stack Map same frame.\n");
-		frame = NEW(StackMapFrame);
+		frame = new StackMapFrame;
 	} else
 	// Stack Map Same Locals 1
 	if(tag >= 64 && tag <= 127) {
@@ -240,12 +240,12 @@ StackMapFrame *decodeStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
 
 AttributeInfo *decodeStackMapTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	StackMapTableAttribute *table = NEW(StackMapTableAttribute);
+	StackMapTableAttribute *table = new StackMapTableAttribute;
 
 	debug_printf(level2, "Decoding StackMapTable.\n");
 
 	// Stack Map Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level2, "Stack Frame count : %d.\n", length);
 	table->entries = createList();
 
@@ -261,18 +261,18 @@ AttributeInfo *decodeStackMapTableAttribute(ClassFile *classFile, ClassBuffer *b
 
 AttributeInfo *decodeExceptionsAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	ExceptionsAttribute *except = NEW(ExceptionsAttribute);
+	ExceptionsAttribute *except = new ExceptionsAttribute;
 
 	// Exceptions Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level2, "Exceptions count : %d.\n", length);
 
 	except->exception_table = createList();
 
 	for(idx = 0; idx < length; idx++) {
-		uint16_t index = bufferNextShort(buffer);
+		uint16_t index = buffer->NextShort();
 		debug_printf(level2, "Exception entry %d :\n", idx);
-		listAdd(except->exception_table, getConstant(classFile, index));
+		listAdd(except->exception_table, classFile->constant_pool[index]);
 	}
 
 	return (AttributeInfo *)except;
@@ -280,29 +280,29 @@ AttributeInfo *decodeExceptionsAttribute(ClassFile *classFile, ClassBuffer *buff
 
 InnerClassEntry *decodeInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	InnerClassEntry *entry = NEW(InnerClassEntry);
+	InnerClassEntry *entry = new InnerClassEntry;
 
 	// Inner Class Info
-	index = bufferNextShort(buffer);
-	entry->inner_class_info = static_cast(ConstantClassInfo *,
-			getConstant(classFile, index));
+	index = buffer->NextShort();
+	entry->inner_class_info = static_cast<ConstantClassInfo *>(
+			classFile->constant_pool[index]);
 
 	// Outer Class Info
-	index = bufferNextShort(buffer);
-	entry->outer_class_info = static_cast(ConstantClassInfo *,
-			getConstant(classFile, index));
+	index = buffer->NextShort();
+	entry->outer_class_info = static_cast<ConstantClassInfo *>(
+			classFile->constant_pool[index]);
 
 	// Inner Class Name
-	index = bufferNextShort(buffer);
-	entry->inner_class_name = static_cast(ConstantUtf8Info *,
-			getConstant(classFile, index));
+	index = buffer->NextShort();
+	entry->inner_class_name = static_cast<ConstantUtf8Info *>(
+			classFile->constant_pool[index]);
 
 	debug_printf(level2, "Inner class name : %s.\n",
 			(index != 0 ? (char *)entry->inner_class_name->bytes
 			: "<anonymous class>"));
 
 	// Inner Class Flags
-	index = bufferNextShort(buffer);
+	index = buffer->NextShort();
 	entry->inner_class_access_flags = index;
 
 	return entry;
@@ -310,10 +310,10 @@ InnerClassEntry *decodeInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer
 
 AttributeInfo *decodeInnerClassesAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	InnerClassesAttribute *inner = NEW(InnerClassesAttribute);
+	InnerClassesAttribute *inner = new InnerClassesAttribute;
 
 	// Inner Classes Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level2, "Inner classes count : %d.\n", length);
 	inner->classes = createList();
 
@@ -327,44 +327,44 @@ AttributeInfo *decodeInnerClassesAttribute(ClassFile *classFile, ClassBuffer *bu
 
 AttributeInfo *decodeEnclosingMethodAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	EnclosingMethodAttribute *enclose = NEW(EnclosingMethodAttribute);
+	EnclosingMethodAttribute *enclose = new EnclosingMethodAttribute;
 
 	// Enclosing Class
-	index = bufferNextShort(buffer);
-	enclose->enclosing_class = static_cast(ConstantClassInfo *,
-			getConstant(classFile, index));
+	index = buffer->NextShort();
+	enclose->enclosing_class = static_cast<ConstantClassInfo *>(
+			classFile->constant_pool[index]);
 
 	//Enclosing Method
-	index = bufferNextShort(buffer);
-	enclose->enclosing_method = static_cast(ConstantNameAndTypeInfo *,
-			getConstant(classFile, index));
+	index = buffer->NextShort();
+	enclose->enclosing_method = static_cast<ConstantNameAndTypeInfo *>(
+			classFile->constant_pool[index]);
 
 	return (AttributeInfo *)enclose;
 }
 
 AttributeInfo *decodeSyntheticAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	ignore_unused(buffer); ignore_unused(classFile);
-	return (AttributeInfo *)NEW(SyntheticAttribute);
+	return (AttributeInfo *)new SyntheticAttribute;
 }
 
 AttributeInfo *decodeSignatureAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	SignatureAttribute *signature = NEW(SignatureAttribute);
+	SignatureAttribute *signature = new SignatureAttribute;
 
 	// Signature
-	index = bufferNextShort(buffer);
-	signature->signature = static_cast(ConstantUtf8Info *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	signature->signature = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 
 	return (AttributeInfo *)signature;
 }
 
 AttributeInfo *decodeSourceFileAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	SourceFileAttribute *file = NEW(SourceFileAttribute);
+	SourceFileAttribute *file = new SourceFileAttribute;
 
 	// Source File
-	index = bufferNextShort(buffer);
-	file->source_file = static_cast(ConstantUtf8Info *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	file->source_file = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 
 	debug_printf(level2, "Source file name : %s.\n", file->source_file->bytes);
 
@@ -374,14 +374,14 @@ AttributeInfo *decodeSourceFileAttribute(ClassFile *classFile, ClassBuffer *buff
 AttributeInfo *decodeSourceDebugExtensionAttribute(
 		ClassFile *classFile, ClassBuffer *buffer, uint32_t length) {
 	unsigned int idx;
-	SourceDebugExtensionAttribute *source = NEW(SourceDebugExtensionAttribute);
+	SourceDebugExtensionAttribute *source = new SourceDebugExtensionAttribute;
 
 	// Debug Extension
 	source->debug_extension = ALLOC(uint8_t, length);
 
 	for(idx = 0; idx < length; idx++) {
 		// TODO : Added a mass read operation
-		source->debug_extension[idx] = bufferNextByte(buffer);
+		source->debug_extension[idx] = buffer->NextByte();
 	}
 
 	ignore_unused(classFile);
@@ -389,10 +389,10 @@ AttributeInfo *decodeSourceDebugExtensionAttribute(
 }
 
 LineNumberTableEntry *decodeLineNumberTableEntry(ClassFile *classFile, ClassBuffer *buffer) {
-	LineNumberTableEntry *entry = NEW(LineNumberTableEntry);
+	LineNumberTableEntry *entry = new LineNumberTableEntry;
 
-	entry->start_pc = bufferNextShort(buffer);
-	entry->line_number = bufferNextShort(buffer);
+	entry->start_pc = buffer->NextShort();
+	entry->line_number = buffer->NextShort();
 
 	ignore_unused(classFile);
 	return entry;
@@ -400,10 +400,10 @@ LineNumberTableEntry *decodeLineNumberTableEntry(ClassFile *classFile, ClassBuff
 
 AttributeInfo *decodeLineNumberTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	LineNumberTableAttribute *table = NEW(LineNumberTableAttribute);
+	LineNumberTableAttribute *table = new LineNumberTableAttribute;
 
 	// Line Number Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level2, "Line Number Table length : %d.\n", length);
 	table->line_number_table = createList();
 
@@ -418,22 +418,22 @@ AttributeInfo *decodeLineNumberTableAttribute(ClassFile *classFile, ClassBuffer 
 LocalVariableTableEntry *decodeLocalVariableTableEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	LocalVariableTableEntry *entry = NEW(LocalVariableTableEntry);
+	LocalVariableTableEntry *entry = new LocalVariableTableEntry;
 
-	entry->start_pc = bufferNextShort(buffer);
-	entry->length = bufferNextShort(buffer);
+	entry->start_pc = buffer->NextShort();
+	entry->length = buffer->NextShort();
 
 	// Variable Name
-	index = bufferNextShort(buffer);
-	entry->name = static_cast(ConstantUtf8Info *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	entry->name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 	debug_printf(level3, "Local variable name : %s.\n", entry->name->bytes);
 
 	// Variable Descriptor
-	index = bufferNextShort(buffer);
-	entry->descriptor = static_cast(ConstantUtf8Info *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	entry->descriptor = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 	debug_printf(level3, "Local variable descriptor : %s.\n", entry->descriptor->bytes);
 
-	index = bufferNextShort(buffer);
+	index = buffer->NextShort();
 	entry->index = index;
 	debug_printf(level3, "Index : %d.\n", index);
 
@@ -443,10 +443,10 @@ LocalVariableTableEntry *decodeLocalVariableTableEntry(
 AttributeInfo *decodeLocalVariableTableAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	LocalVariableTableAttribute *local = NEW(LocalVariableTableAttribute);
+	LocalVariableTableAttribute *local = new LocalVariableTableAttribute;
 
 	// Local Variable Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level2, "Local Variable Table length : %d.\n", length);
 
 	local->local_variable_table = createList();
@@ -462,22 +462,22 @@ AttributeInfo *decodeLocalVariableTableAttribute(
 LocalVariableTypeTableEntry *decodeLocalVariableTypeTableEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	LocalVariableTypeTableEntry *entry = NEW(LocalVariableTypeTableEntry);
+	LocalVariableTypeTableEntry *entry = new LocalVariableTypeTableEntry;
 
-	entry->start_pc = bufferNextShort(buffer);
-	entry->length = bufferNextShort(buffer);
+	entry->start_pc = buffer->NextShort();
+	entry->length = buffer->NextShort();
 
 	// Variable Type Name
-	index = bufferNextShort(buffer);
-	entry->name = static_cast(ConstantUtf8Info *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	entry->name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 	debug_printf(level3, "Local variable name : %s.\n", entry->name->bytes);
 
 	// Variable Type Signature
-	index = bufferNextShort(buffer);
-	entry->signature = static_cast(ConstantUtf8Info *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	entry->signature = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 	debug_printf(level3, "Local variable signature : %s.\n", entry->signature->bytes);
 
-	index = bufferNextShort(buffer);
+	index = buffer->NextShort();
 	entry->index = index;
 	debug_printf(level3, "Index : %d.\n", index);
 
@@ -487,10 +487,10 @@ LocalVariableTypeTableEntry *decodeLocalVariableTypeTableEntry(
 AttributeInfo *decodeLocalVariableTypeTableAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	LocalVariableTypeTableAttribute *local = NEW(LocalVariableTypeTableAttribute);
+	LocalVariableTypeTableAttribute *local = new LocalVariableTypeTableAttribute;
 
 	// Local Variable Type Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level2, "Local Variable Type Table length : %d.\n", length);
 
 	local->local_variable_type_table = createList();
@@ -506,44 +506,44 @@ AttributeInfo *decodeLocalVariableTypeTableAttribute(
 AttributeInfo *decodeDeprecatedAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	ignore_unused(buffer);
 	ignore_unused(classFile);
-	return (AttributeInfo *)NEW(DeprecatedAttribute);
+	return (AttributeInfo *)new DeprecatedAttribute;
 }
 
 ElementValue *decodeConstElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	ElementValue *value = NEW(ElementValue);
+	ElementValue *value = new ElementValue;
 
 	// Constant Value
-	index = bufferNextShort(buffer);
-	value->value.const_value = static_cast(ConstantInfo *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	value->value.const_value = classFile->constant_pool[index];
 
 	return value;
 }
 
 ElementValue *decodeEnumElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	ElementValue *value = NEW(ElementValue);
+	ElementValue *value = new ElementValue;
 
 	// Type Name
-	index = bufferNextShort(buffer);
-	value->value.enum_const_value.type_name = static_cast(
-			ConstantUtf8Info *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	value->value.enum_const_value.type_name = static_cast<ConstantUtf8Info *>(
+			classFile->constant_pool[index]);
 
 	// Constant Name
-	index = bufferNextShort(buffer);
-	value->value.enum_const_value.const_name = static_cast(
-			ConstantUtf8Info *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	value->value.enum_const_value.const_name = static_cast<ConstantUtf8Info *>(
+			classFile->constant_pool[index]);
 
 	return value;
 }
 
 ElementValue *decodeClassElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	ElementValue *value = NEW(ElementValue);
+	ElementValue *value = new ElementValue;
 
 	// Class Info
-	index = bufferNextShort(buffer);
-	value->value.class_info = static_cast(ConstantClassInfo *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	value->value.class_info = static_cast<ConstantClassInfo *>(classFile->constant_pool[index]);
 
 	return value;
 }
@@ -551,7 +551,7 @@ ElementValue *decodeClassElementValue(ClassFile *classFile, ClassBuffer *buffer)
 ElementValue *decodeAnnotationElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	extern AnnotationEntry *decodeAnnotationEntry(ClassFile *, ClassBuffer *);
 
-	ElementValue *value = NEW(ElementValue);
+	ElementValue *value = new ElementValue;
 
 	// Annotation Value
 	value->value.annotation_value = decodeAnnotationEntry(classFile, buffer);
@@ -563,10 +563,10 @@ ElementValue *decodeArrayElementValue(ClassFile *classFile, ClassBuffer *buffer)
 	extern ElementValue *decodeElementValue(ClassFile *, ClassBuffer *);
 
 	unsigned int idx, length;
-	ElementValue *value = NEW(ElementValue);
+	ElementValue *value = new ElementValue;
 
 	// Array Value Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	value->value.array_values = createList();
 
 	for(idx = 0; idx < length; idx++) {
@@ -579,7 +579,7 @@ ElementValue *decodeArrayElementValue(ClassFile *classFile, ClassBuffer *buffer)
 
 ElementValue *decodeElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 	ElementValue *value;
-	uint8_t tag = bufferNextByte(buffer);
+	uint8_t tag = buffer->NextByte();
 
 	switch(tag) {
 		case 'B': case 'C': case 'D':
@@ -613,11 +613,11 @@ ElementValue *decodeElementValue(ClassFile *classFile, ClassBuffer *buffer) {
 ElementValuePairsEntry *decodeElementValuePairsEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
-	ElementValuePairsEntry *entry = NEW(ElementValuePairsEntry);
+	ElementValuePairsEntry *entry = new ElementValuePairsEntry;
 
 	// Element Name
-	index = bufferNextShort(buffer);
-	entry->element_name = static_cast(ConstantUtf8Info *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	entry->element_name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 	debug_printf(level3, "Element-Value Name : %s.\n", entry->element_name->bytes);
 
 	// Element Value
@@ -629,14 +629,14 @@ ElementValuePairsEntry *decodeElementValuePairsEntry(
 AnnotationEntry *decodeAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
 	unsigned int idx, length;
-	AnnotationEntry *entry = NEW(AnnotationEntry);
+	AnnotationEntry *entry = new AnnotationEntry;
 
 	// Annotation Entry Type
-	index = bufferNextShort(buffer);
-	entry->type = static_cast(ConstantUtf8Info *, getConstant(classFile, index));
+	index = buffer->NextShort();
+	entry->type = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 
 	// Element Value Pairs Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level2, "Element-Value Pairs count : %u.\n", length);
 	entry->element_value_pairs = createList();
 
@@ -656,7 +656,7 @@ AttributeInfo *decodeRuntimeAnnotationsAttribute(
 			RuntimeAnnotationsAttribute);
 
 	// Annotations Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	annot->annotations = createList();
 
 	for(idx = 0; idx < length; idx++) {
@@ -669,10 +669,10 @@ AttributeInfo *decodeRuntimeAnnotationsAttribute(
 ParameterAnnotationsEntry *decodeParameterAnnotationsEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	ParameterAnnotationsEntry *entry = NEW(ParameterAnnotationsEntry);
+	ParameterAnnotationsEntry *entry = new ParameterAnnotationsEntry;
 
 	// Annotations Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level2, "Parameter Annotations entry count : %u.\n", length);
 	entry->annotations = createList();
 
@@ -691,7 +691,7 @@ AttributeInfo *decodeRuntimeParameterAnnotationsAttribute(
 			RuntimeParameterAnnotationsAttribute);
 
 	// Parameter Annotations Table
-	length = bufferNextByte(buffer);
+	length = buffer->NextByte();
 	debug_printf(level2, "Parameter Annotation count : %u.\n", length);
 	annot->parameter_annotations = createList();
 
@@ -705,7 +705,7 @@ AttributeInfo *decodeRuntimeParameterAnnotationsAttribute(
 }
 
 AttributeInfo *decodeAnnotationDefaultAttribute(ClassFile *classFile, ClassBuffer *buffer) {
-	AnnotationDefaultAttribute *annot = NEW(AnnotationDefaultAttribute);
+	AnnotationDefaultAttribute *annot = new AnnotationDefaultAttribute;
 
 	// Default Value
 	annot->default_value = decodeElementValue(classFile, buffer);
@@ -715,15 +715,15 @@ AttributeInfo *decodeAnnotationDefaultAttribute(ClassFile *classFile, ClassBuffe
 
 BootstrapMethodEntry *decodeBootstrapMethodEntry(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	BootstrapMethodEntry *entry = NEW(BootstrapMethodEntry);
+	BootstrapMethodEntry *entry = new BootstrapMethodEntry;
 
 	// Bootstrap Method Parameters Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	entry->bootstrap_arguments = createList();
 
 	for(idx = 0; idx < length; idx++) {
-		uint16_t index = bufferNextShort(buffer);
-		listAdd(entry->bootstrap_arguments, getConstant(classFile, index));
+		uint16_t index = buffer->NextShort();
+		listAdd(entry->bootstrap_arguments, classFile->constant_pool[index]);
 	}
 
 	return entry;
@@ -731,10 +731,10 @@ BootstrapMethodEntry *decodeBootstrapMethodEntry(ClassFile *classFile, ClassBuff
 
 AttributeInfo *decodeBootstrapMethodsAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	BootstrapMethodsAttribute *bootstrap = NEW(BootstrapMethodsAttribute);
+	BootstrapMethodsAttribute *bootstrap = new BootstrapMethodsAttribute;
 
 	// Bootstrap Method Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	bootstrap->bootstrap_methods = createList();
 
 	for(idx = 0; idx < length; idx++) {
@@ -748,9 +748,10 @@ AttributeInfo *decodeBootstrapMethodsAttribute(ClassFile *classFile, ClassBuffer
 AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	AttributeInfo *info;
 
-	uint16_t name_index = bufferNextShort(buffer);
-	uint32_t attribute_length = bufferNextInt(buffer);
-	ConstantUtf8Info *name = static_cast(ConstantUtf8Info *, getConstant(classFile, name_index));
+	uint16_t name_index = buffer->NextShort();
+	uint32_t attribute_length = buffer->NextInt();
+	ConstantUtf8Info *name = static_cast<ConstantUtf8Info *>(
+			classFile->constant_pool[name_index]);
 	unsigned long int initpos = bufferPos(buffer);
 
 	if(name == NULL) {
@@ -844,7 +845,7 @@ AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 		debug_printf(level2, "Unknown Attribute type : %s; Skipping.\n", name->bytes);
 		while(bufferPos(buffer) - initpos < attribute_length) {
 			// TODO : Implement a skip operation
-			bufferNextByte(buffer);
+			buffer->NextByte();
 		}
 	}
 

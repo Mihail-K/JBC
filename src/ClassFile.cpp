@@ -28,17 +28,17 @@ ClassFile::~ClassFile() {
 
 	// Clear and release Fields.
 	if(!fields.empty()) {
-		for(std::vector<FieldInfo *>::iterator itr = fields.begin();
+		for(std::vector<MemberInfo *>::iterator itr = fields.begin();
 				itr != fields.end(); itr++)
-			deleteMember(*itr);
+			delete *itr;
 		fields.clear();
 	}
 
 	// Clear and release Methods.
 	if(!methods.empty()) {
-		for(std::vector<MethodInfo *>::iterator itr = methods.begin();
+		for(std::vector<MemberInfo *>::iterator itr = methods.begin();
 				itr != methods.end(); itr++)
-			deleteMember(*itr);
+			delete *itr;
 		methods.clear();
 	}
 

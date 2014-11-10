@@ -1,21 +1,43 @@
 # ifndef __MEMBERINFO_H__
 # define __MEMBERINFO_H__
 
-# include "Types.h"
+# include <vector>
+# include <stdint.h>
+
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
 
-# define encodeField encodeMember
-# define decodeField decodeMember
-# define encodeMethod encodeMember
-# define decodeMethod decodeMember
+// Forward Declarations.
+class ClassFile;
+struct AttributeInfo;
+struct ConstantUtf8Info;
+
+/* Field/Method Info */
+
+class MemberInfo {
+public:
+	uint16_t	access_flags;
+
+	// Name
+	ConstantUtf8Info *name;
+
+	// Descriptor
+	ConstantUtf8Info *descriptor;
+
+	// Attributes Table
+	std::vector<AttributeInfo *> attributes;
+
+public:
+	MemberInfo();
+	~MemberInfo();
+
+public:
+	MemberInfo *DecodeMember(ClassBuffer *buffer, ClassFile *classFile);
+	MemberInfo *EncodeMember(ClassBuilder *builder, ClassFile *classFile);
+};
 
 MemberInfo *createMember();
 
 void deleteMember(MemberInfo *member);
-
-int encodeMember(ClassFile *classFile, ClassBuilder *builder, MemberInfo *info);
-
-MemberInfo *decodeMember(ClassFile *classFile, ClassBuffer *buffer);
 
 # endif /* MemberInfo.h */

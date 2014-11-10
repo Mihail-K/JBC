@@ -1,5 +1,4 @@
 
-# include "List.h"
 # include "Debug.h"
 
 # include "ClassFile.h"
@@ -7,21 +6,27 @@
 # include "ConstantInfo.h"
 # include "AttributeInfo.h"
 
-int encodeMember(ClassFile *classFile, ClassBuilder *builder, MemberInfo *info) {
-	unsigned int idx, length;
+MemberInfo *MemberInfo::EncodeMember(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
 
-	buildNextShort(builder, info->access_flags);
-	buildNextShort(builder, info->name->index);
-	buildNextShort(builder, info->descriptor->index);
+	// Access Flags
+	builder->NextShort(access_flags);
 
-	buildNextShort(builder, length = listSize(info->attributes));
+	// Member Name
+	builder->NextShort(name->index);
+	debug_printf(level1, "Member Name : %s.\n", name->bytes);
+
+	// Member Descriptor
+	builder->NextShort(descriptor->index);
+	debug_printf(level1, "Member Descriptor : %s.\n", descriptor->bytes);
+
+	builder->NextShort((uint16_t)(length = attributes.size()));
 	debug_printf(level1, "Member Attributes Count : %d.\n", length);
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Member Attribute %d :\n", idx);
-		encodeAttribute(classFile, builder, static_cast(AttributeInfo *,
-				listGet(info->attributes, idx)));
+		encodeAttribute(classFile, builder, attributes[idx]);
 	}
 
-	return 0;
+	return this;
 }

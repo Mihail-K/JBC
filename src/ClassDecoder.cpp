@@ -68,7 +68,7 @@ void ClassFile::DecodeFields(ClassBuffer *buffer) {
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Field %d :\n", idx);
-		fields.push_back(decodeField(this, buffer));
+		fields.push_back((new MemberInfo)->DecodeMember(buffer, this));
 	}
 }
 
@@ -81,7 +81,7 @@ void ClassFile::DecodeMethods(ClassBuffer *buffer) {
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Method %d :\n", idx);
-		methods.push_back(decodeMethod(this, buffer));
+		methods.push_back((new MemberInfo)->DecodeMember(buffer, this));
 	}
 }
 

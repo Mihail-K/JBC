@@ -5,19 +5,18 @@
 # include "MemberInfo.h"
 # include "AttributeInfo.h"
 
-MemberInfo *createMember() {
-	MemberInfo *info = NEW(MemberInfo);
-	memset(info, 0, sizeof(MemberInfo));
-	return info;
+MemberInfo::MemberInfo() {
 }
 
-void deleteMember(MemberInfo *member) {
-	if(member == NULL) return;
-	debug_printf(level1, "Deleting member : %s.\n",
-			member->name->bytes);
-	if(member->attributes != NULL) {
+MemberInfo::~MemberInfo() {
+	debug_printf(level1, "Deleting member : %s.\n", 
+			(name == NULL || name->bytes == NULL ? "<NULL>" : (char *)name->bytes));
+
+	if(!attributes.empty()) {
 		debug_printf(level2, "Deleting member attributes.\n");
-		deleteList(member->attributes, (void(*)(void *))deleteAttribute);
+		for(std::vector<AttributeInfo *>::iterator itr = attributes.begin();
+				itr != attributes.end(); itr++) {
+			deleteAttribute(*itr);
+		}
 	}
-	DELETE(member);
 }

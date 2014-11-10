@@ -73,7 +73,7 @@ void ClassFile::EncodeFields(ClassBuilder *builder) {
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Field %d :\n", idx);
-		encodeField(this, builder, fields[idx]);
+		fields[idx]->EncodeMember(builder, this);
 	}
 }
 
@@ -87,7 +87,7 @@ void ClassFile::EncodeMethods(ClassBuilder *builder) {
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Method %d :\n", idx);
-		encodeMethod(this, builder, methods[idx]);
+		methods[idx]->EncodeMember(builder, this);
 	}
 }
 
