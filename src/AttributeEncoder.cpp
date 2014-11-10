@@ -57,53 +57,6 @@ CodeAttribute *CodeAttribute
 	return this;
 }
 
-int encodeStackMapFrame(
-		ClassFile *classFile, ClassBuilder *builder, StackMapFrame *frame) {
-	builder->NextByte(frame->tag);
-
-	// Stack Map Same Frame
-	if(frame->tag <= 63) {
-		debug_printf(level3, "Stack Map same frame.\n");
-	} else
-	// Stack Map Same Locals 1
-	if(frame->tag <= 127) {
-		debug_printf(level3, "Stack Map same locals.\n");
-		frame->EncodeFrame(builder, classFile);
-	} else
-	// Reserved Values
-	if(frame->tag <= 246) {
-		fprintf(stderr, "Stack Frame tag (ID : %d) is reveserved!\n", frame->tag);
-		exit(EXIT_FAILURE);
-	} else
-	// Stack Map Same Locals 1 Extended
-	if(frame->tag == 247) {
-		debug_printf(level3, "Stack Map same locals extended.\n");
-		frame->EncodeFrame(builder, classFile);
-	} else
-	// Stack Map Chop Frame
-	if(frame->tag <= 250) {
-		debug_printf(level3, "Stack Map chop frame.\n");
-		frame->EncodeFrame(builder, classFile);
-	} else
-	// Stack Map Same Frame Extended
-	if(frame->tag == 251) {
-		debug_printf(level3, "Stack Map same frame extended.\n");
-		frame->EncodeFrame(builder, classFile);
-	} else
-	// Stack Map Append Frame
-	if(frame->tag <= 254) {
-		debug_printf(level3, "Stack Map append frame.\n");
-		frame->EncodeFrame(builder, classFile);
-	}
-	// Stack Map Full Frame
-	else {
-		debug_printf(level3, "Stack Map full frame.\n");
-		frame->EncodeFrame(builder, classFile);
-	}
-
-	return 0;
-}
-
 StackMapTableAttribute *StackMapTableAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
@@ -112,7 +65,7 @@ StackMapTableAttribute *StackMapTableAttribute
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeStackMapFrame(classFile, builder, entries[idx]);
+		encodeStackMapFrame(builder, classFile, entries[idx]);
 	}
 
 	return this;

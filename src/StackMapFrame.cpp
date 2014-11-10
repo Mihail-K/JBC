@@ -130,6 +130,53 @@ StackMapFullFrame *StackMapFullFrame
 	return this;
 }
 
+StackMapFrame *decodeStackMapFrame(ClassBuffer *buffer, ClassFile *classFile) {
+	uint8_t tag = buffer->NextByte();
+
+	debug_printf(level3, "Decoding Stack Frame type : %d.\n", tag);
+
+	// Stack Map Same Frame
+	if(tag <= 63) {
+		debug_printf(level3, "Stack Map same frame.\n");
+		return new StackMapFrame(tag);
+	} else
+	// Stack Map Same Locals 1
+	if(tag >= 64 && tag <= 127) {
+		debug_printf(level3, "Stack Map same locals.\n");
+		return (new StackMapItemFrame(tag))->DecodeFrame(buffer, classFile);
+	} else
+	// Reserved Values
+	if(tag >= 128 && tag <= 246) {
+		fprintf(stderr, "Stack Frame tag (ID : %d) is reveserved!\n", tag);
+		exit(EXIT_FAILURE);
+	} else
+	// Stack Map Same Locals 1 Extended
+	if(tag == 247) {
+		debug_printf(level3, "Stack Map same locals extended.\n");
+		return (new StackMapExtFrame(tag))->DecodeFrame(buffer, classFile);
+	} else
+	// Stack Map Chop Frame
+	if(tag >= 248 && tag <= 250) {
+		debug_printf(level3, "Stack Map chop frame.\n");
+		return (new StackMapOffFrame(tag))->DecodeFrame(buffer, classFile);
+	} else
+	// Stack Map Same Frame Extended
+	if(tag == 251) {
+		debug_printf(level3, "Stack Map same frame extended.\n");
+		return (new StackMapOffFrame(tag))->DecodeFrame(buffer, classFile);
+	} else
+	// Stack Map Append Frame
+	if(tag >= 252 && tag <= 254) {
+		debug_printf(level3, "Stack Map append frame.\n");
+		return (new StackMapListFrame(tag))->DecodeFrame(buffer, classFile);
+	}
+	// Stack Map Full Frame
+	else {
+		debug_printf(level3, "Stack Map full frame.\n");
+		return (new StackMapFullFrame(tag))->DecodeFrame(buffer, classFile);
+	}
+}
+
 /* Stack Map Frame encode */
 
 StackMapOffFrame *StackMapOffFrame
@@ -185,6 +232,53 @@ StackMapFullFrame *StackMapFullFrame
 	}
 
 	return this;
+}
+
+int encodeStackMapFrame(
+		ClassBuilder *builder, ClassFile *classFile, StackMapFrame *frame) {
+	builder->NextByte(frame->tag);
+
+	// Stack Map Same Frame
+	if(frame->tag <= 63) {
+		debug_printf(level3, "Stack Map same frame.\n");
+	} else
+	// Stack Map Same Locals 1
+	if(frame->tag <= 127) {
+		debug_printf(level3, "Stack Map same locals.\n");
+		frame->EncodeFrame(builder, classFile);
+	} else
+	// Reserved Values
+	if(frame->tag <= 246) {
+		fprintf(stderr, "Stack Frame tag (ID : %d) is reveserved!\n", frame->tag);
+		exit(EXIT_FAILURE);
+	} else
+	// Stack Map Same Locals 1 Extended
+	if(frame->tag == 247) {
+		debug_printf(level3, "Stack Map same locals extended.\n");
+		frame->EncodeFrame(builder, classFile);
+	} else
+	// Stack Map Chop Frame
+	if(frame->tag <= 250) {
+		debug_printf(level3, "Stack Map chop frame.\n");
+		frame->EncodeFrame(builder, classFile);
+	} else
+	// Stack Map Same Frame Extended
+	if(frame->tag == 251) {
+		debug_printf(level3, "Stack Map same frame extended.\n");
+		frame->EncodeFrame(builder, classFile);
+	} else
+	// Stack Map Append Frame
+	if(frame->tag <= 254) {
+		debug_printf(level3, "Stack Map append frame.\n");
+		frame->EncodeFrame(builder, classFile);
+	}
+	// Stack Map Full Frame
+	else {
+		debug_printf(level3, "Stack Map full frame.\n");
+		frame->EncodeFrame(builder, classFile);
+	}
+
+	return 0;
 }
 
 /* Stack Map Frame destructors */
