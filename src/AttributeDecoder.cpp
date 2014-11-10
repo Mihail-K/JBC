@@ -43,7 +43,7 @@ AttributeInfo *decodeCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	// Code
 	code->code_length = buffer->NextInt();
 	debug_printf(level2, "Code length : %d.\n", code->code_length);
-	code->code = ALLOC(uint8_t, code->code_length);
+	code->code = new uint8_t[code->code_length];
 
 	for(idx = 0; idx < code->code_length; idx++) {
 		// TODO : Added a mass read operation
@@ -73,119 +73,7 @@ AttributeInfo *decodeCodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 	return (AttributeInfo *)code;
 }
 
-VerificationTypeInfo *decodeVerificationTypeInfo(
-		ClassFile *classFile, ClassBuffer *buffer) {
-	uint16_t index;
-	VerificationTypeInfo *info = new VerificationTypeInfo;
-
-	info->tag = buffer->NextByte();
-	switch(info->tag) {
-		case 0:
-			debug_printf(level3, "Top variable info.\n");
-			break;
-		case 1:
-			debug_printf(level3, "Integer variable info.\n");
-			break;
-		case 2:
-			debug_printf(level3, "Float variable info.\n");
-			break;
-		case 3:
-			debug_printf(level3, "Double variable info.\n");
-			break;
-		case 4:
-			debug_printf(level3, "Long variable info.\n");
-			break;
-		case 5:
-			debug_printf(level3, "Null variable info.\n");
-			break;
-		case 6:
-			debug_printf(level3, "Uninitialized this variable info.\n");
-			break;
-		case 7:
-			debug_printf(level3, "Object variable info.\n");
-			index = buffer->NextShort();
-			info->object_variable_info.object = static_cast<ConstantClassInfo *>(
-					classFile->constant_pool[index]);
-			break;
-		case 8:
-			debug_printf(level3, "Uninitialized variable info.\n");
-			index = buffer->NextShort();
-			info->uninitialized_variable_info.offset = index;
-			break;
-		default:
-			fprintf(stderr, "Unknown verification type (ID : %d)!\n", info->tag);
-			exit(EXIT_FAILURE);
-	}
-
-	return info;
-}
-
-StackMapFrame *decodeStackMapOffFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	StackMapOffFrame *frame = new StackMapOffFrame;
-	frame->offset_delta = buffer->NextShort();
-
-	ignore_unused(classFile);
-	return (StackMapFrame *)frame;
-}
-
-StackMapFrame *decodeStackMapItemFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	StackMapItemFrame *frame = new StackMapItemFrame;
-	frame->stack = decodeVerificationTypeInfo(classFile, buffer);
-
-	return (StackMapFrame *)frame;
-}
-
-StackMapFrame *decodeStackMapExtFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	StackMapExtFrame *frame = new StackMapExtFrame;
-
-	frame->offset_delta = buffer->NextShort();
-	frame->stack = decodeVerificationTypeInfo(classFile, buffer);
-
-	return (StackMapFrame *)frame;
-}
-
-StackMapFrame *decodeStackMapListFrame(
-		ClassFile *classFile, ClassBuffer *buffer, unsigned int count) {
-	unsigned int idx;
-	StackMapListFrame *frame = new StackMapListFrame;
-
-	frame->offset_delta = buffer->NextShort();
-	frame->stack = ALLOC(VerificationTypeInfo *, count);
-
-	for(idx = 0; idx < count; idx++) {
-		frame->stack[idx] = decodeVerificationTypeInfo(classFile, buffer);
-	}
-
-	return (StackMapFrame *)frame;
-}
-
-StackMapFrame *decodeStackMapFullFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	StackMapFullFrame *frame = new StackMapFullFrame;
-
-	frame->offset_delta = buffer->NextShort();
-
-	// Stack Frame Locals
-	length = buffer->NextShort();
-	frame->locals = createList();
-
-	for(idx = 0; idx < length; idx++) {
-		listAdd(frame->locals, decodeVerificationTypeInfo(classFile, buffer));
-	}
-
-	// Stack Frame Items
-	length = buffer->NextShort();
-	frame->stack = createList();
-
-	for(idx = 0; idx < length; idx++) {
-		listAdd(frame->stack, decodeVerificationTypeInfo(classFile, buffer));
-	}
-
-	return (StackMapFrame *)frame;
-}
-
 StackMapFrame *decodeStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
-	StackMapFrame *frame;
 	uint8_t tag = buffer->NextByte();
 
 	debug_printf(level3, "Decoding Stack Frame type : %d.\n", tag);
@@ -193,12 +81,12 @@ StackMapFrame *decodeStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
 	// Stack Map Same Frame
 	if(tag <= 63) {
 		debug_printf(level3, "Stack Map same frame.\n");
-		frame = new StackMapFrame;
+		return new StackMapFrame(tag);
 	} else
 	// Stack Map Same Locals 1
 	if(tag >= 64 && tag <= 127) {
 		debug_printf(level3, "Stack Map same locals.\n");
-		frame = decodeStackMapItemFrame(classFile, buffer);
+		return (new StackMapItemFrame(tag))->DecodeFrame(buffer, classFile);
 	} else
 	// Reserved Values
 	if(tag >= 128 && tag <= 246) {
@@ -208,34 +96,28 @@ StackMapFrame *decodeStackMapFrame(ClassFile *classFile, ClassBuffer *buffer) {
 	// Stack Map Same Locals 1 Extended
 	if(tag == 247) {
 		debug_printf(level3, "Stack Map same locals extended.\n");
-		frame = decodeStackMapExtFrame(classFile, buffer);
+		return (new StackMapExtFrame(tag))->DecodeFrame(buffer, classFile);
 	} else
 	// Stack Map Chop Frame
 	if(tag >= 248 && tag <= 250) {
 		debug_printf(level3, "Stack Map chop frame.\n");
-		frame = decodeStackMapOffFrame(classFile, buffer);
+		return (new StackMapOffFrame(tag))->DecodeFrame(buffer, classFile);
 	} else
 	// Stack Map Same Frame Extended
 	if(tag == 251) {
 		debug_printf(level3, "Stack Map same frame extended.\n");
-		frame = decodeStackMapOffFrame(classFile, buffer);
+		return (new StackMapOffFrame(tag))->DecodeFrame(buffer, classFile);
 	} else
 	// Stack Map Append Frame
 	if(tag >= 252 && tag <= 254) {
-		int count = tag - 251;
 		debug_printf(level3, "Stack Map append frame.\n");
-		frame = decodeStackMapListFrame(classFile, buffer, count);
+		return (new StackMapListFrame(tag))->DecodeFrame(buffer, classFile);
 	}
 	// Stack Map Full Frame
 	else {
 		debug_printf(level3, "Stack Map full frame.\n");
-		frame = decodeStackMapFullFrame(classFile, buffer);
+		return (new StackMapFullFrame(tag))->DecodeFrame(buffer, classFile);
 	}
-
-	debug_printf(level3, "Finished Stack Frame.\n");
-
-	frame->tag = tag;
-	return frame;
 }
 
 AttributeInfo *decodeStackMapTableAttribute(ClassFile *classFile, ClassBuffer *buffer) {
@@ -251,7 +133,7 @@ AttributeInfo *decodeStackMapTableAttribute(ClassFile *classFile, ClassBuffer *b
 
 	for(idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Stack Map Frame %d :\n", idx);
-		listAdd(table->entries,  decodeStackMapFrame(classFile, buffer));
+		listAdd(table->entries, decodeStackMapFrame(classFile, buffer));
 	}
 
 	debug_printf(level2, "Finished StackMapTable.\n");
@@ -377,7 +259,7 @@ AttributeInfo *decodeSourceDebugExtensionAttribute(
 	SourceDebugExtensionAttribute *source = new SourceDebugExtensionAttribute;
 
 	// Debug Extension
-	source->debug_extension = ALLOC(uint8_t, length);
+	source->debug_extension = new uint8_t[length];
 
 	for(idx = 0; idx < length; idx++) {
 		// TODO : Added a mass read operation
@@ -652,8 +534,7 @@ AnnotationEntry *decodeAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer
 AttributeInfo *decodeRuntimeAnnotationsAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	RuntimeAnnotationsAttribute *annot = NEW(
-			RuntimeAnnotationsAttribute);
+	RuntimeAnnotationsAttribute *annot = new RuntimeAnnotationsAttribute;
 
 	// Annotations Table
 	length = buffer->NextShort();
@@ -687,8 +568,7 @@ ParameterAnnotationsEntry *decodeParameterAnnotationsEntry(
 AttributeInfo *decodeRuntimeParameterAnnotationsAttribute(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	unsigned int idx, length;
-	RuntimeParameterAnnotationsAttribute *annot = NEW(
-			RuntimeParameterAnnotationsAttribute);
+	RuntimeParameterAnnotationsAttribute *annot = new RuntimeParameterAnnotationsAttribute;
 
 	// Parameter Annotations Table
 	length = buffer->NextByte();

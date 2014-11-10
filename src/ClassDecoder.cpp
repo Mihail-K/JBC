@@ -1,5 +1,4 @@
 
-# include "List.h"
 # include "Debug.h"
 # include "ClassFile.h"
 # include "ClassBuffer.h"
@@ -38,12 +37,12 @@ void ClassFile::DecodeClasses(ClassBuffer *buffer) {
 	// This class
 	index = bufferNextShort(buffer);
 	debug_printf(level3, "This Class : %d.\n", index);
-	this_class = static_cast(ConstantClassInfo *, getConstant(this, index));
+	this_class = static_cast<ConstantClassInfo *>(constant_pool[index]);
 
 	// Super class
 	index = bufferNextShort(buffer);
 	debug_printf(level3, "Super Class : %d.\n", index);
-	super_class = static_cast(ConstantClassInfo *, getConstant(this, index));
+	super_class = static_cast<ConstantClassInfo *>(constant_pool[index]);
 }
 
 void ClassFile::DecodeInterfaces(ClassBuffer *buffer) {
@@ -55,7 +54,7 @@ void ClassFile::DecodeInterfaces(ClassBuffer *buffer) {
 	for(unsigned idx = 0; idx < length; idx++) {
 		uint16_t index = bufferNextShort(buffer);
 		debug_printf(level2, "Interface %d : %d.\n", idx, index);
-		interfaces.push_back((ConstantClassInfo *)getConstant(this, index));
+		interfaces.push_back((ConstantClassInfo *)constant_pool[index]);
 	}
 }
 

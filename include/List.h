@@ -21,7 +21,7 @@ void deleteList(List *list, void (* destroy)(void *)) {
 			destroy((*list)[idx]);
 		}
 	}
-	DELETE(list);
+	delete list;
 }
 
 // List *listAdd(List *list, void *item);

@@ -7,6 +7,7 @@
 # include "ClassBuilder.h"
 
 # include "ConstantInfo.h"
+# include "StackMapFrame.h"
 
 /* Access Flags */
 
@@ -66,7 +67,6 @@ struct ConstantValueAttribute
 	ConstantValueAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
 	}
-
 };
 
 struct ExceptionTableEntry {
@@ -100,147 +100,6 @@ struct CodeAttribute
 
 	CodeAttribute(ConstantUtf8Info *name, uint32_t length)
 		: AttributeInfo(name, length) {
-	}
-};
-
-struct VariableInfo {
-	uint8_t		tag;
-
-	VariableInfo() {
-	}
-
-	VariableInfo(uint8_t tag)
-		: tag(tag) {
-	}
-};
-
-struct ObjectVariableInfo
-		: public VariableInfo {
-	ConstantClassInfo *object;
-
-	ObjectVariableInfo() {
-	}
-
-	ObjectVariableInfo(uint8_t tag)
-		: VariableInfo(tag) {
-	}
-};
-
-struct UninitializedVariableInfo
-		: public VariableInfo {
-	uint16_t offset;
-
-	UninitializedVariableInfo() {
-	}
-
-	UninitializedVariableInfo(uint8_t tag)
-		: VariableInfo(tag) {
-	}
-};
-
-typedef union {
-	uint8_t		tag;
-	struct {
-		uint8_t		tag;
-	} 
-	top_variable_info,
-	integer_variable_info,
-	float_variable_info,
-	long_variable_info,
-	double_variable_info,
-	null_variable_info,
-	uninitialized_this_variable_info;
-	struct {
-		uint8_t		tag;
-		ConstantClassInfo *object;
-	} object_variable_info;
-	struct {
-		uint8_t		tag;
-		uint16_t	offset;
-	} uninitialized_variable_info;
-} VerificationTypeInfo;
-
-struct StackMapFrame {
-	uint8_t		tag;
-
-	StackMapFrame() {
-	}
-
-	StackMapFrame(uint8_t tag)
-		: tag(tag) {
-	}
-};
-
-struct StackMapOffFrame
-		: public StackMapFrame {
-	uint16_t	offset_delta;
-
-	StackMapOffFrame() {
-	}
-
-	StackMapOffFrame(uint8_t tag)
-		: StackMapFrame(tag) {
-	}
-};
-
-struct StackMapItemFrame
-		: public StackMapFrame {
-	// Stack Items
-	VerificationTypeInfo *stack;
-
-	StackMapItemFrame() {
-	}
-
-	StackMapItemFrame(uint8_t tag)
-		: StackMapFrame(tag) {
-	}
-};
-
-struct StackMapExtFrame
-		: public StackMapFrame {
-	uint16_t	offset_delta;
-
-	// Stack Items
-	VerificationTypeInfo *stack;
-
-	StackMapExtFrame() {
-	}
-
-	StackMapExtFrame(uint8_t tag)
-		: StackMapFrame(tag) {
-	}
-};
-
-struct StackMapListFrame
-		: public StackMapFrame {
-	uint16_t	offset_delta;
-
-	// Stack Item Table
-	VerificationTypeInfo **stack;
-
-	StackMapListFrame() {
-	}
-
-	StackMapListFrame(uint8_t tag)
-		: StackMapFrame(tag) {
-	}
-};
-
-struct StackMapFullFrame
-		: public StackMapFrame {
-	uint16_t	offset_delta;
-
-	// Local Items
-	List		*locals;
-
-	// Stack Items
-	List		*stack;
-
-	StackMapFullFrame() {
-	}
-
-	StackMapFullFrame(uint8_t tag)
-		: StackMapFrame(tag) {
 	}
 };
 
