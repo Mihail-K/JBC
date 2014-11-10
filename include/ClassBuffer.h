@@ -4,18 +4,49 @@
 # include <stdio.h>
 # include <stdint.h>
 
-typedef FILE ClassBuffer;
+struct BufferError {
+	const char *msg;
 
-ClassBuffer *createBuffer(FILE *classFile);
+	inline
+	BufferError(const char *msg)
+		: msg(msg) {
+	}
+};
 
-void deleteBuffer(ClassBuffer *buffer);
+class ClassBuffer {
+private:
+	FILE *input;
 
-long int bufferPos(ClassBuffer *buffer);
+public:
+	ClassBuffer(FILE *input);
+	~ClassBuffer();
 
-uint8_t bufferNextByte(ClassBuffer *buffer);
+public:
+	size_t Position();
 
-uint16_t bufferNextShort(ClassBuffer *buffer);
+	uint8_t NextByte();
 
-uint32_t bufferNextInt(ClassBuffer *buffer);
+	uint16_t NextShort();
+
+	uint32_t NextInt();
+};
+
+// ClassBuffer *createBuffer(FILE *classFile);
+# define createBuffer(input) new ClassBuffer(input)
+
+// void deleteBuffer(ClassBuffer *buffer);
+# define deleteBuffer(buffer) delete buffer
+
+// long int bufferPos(ClassBuffer *buffer);
+# define bufferPos(buffer) buffer->Position()
+
+// uint8_t bufferNextByte(ClassBuffer *buffer);
+# define bufferNextByte(buffer) buffer->NextByte()
+
+// uint16_t bufferNextShort(ClassBuffer *buffer);
+# define bufferNextShort(buffer) buffer->NextShort()
+
+// uint32_t bufferNextInt(ClassBuffer *buffer);
+# define bufferNextInt(buffer) buffer->NextInt()
 
 # endif /* ClassBuffer.h */

@@ -1,88 +1,85 @@
 
+# include <errno.h>
 # include <stdlib.h>
+# include <string.h>
 
 # include "ClassBuffer.h"
 
-ClassBuffer *createBuffer(FILE *classFile) {
-	if(classFile == NULL) return NULL;
-	if(setvbuf(classFile, NULL, _IOFBF, 4096) == EOF) {
-		perror("setvbuf");
-		exit(EXIT_FAILURE);
+ClassBuffer::ClassBuffer(FILE *input)
+		: input(input) {
+	if(input == NULL) {
+		throw BufferError("Invalid input file.");
 	}
 
-	return classFile;
+	if(setvbuf(input, NULL, _IOFBF, 4096) == EOF) {
+		throw BufferError(strerror(errno));
+	}
 }
 
-void deleteBuffer(ClassBuffer *buffer) {
-	if(buffer == NULL) return;
-	fclose(buffer);
+ClassBuffer::~ClassBuffer() {
+	fclose(input);
 }
 
-long int bufferPos(ClassBuffer *buffer) {
-	if(buffer == NULL) return -1;
-	return ftell(buffer);
-}
-
-static inline
-void swap(uint8_t *a, uint8_t *b) {
-	uint8_t t = *a;
-	*a = *b;
-	*b = t;
+size_t ClassBuffer::Position() {
+	return ftell(input);
 }
 
 static inline
-uint16_t tole16(uint16_t l) {
-	union { uint16_t l; uint8_t b[2]; } u = { l };
-	swap(&u.b[0], &u.b[1]);
+void ToBigEndian(uint8_t &a, uint8_t &b) {
+	uint8_t t = a;
+	a = b;
+	b = t;
+}
+
+static inline
+uint16_t ToBigEndian(uint16_t l) {
+	union {
+		uint16_t l;
+		uint8_t b[2];
+	} u = { l };
+
+	ToBigEndian(u.b[0], u.b[1]);
 	return u.l;
 }
 
 static inline
-uint32_t tole32(uint32_t l) {
-	union { uint32_t l; uint8_t b[4]; } u = { l };
-	swap(&u.b[0], &u.b[3]);
-	swap(&u.b[1], &u.b[2]);
+uint32_t ToBigEndian(uint32_t l) {
+	union {
+		uint32_t l;
+		uint8_t b[4];
+	} u = { l };
+
+	ToBigEndian(u.b[0], u.b[3]);
+	ToBigEndian(u.b[1], u.b[2]);
 	return u.l;
 }
 
-uint8_t bufferNextByte(ClassBuffer *buffer) {
+uint8_t ClassBuffer::NextByte() {
 	size_t read;
 	uint8_t value = 0;
-	if(buffer == NULL) return -1;
-	if((read = fread(&value, 1, sizeof(uint8_t), buffer)) != sizeof(uint8_t)) {
-		perror("fread byte");
-		fprintf(stderr, "Read : %zu, expected %zu (Pos : %ld).\n",
-				read, sizeof(uint8_t), bufferPos(buffer));
-		exit(EXIT_FAILURE);
-	}
 
+	if((read = fread(&value, 1, sizeof(uint8_t), input))
+			!= sizeof(uint8_t))
+		throw BufferError(strerror(errno));
 	return value;
 }
 
-uint16_t bufferNextShort(ClassBuffer *buffer) {
+uint16_t ClassBuffer::NextShort() {
 	size_t read;
 	uint16_t value = 0;
-	if(buffer == NULL) return -1;
-	if((read = fread(&value, 1, sizeof(uint16_t), buffer)) != sizeof(uint16_t)) {
-		perror("fread short");
-		fprintf(stderr, "Read : %zu, expected %zu (Pos : %ld).\n",
-				read, sizeof(uint16_t), bufferPos(buffer));
-		exit(EXIT_FAILURE);
-	}
 
-	return tole16(value);
+	if((read = fread(&value, 1, sizeof(uint16_t), input))
+			!= sizeof(uint16_t))
+		throw BufferError(strerror(errno));
+	return ToBigEndian(value);
 }
 
-uint32_t bufferNextInt(ClassBuffer *buffer) {
+uint32_t ClassBuffer::NextInt() {
 	size_t read;
 	uint32_t value = 0;
-	if(buffer == NULL) return -1;
-	if((read = fread(&value, 1, sizeof(uint32_t), buffer)) != sizeof(uint32_t)) {
-		perror("fread int");
-		fprintf(stderr, "Read : %zu, expected %zu (Pos : %ld).\n",
-				read, sizeof(uint32_t), bufferPos(buffer));
-		exit(EXIT_FAILURE);
-	}
 
-	return tole32(value);
+	if((read = fread(&value, 1, sizeof(uint32_t), input))
+			!= sizeof(uint32_t))
+		throw BufferError(strerror(errno));
+	return ToBigEndian(value);
 }

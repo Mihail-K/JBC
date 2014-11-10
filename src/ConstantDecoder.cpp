@@ -174,7 +174,7 @@ ConstantInfo *decodeConstant(ClassBuffer *buffer) {
 			fprintf(stderr, "Unexpected end of file.\n");
 			exit(EXIT_FAILURE);
 		default:
-			fprintf(stderr, "Unknown tag : %d (%ld).\n", tag, bufferPos(buffer));
+			fprintf(stderr, "Unknown tag : %d (%zu).\n", tag, bufferPos(buffer));
 			exit(EXIT_FAILURE);
 	}
 }
