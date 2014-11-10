@@ -11,7 +11,7 @@
 struct ConstantInfo;
 struct ConstantClassInfo;
 
-struct MemberInfo;
+class MemberInfo;
 struct AttributeInfo;
 
 class ClassFile {
