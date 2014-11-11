@@ -590,9 +590,9 @@ struct BootstrapMethodsAttribute
 	BootstrapMethodsAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
-int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info);
+AttributeInfo *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
 
-AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer);
+int EncodeAttribute(ClassBuilder *builder, ClassFile *classFile, AttributeInfo *info);
 
 } /* JBC */
 

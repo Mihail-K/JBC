@@ -56,7 +56,7 @@ CodeAttribute *CodeAttribute
 	debug_printf(level3, "Code Attributes count : %hu.\n", length);
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Code Attribute %u :\n", idx);
-		encodeAttribute(classFile, builder, attributes[idx]);
+		JBC::EncodeAttribute(builder, classFile, attributes[idx]);
 	}
 
 	return this;
@@ -341,7 +341,7 @@ BootstrapMethodsAttribute *BootstrapMethodsAttribute
 	return this;
 }
 
-int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {
+int EncodeAttribute(ClassBuilder *builder, ClassFile *classFile, AttributeInfo *info) {
 	debug_printf(level3, "Encoding Attribute.\n");
 
 	builder->NextShort(info->name->index);

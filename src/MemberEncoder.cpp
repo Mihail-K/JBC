@@ -27,7 +27,7 @@ MemberInfo *MemberInfo::EncodeMember(ClassBuilder *builder, ClassFile *classFile
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Member Attribute %d :\n", idx);
-		encodeAttribute(classFile, builder, attributes[idx]);
+		EncodeAttribute(builder, classFile, attributes[idx]);
 	}
 
 	return this;

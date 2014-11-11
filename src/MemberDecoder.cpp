@@ -30,7 +30,7 @@ MemberInfo *MemberInfo::DecodeMember(ClassBuffer *buffer, ClassFile *classFile) 
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Member Attribute %d :\n", idx);
-		attributes.push_back(decodeAttribute(classFile, buffer));
+		attributes.push_back(DecodeAttribute(buffer, classFile));
 	}
 
 	return this;

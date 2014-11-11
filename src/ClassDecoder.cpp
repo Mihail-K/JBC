@@ -95,7 +95,7 @@ void ClassFile::DecodeAttributes(ClassBuffer *buffer) {
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Attribute %d :\n", idx);
-		attributes.push_back(decodeAttribute(this, buffer));
+		attributes.push_back(DecodeAttribute(buffer, this));
 	}
 }
 

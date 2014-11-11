@@ -102,7 +102,7 @@ void ClassFile::EncodeAttributes(ClassBuilder *builder) {
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Attribute %d :\n", idx);
-		encodeAttribute(this, builder, attributes[idx]);
+		EncodeAttribute(builder, this, attributes[idx]);
 	}
 }
 

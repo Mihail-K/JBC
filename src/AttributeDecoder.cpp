@@ -66,7 +66,7 @@ CodeAttribute *CodeAttribute
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Code Attribute %u :\n", idx);
-		attributes.push_back(decodeAttribute(classFile, buffer));
+		attributes.push_back(JBC::DecodeAttribute(buffer, classFile));
 	}
 
 	return this;
@@ -425,7 +425,7 @@ BootstrapMethodsAttribute *BootstrapMethodsAttribute
 	return this;
 }
 
-AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+AttributeInfo *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	size_t initpos = buffer->Position();
 	uint16_t name_index = buffer->NextShort();
 	uint32_t attribute_length = buffer->NextInt();
