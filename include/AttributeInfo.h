@@ -1,6 +1,7 @@
 # ifndef __ATTRIBUTEINFO_H__
 # define __ATTRIBUTEINFO_H__
 
+# include <string>
 # include <vector>
 
 # include "ClassBuffer.h"
@@ -589,6 +590,15 @@ struct BootstrapMethodsAttribute
 
 	BootstrapMethodsAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
+
+/* Attribute Producers */
+
+typedef AttributeInfo *(* AttributeProducer)(
+		ConstantUtf8Info *name, uint32_t attribute_length);
+
+void RegisterProducer(std::string name, AttributeProducer producer);
+
+/* Encode and Decode */
 
 AttributeInfo *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
 

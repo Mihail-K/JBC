@@ -1,4 +1,5 @@
 
+# include <map>
 # include <string.h>
 
 # include "Debug.h"
@@ -6,6 +7,17 @@
 # include "AttributeInfo.h"
 
 namespace JBC {
+
+/* Attribute Producers */
+
+static
+std::map<std::string, AttributeProducer> producer_map;
+
+void RegisterProducer(std::string name, AttributeProducer producer) {
+	producer_map[name] = producer;
+}
+
+/* Attribute Decoders */
 
 ConstantValueAttribute *ConstantValueAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
@@ -535,11 +547,19 @@ AttributeInfo *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 		return (new BootstrapMethodsAttribute(name, attribute_length))
 				->DecodeAttribute(buffer, classFile);
 	} else {
-		size_t difference;
+		char *elem_name = reinterpret_cast<char *>(name->bytes);
+		AttributeProducer producer = producer_map[elem_name];
 
-		debug_printf(level2, "Unknown Attribute type : %s; Skipping.\n", name->bytes);
-		if((difference = buffer->Position() - initpos) < attribute_length) {
-			buffer->Skip(difference);
+		if(producer != NULL) {
+			debug_printf(level2, "Custom Attribute from Producer (%s).\n", elem_name);
+			return producer(name, attribute_length)->DecodeAttribute(buffer, classFile);
+		} else {
+			size_t difference;
+
+			debug_printf(level2, "Unknown Attribute type : %s; Skipping.\n", name->bytes);
+			if((difference = buffer->Position() - initpos) < attribute_length) {
+				buffer->Skip(difference);
+			}
 		}
 	}
 
