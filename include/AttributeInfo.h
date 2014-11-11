@@ -485,7 +485,7 @@ struct RuntimeInvisibleAnnotationsAttribute
 
 struct ParameterAnnotationsEntry {
 	// Annotations Table
-	std::vector<AnnotaionEntry *> annotations;
+	std::vector<AnnotationEntry *> annotations;
 
 	~ParameterAnnotationsEntry();
 };
@@ -493,7 +493,7 @@ struct ParameterAnnotationsEntry {
 struct RuntimeParameterAnnotationsAttribute
 		: public AttributeInfo {
 	// Parameters Table
-	std::vector<AnnotationEntry *> parameter_annotations;
+	std::vector<ParameterAnnotationsEntry *> parameter_annotations;
 
 	RuntimeParameterAnnotationsAttribute() {
 	}

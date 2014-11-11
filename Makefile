@@ -8,7 +8,7 @@ objects = ClassBuffer.o ClassBuilder.o \
 	ClassFile.o ClassDecoder.o ClassEncoder.o \
 	ConstantDecoder.o ConstantEncoder.o ConstantInfo.o \
 	MemberDecoder.o MemberEncoder.o MemberInfo.o \
-	StackMapFrame.o \
+	StackMapFrame.o ElementValue.o \
 	AttributeDecoder.o AttributeEncoder.o AttributeInfo.o
 
 all: libjbc.a jbctest Test.class

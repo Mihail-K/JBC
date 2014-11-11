@@ -267,7 +267,7 @@ RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
 
 	debug_printf(level3, "Encoding Runtime Annotations Attribute.\n");
 
-	length = listSize(annotations);
+	length = annotations.size();
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
@@ -299,12 +299,11 @@ RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
 
 	debug_printf(level3, "Encoding Parameter Annotations Attribute.\n");
 
-	length = listSize(parameter_annotations);
+	length = parameter_annotations.size();
 	builder->NextByte(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeParameterAnnotationsEntry(classFile, builder, static_cast<
-				ParameterAnnotationsEntry *>(listGet(parameter_annotations, idx)));
+		encodeParameterAnnotationsEntry(classFile, builder, parameter_annotations[idx]);
 	}
 
 	return this;
@@ -314,7 +313,7 @@ AnnotationDefaultAttribute *AnnotationDefaultAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	debug_printf(level3, "Encoding Annotation Default Attribute.\n");
 
-	encodeElementValue(classFile, builder, default_value);
+	EncodeElementValue(builder, classFile, default_value);
 
 	return this;
 }

@@ -128,22 +128,34 @@ void deleteAnnotationEntry(AnnotationEntry *entry) {
 
 RuntimeAnnotationsAttribute::~RuntimeAnnotationsAttribute() {
 	debug_printf(level3, "Deleting Runtime Annotations Attribute.\n");
-	if(annotations != NULL) {
-		deleteList(annotations, (void(*)(void *))deleteAnnotationEntry);
+
+	if(!annotations.empty()) {
+		for(std::vector<AnnotationEntry *>::iterator itr = annotations.begin();
+				itr != annotations.end(); itr++) {
+			delete *itr;
+		}
 	}
 }
 
 ParameterAnnotationsEntry::~ParameterAnnotationsEntry() {
 	debug_printf(level3, "Deleting Parameter Annotations Entry.\n");
-	if(annotations != NULL) {
-		deleteList(annotations, (void(*)(void *))deleteAnnotationEntry);
+
+	if(!annotations.empty()) {
+		for(std::vector<AnnotationEntry *>::iterator itr = annotations.begin();
+				itr != annotations.end(); itr++) {
+			delete *itr;
+		}
 	}
 }
 
 RuntimeParameterAnnotationsAttribute::~RuntimeParameterAnnotationsAttribute() {
 	debug_printf(level3, "Deleting Runtime Parameter Annotations Attribute.\n");
-	if(parameter_annotations != NULL) {
-		deleteList(parameter_annotations, operator delete);
+
+	if(!parameter_annotations.empty()) {
+		for(std::vector<ParameterAnnotationsEntry *>::iterator itr = parameter_annotations
+				.begin(); itr != parameter_annotations.end(); itr++) {
+			delete *itr;
+		}
 	}
 }
 

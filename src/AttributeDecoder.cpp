@@ -379,11 +379,10 @@ RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
 	// Parameter Annotations Table
 	length = buffer->NextByte();
 	debug_printf(level2, "Parameter Annotation count : %u.\n", length);
-	parameter_annotations = createList();
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Parameter Annotation %u :\n", idx);
-		listAdd(parameter_annotations,
+		parameter_annotations.push_back(
 				decodeParameterAnnotationsEntry(classFile, buffer));
 	}
 
@@ -393,7 +392,7 @@ RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
 AnnotationDefaultAttribute *AnnotationDefaultAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	// Default Value
-	default_value = decodeElementValue(classFile, buffer);
+	default_value = DecodeElementValue(buffer, classFile);
 
 	return this;
 }

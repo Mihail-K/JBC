@@ -3,6 +3,7 @@
 
 # include <vector>
 
+# include "ClassFile.h"
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
 # include "ConstantInfo.h"

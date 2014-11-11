@@ -6,6 +6,8 @@
 
 ConstantElementValue *ConstantElementValue
 		::DecodeValue(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t index;
+
 	debug_printf(level3, "Decoding Constant Element Value.\n");
 
 	// Constant Value
@@ -17,6 +19,8 @@ ConstantElementValue *ConstantElementValue
 
 EnumConstantElementValue *EnumConstantElementValue
 		::DecodeValue(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t index;
+
 	debug_printf(level3, "Decoding Enum Constant Element Value.\n");
 
 	// Type Name
@@ -34,6 +38,8 @@ EnumConstantElementValue *EnumConstantElementValue
 
 ClassElementValue *ClassElementValue
 		::DecodeValue(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t index;
+
 	debug_printf(level3, "Decoding Class Element Value.\n");
 
 	// Class Info
@@ -49,7 +55,8 @@ AnnotationElementValue *AnnotationElementValue
 	debug_printf(level3, "Decoding Annotation Element Value.\n");
 
 	// Annotation Value
-	annotation_value = decodeAnnotationEntry(classFile, buffer);
+	annotation_value = (new AnnotationEntry)
+			->DecodeEntry(buffer, classFile);
 
 	return this;
 }
@@ -62,7 +69,7 @@ ArrayElementValue *ArrayElementValue
 
 	// Array Value Table
 	length = buffer->NextShort();
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		array_values.push_back(DecodeElementValue(buffer, classFile));
 	}
 
@@ -95,6 +102,9 @@ ElementValue *DecodeElementValue(ClassBuffer *buffer, ClassFile *classFile) {
 		case '[':
 			debug_printf(level3, "Array Element Value.\n");
 			return (new ArrayElementValue(tag))->DecodeValue(buffer, classFile);
+		default:
+			// TODO : Throw an exception
+			return NULL;
 	}
 }
 
@@ -129,16 +139,16 @@ ClassElementValue *ClassElementValue
 }
 
 AnnotationElementValue *AnnotationElementValue
-		::EncodeValue(ClassBuilder *builder, ClassFile *) {
+		::EncodeValue(ClassBuilder *builder, ClassFile *classFile) {
 	debug_printf(level3, "Encoding Annotation Element Value.\n");
 
-	encodeAnnotationEntry(classFile, builder, annotation_value);
+	annotation_value->EncodeEntry(builder, classFile);
 
 	return this;
 }
 
 ArrayElementValue *ArrayElementValue
-		::EncodeValue(ClassBuilder *builder, ClassFile *) {
+		::EncodeValue(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
 
 	debug_printf(level3, "Encoding Array Element Value.\n");
@@ -147,7 +157,7 @@ ArrayElementValue *ArrayElementValue
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeElementValue(builder, classFile, array_values[idx]);
+		EncodeElementValue(builder, classFile, array_values[idx]);
 	}
 
 	return this;
@@ -169,7 +179,7 @@ ElementValuePairsEntry *ElementValuePairsEntry
 	element_name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 	debug_printf(level3, "Element-Value Name : %s.\n",
 			(element_name == NULL ? "<NULL>" :
-			(char *)element_name->bytes);
+			(char *)element_name->bytes));
 
 	// Element Value
 	value = DecodeElementValue(buffer, classFile);
@@ -180,7 +190,7 @@ ElementValuePairsEntry *ElementValuePairsEntry
 ElementValuePairsEntry *ElementValuePairsEntry
 		::EncodeEntry(ClassBuilder *builder, ClassFile *classFile) {
 	builder->NextShort(element_name == NULL ? 0 : element_name->index);
-	EncodeElementValue(builder, classFile, entry->value);
+	EncodeElementValue(builder, classFile, value);
 
 	return this;
 }
@@ -202,7 +212,7 @@ AnnotationEntry *AnnotationEntry
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Element-Value Pair %u :\n", idx);
 		element_value_pairs.push_back((new ElementValuePairsEntry)
-				->DecodeEntry(classFile, buffer));
+				->DecodeEntry(buffer, classFile));
 	}
 
 	return this;
@@ -220,5 +230,5 @@ AnnotationEntry *AnnotationEntry
 		element_value_pairs[idx]->EncodeEntry(builder, classFile);
 	}
 
-	return 0;
+	return this;
 }
