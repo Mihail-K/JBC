@@ -125,6 +125,7 @@ ClassFile *decodeClassFile(FILE *source) {
 	debug_printf(level0, "Decoding Class file :\n");
 	ClassFile *classFile = new ClassFile(buffer);
 	debug_printf(level0, "Finished Class file.\n");
+	debug_printf(level3, "Reads made : %u.\n", buffer->GetReads());
 	delete buffer;
 	return classFile;
 }

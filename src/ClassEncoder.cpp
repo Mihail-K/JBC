@@ -133,6 +133,7 @@ int encodeClassFile(FILE *source, ClassFile *classFile) {
 	debug_printf(level0, "Encoding Class file :\n");
 	classFile->EncodeClassFile(builder);
 	debug_printf(level0, "Finished Class file.\n");
+	debug_printf(level3, "Writes made : %u.\n", builder->GetWrites());
 	delete builder;
 	return 0;
 }
