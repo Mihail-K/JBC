@@ -6,8 +6,9 @@
 
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
-
 # include "ConstantInfo.h"
+
+# include "ElementValue.h"
 # include "StackMapFrame.h"
 
 /* Access Flags */
@@ -442,7 +443,7 @@ struct DeprecatedAttribute
 struct RuntimeAnnotationsAttribute
 		: public AttributeInfo {
 	// Annotations Table
-	List		*annotations;
+	std::vector<AnnotationEntry *> annotations;
 
 	RuntimeAnnotationsAttribute() {
 	}
@@ -484,7 +485,7 @@ struct RuntimeInvisibleAnnotationsAttribute
 
 struct ParameterAnnotationsEntry {
 	// Annotations Table
-	List		*annotations;
+	std::vector<AnnotaionEntry *> annotations;
 
 	~ParameterAnnotationsEntry();
 };
@@ -492,7 +493,7 @@ struct ParameterAnnotationsEntry {
 struct RuntimeParameterAnnotationsAttribute
 		: public AttributeInfo {
 	// Parameters Table
-	List		*parameter_annotations;
+	std::vector<AnnotationEntry *> parameter_annotations;
 
 	RuntimeParameterAnnotationsAttribute() {
 	}

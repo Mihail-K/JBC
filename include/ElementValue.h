@@ -7,6 +7,8 @@
 # include "ClassBuilder.h"
 # include "ConstantInfo.h"
 
+struct AnnotationEntry;
+
 struct ElementValue {
 	uint8_t		tag;
 

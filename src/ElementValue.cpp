@@ -157,3 +157,68 @@ void EncodeElementValue(ClassBuilder *builder, ClassFile *classFile, ElementValu
 	builder->NextByte(value->tag);
 	value->EncodeValue(builder, classFile);
 }
+
+/* Element Value Pairs Entry */
+
+ElementValuePairsEntry *ElementValuePairsEntry
+		::DecodeEntry(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t index;
+
+	// Element Name
+	index = buffer->NextShort();
+	element_name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	debug_printf(level3, "Element-Value Name : %s.\n",
+			(element_name == NULL ? "<NULL>" :
+			(char *)element_name->bytes);
+
+	// Element Value
+	value = DecodeElementValue(buffer, classFile);
+
+	return this;
+}
+
+ElementValuePairsEntry *ElementValuePairsEntry
+		::EncodeEntry(ClassBuilder *builder, ClassFile *classFile) {
+	builder->NextShort(element_name == NULL ? 0 : element_name->index);
+	EncodeElementValue(builder, classFile, entry->value);
+
+	return this;
+}
+
+/* Annotation Entry */
+
+AnnotationEntry *AnnotationEntry
+		::DecodeEntry(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t index, length;
+
+	// Annotation Entry Type
+	index = buffer->NextShort();
+	type = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+
+	// Element Value Pairs Table
+	length = buffer->NextShort();
+	debug_printf(level2, "Element-Value Pairs count : %u.\n", length);
+
+	for(unsigned idx = 0; idx < length; idx++) {
+		debug_printf(level2, "Element-Value Pair %u :\n", idx);
+		element_value_pairs.push_back((new ElementValuePairsEntry)
+				->DecodeEntry(classFile, buffer));
+	}
+
+	return this;
+}
+
+AnnotationEntry *AnnotationEntry
+		::EncodeEntry(ClassBuilder *builder, ClassFile *classFile) {
+	uint16_t length;
+
+	builder->NextShort(type == NULL ? 0 : type->index);
+	length = element_value_pairs.size();
+	builder->NextShort(length);
+
+	for(unsigned idx = 0; idx < length; idx++) {
+		element_value_pairs[idx]->EncodeEntry(builder, classFile);
+	}
+
+	return 0;
+}

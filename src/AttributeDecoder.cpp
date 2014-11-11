@@ -340,55 +340,15 @@ LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
 	return this;
 }
 
-ElementValuePairsEntry *decodeElementValuePairsEntry(
-		ClassFile *classFile, ClassBuffer *buffer) {
-	uint16_t index;
-	ElementValuePairsEntry *entry = new ElementValuePairsEntry;
-
-	// Element Name
-	index = buffer->NextShort();
-	entry->element_name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
-	debug_printf(level3, "Element-Value Name : %s.\n", entry->element_name->bytes);
-
-	// Element Value
-	entry->value = decodeElementValue(classFile, buffer);
-
-	return entry;
-}
-
-AnnotationEntry *decodeAnnotationEntry(ClassFile *classFile, ClassBuffer *buffer) {
-	uint16_t index;
-	unsigned int idx, length;
-	AnnotationEntry *entry = new AnnotationEntry;
-
-	// Annotation Entry Type
-	index = buffer->NextShort();
-	entry->type = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
-
-	// Element Value Pairs Table
-	length = buffer->NextShort();
-	debug_printf(level2, "Element-Value Pairs count : %u.\n", length);
-	entry->element_value_pairs = createList();
-
-	for(idx = 0; idx < length; idx++) {
-		debug_printf(level2, "Element-Value Pair %u :\n", idx);
-		listAdd(entry->element_value_pairs,
-				decodeElementValuePairsEntry(classFile, buffer));
-	}
-
-	return entry;
-}
-
 RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t length;
 
 	// Annotations Table
 	length = buffer->NextShort();
-	annotations = createList();
-
 	for(unsigned idx = 0; idx < length; idx++) {
-		listAdd(annotations, decodeAnnotationEntry(classFile, buffer));
+		annotations.push_back((new AnnotationEntry)
+				->DecodeEntry(buffer, classFile));
 	}
 
 	return this;
@@ -396,17 +356,17 @@ RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
 
 ParameterAnnotationsEntry *decodeParameterAnnotationsEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
+	uint16_t length;
 	ParameterAnnotationsEntry *entry = new ParameterAnnotationsEntry;
 
 	// Annotations Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Parameter Annotations entry count : %u.\n", length);
-	entry->annotations = createList();
 
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Parameter Annotation entry %u :\n", idx);
-		listAdd(entry->annotations, decodeAnnotationEntry(classFile, buffer));
+		entry->annotations.push_back((new AnnotationEntry)
+				->DecodeEntry(buffer, classFile));
 	}
 
 	return entry;

@@ -261,30 +261,6 @@ LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
 	return this;
 }
 
-int encodeElementValuePairsEntry(
-		ClassFile *classFile, ClassBuilder *builder, ElementValuePairsEntry *entry) {
-	builder->NextShort(entry->element_name->index);
-	encodeElementValue(classFile, builder, entry->value);
-
-	return 0;
-}
-
-int encodeAnnotationEntry(
-		ClassFile *classFile, ClassBuilder *builder, AnnotationEntry *entry) {
-	unsigned int idx, length;
-
-	builder->NextShort(entry->type->index);
-	length = listSize(entry->element_value_pairs);
-	builder->NextShort(length);
-
-	for(idx = 0; idx < length; idx++) {
-		encodeElementValuePairsEntry(classFile, builder, static_cast<
-				ElementValuePairsEntry *>(listGet(entry->element_value_pairs, idx)));
-	}
-
-	return 0;
-}
-
 RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
@@ -295,8 +271,7 @@ RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeAnnotationEntry(classFile, builder, static_cast<
-				AnnotationEntry *>(listGet(annotations, idx)));
+		annotations[idx]->EncodeEntry(builder, classFile);
 	}
 
 	return 0;
@@ -304,16 +279,15 @@ RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
 
 int encodeParameterAnnotationsEntry(
 		ClassFile *classFile, ClassBuilder *builder, ParameterAnnotationsEntry *entry) {
-	unsigned int idx, length;
+	uint16_t length;
 
 	debug_printf(level3, "Encoding Parameter Annotations Entry.\n");
 
-	length = listSize(entry->annotations);
+	length = entry->annotations.size();
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
-		encodeAnnotationEntry(classFile, builder, static_cast<
-				AnnotationEntry *>(listGet(entry->annotations, idx)));
+	for(unsigned idx = 0; idx < length; idx++) {
+		entry->annotations[idx]->EncodeEntry(builder, classFile);
 	}
 
 	return 0;
