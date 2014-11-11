@@ -199,19 +199,18 @@ LineNumberTableAttribute *LineNumberTableAttribute
 	return this;
 }
 
-int encodeLocalVariableTableEntry(
-		ClassFile *classFile, ClassBuilder *builder, LocalVariableTableEntry *entry) {
+LocalVariableTableEntry *LocalVariableTableEntry
+		::EncodeEntry(ClassBuilder *builder, ClassFile *) {
 	debug_printf(level3, "Encoding Local Variable Table Entry.\n");
 
-	builder->NextShort(entry->start_pc);
-	builder->NextShort(entry->length);
+	builder->NextShort(start_pc);
+	builder->NextShort(length);
 
-	builder->NextShort(entry->name->index);
-	builder->NextShort(entry->descriptor->index);
+	builder->NextShort(name == NULL ? 0 : name->index);
+	builder->NextShort(descriptor == NULL ? 0 : descriptor->index);
 
-	builder->NextShort(entry->index);
+	builder->NextShort(index);
 
-	ignore_unused(classFile);
 	return 0;
 }
 
@@ -221,31 +220,29 @@ LocalVariableTableAttribute *LocalVariableTableAttribute
 
 	uint16_t length;
 
-	length = listSize(local_variable_table);
+	length = local_variable_table.size();
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeLocalVariableTableEntry(classFile, builder, static_cast<
-				LocalVariableTableEntry *>(listGet(local_variable_table, idx)));
+		local_variable_table[idx]->EncodeEntry(builder, classFile);
 	}
 
 	return this;
 }
 
-int encodeLocalVariableTypeTableEntry(
-		ClassFile *classFile, ClassBuilder *builder, LocalVariableTypeTableEntry *entry) {
+LocalVariableTypeTableEntry *LocalVariableTypeTableEntry
+		::EncodeEntry(ClassBuilder *builder, ClassFile *) {
 	debug_printf(level3, "Encoding Local Variable Type Table Entry.\n");
 
-	builder->NextShort(entry->start_pc);
-	builder->NextShort(entry->length);
+	builder->NextShort(start_pc);
+	builder->NextShort(length);
 
-	builder->NextShort(entry->name->index);
-	builder->NextShort(entry->signature->index);
+	builder->NextShort(name == NULL ? 0 : name->index);
+	builder->NextShort(signature == NULL ? 0 : signature->index);
 
-	builder->NextShort(entry->index);
+	builder->NextShort(index);
 
-	ignore_unused(classFile);
-	return 0;
+	return this;
 }
 
 LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
@@ -254,13 +251,11 @@ LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
 
 	debug_printf(level3, "Encoding Local Variable Type Table Attribute.\n");
 
-	length = listSize(local_variable_type_table);
+	length = local_variable_type_table.size();
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeLocalVariableTypeTableEntry(classFile, builder, static_cast<
-				LocalVariableTypeTableEntry *>(listGet(
-						local_variable_type_table, idx)));
+		local_variable_type_table[idx]->EncodeEntry(builder, classFile);
 	}
 
 	return this;

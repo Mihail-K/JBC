@@ -254,31 +254,29 @@ LineNumberTableAttribute *LineNumberTableAttribute
 	return this;
 }
 
-LocalVariableTableEntry *decodeLocalVariableTableEntry(
-		ClassFile *classFile, ClassBuffer *buffer) {
+LocalVariableTableEntry *LocalVariableTableEntry
+		::DecodeEntry(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
-	LocalVariableTableEntry *entry = new LocalVariableTableEntry;
 
 	debug_printf(level3, "Decoding Local Variable Table Entry.\n");
 
-	entry->start_pc = buffer->NextShort();
-	entry->length = buffer->NextShort();
+	start_pc = buffer->NextShort();
+	length = buffer->NextShort();
 
 	// Variable Name
 	index = buffer->NextShort();
-	entry->name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
-	debug_printf(level3, "Local variable name : %s.\n", entry->name->bytes);
+	name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	debug_printf(level3, "Local variable name : %s.\n", name->bytes);
 
 	// Variable Descriptor
 	index = buffer->NextShort();
-	entry->descriptor = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
-	debug_printf(level3, "Local variable descriptor : %s.\n", entry->descriptor->bytes);
+	descriptor = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	debug_printf(level3, "Local variable descriptor : %s.\n", descriptor->bytes);
 
-	index = buffer->NextShort();
-	entry->index = index;
-	debug_printf(level3, "Index : %d.\n", index);
+	this->index = buffer->NextShort();
+	debug_printf(level3, "Index : %d.\n", this->index);
 
-	return entry;
+	return this;
 }
 
 LocalVariableTableAttribute *LocalVariableTableAttribute
@@ -291,41 +289,37 @@ LocalVariableTableAttribute *LocalVariableTableAttribute
 	length = buffer->NextShort();
 	debug_printf(level2, "Local Variable Table length : %d.\n", length);
 
-	local_variable_table = createList();
-
 	for(unsigned idx = 0; idx < length; idx++) {
-		listAdd(local_variable_table,
-				decodeLocalVariableTableEntry(classFile, buffer));
+		local_variable_table.push_back((new LocalVariableTableEntry)
+				->DecodeEntry(buffer, classFile));
 	}
 
 	return this;
 }
 
-LocalVariableTypeTableEntry *decodeLocalVariableTypeTableEntry(
-		ClassFile *classFile, ClassBuffer *buffer) {
+LocalVariableTypeTableEntry *LocalVariableTypeTableEntry
+		::DecodeEntry(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
-	LocalVariableTypeTableEntry *entry = new LocalVariableTypeTableEntry;
 
 	debug_printf(level3, "Decoding Local Variable Type Table Entry.\n");
 
-	entry->start_pc = buffer->NextShort();
-	entry->length = buffer->NextShort();
+	start_pc = buffer->NextShort();
+	length = buffer->NextShort();
 
 	// Variable Type Name
 	index = buffer->NextShort();
-	entry->name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
-	debug_printf(level3, "Local variable name : %s.\n", entry->name->bytes);
+	name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	debug_printf(level3, "Local variable name : %s.\n", name->bytes);
 
 	// Variable Type Signature
 	index = buffer->NextShort();
-	entry->signature = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
-	debug_printf(level3, "Local variable signature : %s.\n", entry->signature->bytes);
+	signature = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	debug_printf(level3, "Local variable signature : %s.\n", signature->bytes);
 
-	index = buffer->NextShort();
-	entry->index = index;
-	debug_printf(level3, "Index : %d.\n", index);
+	this->index = buffer->NextShort();
+	debug_printf(level3, "Index : %d.\n", this->index);
 
-	return entry;
+	return this;
 }
 
 LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
@@ -338,11 +332,9 @@ LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
 	length = buffer->NextShort();
 	debug_printf(level2, "Local Variable Type Table length : %d.\n", length);
 
-	local_variable_type_table = createList();
-
 	for(unsigned idx = 0; idx < length; idx++) {
-		listAdd(local_variable_type_table,
-				decodeLocalVariableTypeTableEntry(classFile, buffer));
+		local_variable_type_table.push_back((new LocalVariableTypeTableEntry)
+				->DecodeEntry(buffer, classFile));
 	}
 
 	return this;

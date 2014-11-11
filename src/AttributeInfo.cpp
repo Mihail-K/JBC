@@ -77,15 +77,23 @@ LineNumberTableAttribute::~LineNumberTableAttribute() {
 
 LocalVariableTableAttribute::~LocalVariableTableAttribute() {
 	debug_printf(level3, "Deleting Local Variable Table Attribute.\n");
-	if(local_variable_table != NULL) {
-		deleteList(local_variable_table, free);
+
+	if(!local_variable_table.empty()) {
+		for(std::vector<LocalVariableTableEntry *>::iterator itr = local_variable_table.begin();
+				itr != local_variable_table.end(); itr++) {
+			delete *itr;
+		}
 	}
 }
 
 LocalVariableTypeTableAttribute::~LocalVariableTypeTableAttribute() {
 	debug_printf(level3, "Deleting Local Variable Type Table Attribute.\n");
-	if(local_variable_type_table != NULL) {
-		deleteList(local_variable_type_table, free);
+
+	if(!local_variable_type_table.size()) {
+		for(std::vector<LocalVariableTypeTableEntry *>::iterator itr = local_variable_type_table
+				.begin(); itr != local_variable_type_table.end(); itr++) {
+			delete *itr;
+		}
 	}
 }
 

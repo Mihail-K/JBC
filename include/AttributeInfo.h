@@ -354,12 +354,16 @@ struct LocalVariableTableEntry {
 
 	LocalVariableTableEntry() {
 	}
+
+	LocalVariableTableEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
+
+	LocalVariableTableEntry *EncodeEntry(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct LocalVariableTableAttribute
 		: public AttributeInfo {
 	// Local Variable Table
-	List		*local_variable_table;
+	std::vector<LocalVariableTableEntry *> local_variable_table;
 
 	LocalVariableTableAttribute() {
 	}
@@ -389,12 +393,16 @@ struct LocalVariableTypeTableEntry {
 
 	LocalVariableTypeTableEntry() {
 	}
+
+	LocalVariableTypeTableEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
+
+	LocalVariableTypeTableEntry *EncodeEntry(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct LocalVariableTypeTableAttribute
 		: public AttributeInfo {
 	// Local Variable Type Table
-	List		*local_variable_type_table;
+	std::vector<LocalVariableTypeTableEntry *> local_variable_type_table;
 
 	LocalVariableTypeTableAttribute() {
 	}
