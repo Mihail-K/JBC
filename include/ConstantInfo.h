@@ -277,9 +277,9 @@ struct ConstantInvokeDynamicInfo
 	ConstantInvokeDynamicInfo *EncodeConstant(ClassBuilder *builder);
 };
 
-int encodeConstant(ClassBuilder *builder, ConstantInfo *info);
+ConstantInfo *DecodeConstant(ClassBuffer *buffer);
 
-ConstantInfo *decodeConstant(ClassBuffer *buffer);
+int EncodeConstant(ClassBuilder *builder, ConstantInfo *info);
 
 } /* JBC */
 

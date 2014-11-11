@@ -103,7 +103,7 @@ ConstantInvokeDynamicInfo *ConstantInvokeDynamicInfo
 	return this;
 }
 
-ConstantInfo *decodeConstant(ClassBuffer *buffer) {
+ConstantInfo *DecodeConstant(ClassBuffer *buffer) {
 	uint8_t tag = buffer->NextByte();
 
 	switch(tag) {

@@ -19,7 +19,7 @@ void ClassFile::EncodeConstants(ClassBuilder *builder) {
 		ConstantInfo *info = constant_pool[idx];
 		debug_printf(level2, "Constant %d :\n", idx);
 
-		encodeConstant(builder, info);
+		EncodeConstant(builder, info);
 		if(info->IsLongConstant()) {
 			debug_printf(level2, "Long Constant; Skipping index.\n");
 			idx++;
