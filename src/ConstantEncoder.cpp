@@ -10,9 +10,8 @@ ConstantUtf8Info *ConstantUtf8Info
 
 	builder->NextByte(tag);
 	builder->NextShort(length);
+	builder->Next(bytes, length);
 
-	for(unsigned idx = 0; idx < length; idx++)
-		builder->NextByte(bytes[idx]);
 	return this;
 }
 

@@ -57,6 +57,23 @@ uint32_t ToBigEndian(uint32_t l) {
 	return u.l;
 }
 
+ClassBuilder *ClassBuilder::Skip(size_t count) {
+	writes += count;
+	fseek(output, count, SEEK_CUR);
+
+	return this;
+}
+
+ClassBuilder *ClassBuilder::Next(uint8_t *src, size_t count) {
+	size_t wrote;
+
+	writes += count;
+	if((wrote = fwrite(src, sizeof(uint8_t), count, output))
+			!= count * sizeof(uint8_t))
+		throw BuilderError(strerror(errno));
+	return this;
+}
+
 ClassBuilder *ClassBuilder::NextByte(uint8_t byte) {
 	size_t wrote;
 

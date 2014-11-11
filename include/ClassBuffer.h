@@ -32,6 +32,10 @@ public:
 public:
 	size_t Position();
 
+	void Skip(size_t count);
+
+	uint8_t *Next(uint8_t *dst, size_t count);
+
 	uint8_t NextByte();
 
 	uint16_t NextShort();

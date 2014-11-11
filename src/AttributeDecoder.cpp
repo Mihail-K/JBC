@@ -47,10 +47,7 @@ CodeAttribute *CodeAttribute
 	debug_printf(level2, "Code length : %u.\n", code_length);
 
 	code = new uint8_t[code_length];
-	for(unsigned idx = 0; idx < code_length; idx++) {
-		// TODO : Added a mass read operation
-		code[idx] = buffer->NextByte();
-	}
+	buffer->Next(code, code_length);
 
 	// Exception Table
 	length = buffer->NextShort();
@@ -215,11 +212,7 @@ SourceDebugExtensionAttribute *SourceDebugExtensionAttribute
 
 	// Debug Extension
 	debug_extension = new uint8_t[attribute_length];
-
-	for(unsigned idx = 0; idx < attribute_length; idx++) {
-		// TODO : Added a mass read operation
-		debug_extension[idx] = buffer->NextByte();
-	}
+	buffer->Next(debug_extension, attribute_length);
 
 	return this;
 }
@@ -542,10 +535,11 @@ AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 		return (new BootstrapMethodsAttribute(name, attribute_length))
 				->DecodeAttribute(buffer, classFile);
 	} else {
+		size_t difference;
+
 		debug_printf(level2, "Unknown Attribute type : %s; Skipping.\n", name->bytes);
-		while(buffer->Position() - initpos < attribute_length) {
-			// TODO : Implement a skip operation
-			buffer->NextByte();
+		if((difference = buffer->Position() - initpos) < attribute_length) {
+			buffer->Skip(difference);
 		}
 	}
 

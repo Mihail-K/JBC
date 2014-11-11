@@ -32,6 +32,10 @@ public:
 public:
 	size_t Position();
 
+	ClassBuilder *Skip(size_t count);
+
+	ClassBuilder *Next(uint8_t *src, size_t count);
+
 	ClassBuilder *NextByte(uint8_t byte);
 
 	ClassBuilder *NextShort(uint16_t word);

@@ -2,21 +2,15 @@
 # include "Debug.h"
 # include "ConstantInfo.h"
 
-# define createConstant (void *)createConstant
-
 ConstantUtf8Info *ConstantUtf8Info
 		::DecodeConstant(ClassBuffer *buffer) {
-	unsigned int idx;
-
 	length = buffer->NextShort();
 	debug_printf(level3, "Constant Length : %d.\n", length);
 
 	bytes = new uint8_t[length + 1];
+	buffer->Next(bytes, length);
 	bytes[length] = '\0';
 
-	for(idx = 0; idx < length; idx++)
-		// TODO : Potentially add a mass-read operation
-		bytes[idx] = buffer->NextByte();
 	debug_printf(level3, "Constant Data : %s.\n", bytes);
 	return this;
 }

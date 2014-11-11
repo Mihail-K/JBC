@@ -36,10 +36,8 @@ CodeAttribute *CodeAttribute
 
 	// Code
 	builder->NextInt(code_length);
+	builder->Next(code, code_length);
 	debug_printf(level3, "Code length : %u.\n", code_length);
-	for(unsigned idx = 0; idx < code_length; idx++) {
-		builder->NextByte(code[idx]);
-	}
 
 	// Exception Table
 	length = exception_table.size();
@@ -127,8 +125,8 @@ EnclosingMethodAttribute *EnclosingMethodAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
 	debug_printf(level3, "Encoding Enclosing Method Attribute.\n");
 
-	builder->NextShort(enclosing_class->index);
-	builder->NextShort(enclosing_method->index);
+	builder->NextShort(enclosing_class == NULL ? 0 : enclosing_class->index);
+	builder->NextShort(enclosing_method == NULL ? 0 : enclosing_method->index);
 
 	return this;
 }
@@ -137,7 +135,7 @@ SignatureAttribute *SignatureAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
 	debug_printf(level3, "Encoding Signature Attribute.\n");
 
-	builder->NextShort(signature->index);
+	builder->NextShort(signature == NULL ? 0 : signature->index);
 
 	return this;
 }
@@ -146,12 +144,7 @@ SourceFileAttribute *SourceFileAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
 	debug_printf(level3, "Encoding Souce File Attribute.\n");
 
-	if(source_file != NULL) {
-		builder->NextShort(source_file->index);
-		debug_printf(level3, "Source file name : %s.\n", source_file->bytes);
-	} else {
-		builder->NextShort(0);
-	}
+	builder->NextShort(source_file == NULL ? 0 : source_file->index);
 
 	return this;
 }
@@ -160,9 +153,7 @@ SourceDebugExtensionAttribute *SourceDebugExtensionAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
 	debug_printf(level3, "Encoding Source Debug Extension Attribute.\n");
 
-	for(unsigned idx = 0; idx < attribute_length; idx++) {
-		builder->NextByte(debug_extension[idx]);
-	}
+	builder->Next(debug_extension, attribute_length);
 
 	return this;
 }
