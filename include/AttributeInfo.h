@@ -488,6 +488,10 @@ struct ParameterAnnotationsEntry {
 	std::vector<AnnotationEntry *> annotations;
 
 	~ParameterAnnotationsEntry();
+
+	ParameterAnnotationsEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
+
+	ParameterAnnotationsEntry *EncodeEntry(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct RuntimeParameterAnnotationsAttribute
@@ -557,9 +561,13 @@ struct BootstrapMethodEntry {
 	ConstantMethodHandleInfo *bootstrap_method_ref;
 
 	// Bootstrap Argument Table
-	List		*bootstrap_arguments;
+	std::vector<ConstantInfo *> bootstrap_arguments;
 
 	~BootstrapMethodEntry();
+
+	BootstrapMethodEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
+
+	BootstrapMethodEntry *EncodeEntry(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct BootstrapMethodsAttribute

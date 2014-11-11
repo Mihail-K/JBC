@@ -140,8 +140,12 @@ AnnotationDefaultAttribute::~AnnotationDefaultAttribute() {
 
 BootstrapMethodEntry::~BootstrapMethodEntry() {
 	debug_printf(level3, "Deleting Bootstrap Method Entry.\n");
-	if(bootstrap_arguments != NULL) {
-		deleteList(bootstrap_arguments, NULL);
+
+	if(!bootstrap_arguments.empty()) {
+		for(std::vector<ConstantInfo *>::iterator itr = bootstrap_arguments.begin();
+				itr != bootstrap_arguments.end(); itr++) {
+			delete *itr;
+		}
 	}
 }
 

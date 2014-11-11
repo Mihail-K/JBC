@@ -129,7 +129,7 @@ void ClassFile::EncodeClassFile(ClassBuilder *builder) {
 
 int encodeClassFile(FILE *source, ClassFile *classFile) {
 	debug_printf(level0, "Creating Class builder.\n");
-	ClassBuilder *builder = createBuilder(source);
+	ClassBuilder *builder = new ClassBuilder(source);
 	debug_printf(level0, "Encoding Class file :\n");
 	classFile->EncodeClassFile(builder);
 	debug_printf(level0, "Finished Class file.\n");

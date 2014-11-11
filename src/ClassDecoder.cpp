@@ -121,7 +121,7 @@ void ClassFile::DecodeClassFile(ClassBuffer *buffer) {
 
 ClassFile *decodeClassFile(FILE *source) {
 	debug_printf(level0, "Creating Class buffer.\n");
-	ClassBuffer *buffer = createBuffer(source);
+	ClassBuffer *buffer = new ClassBuffer(source);
 	debug_printf(level0, "Decoding Class file :\n");
 	ClassFile *classFile = new ClassFile(buffer);
 	debug_printf(level0, "Finished Class file.\n");

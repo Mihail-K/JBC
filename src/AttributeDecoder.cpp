@@ -7,8 +7,6 @@
 # include "ClassFile.h"
 # include "AttributeInfo.h"
 
-# define ignore_unused(x) ((void)x)
-
 ConstantValueAttribute *ConstantValueAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
@@ -354,10 +352,9 @@ RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
 	return this;
 }
 
-ParameterAnnotationsEntry *decodeParameterAnnotationsEntry(
-		ClassFile *classFile, ClassBuffer *buffer) {
+ParameterAnnotationsEntry *ParameterAnnotationsEntry
+		::DecodeEntry(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t length;
-	ParameterAnnotationsEntry *entry = new ParameterAnnotationsEntry;
 
 	// Annotations Table
 	length = buffer->NextShort();
@@ -365,11 +362,11 @@ ParameterAnnotationsEntry *decodeParameterAnnotationsEntry(
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Parameter Annotation entry %u :\n", idx);
-		entry->annotations.push_back((new AnnotationEntry)
+		annotations.push_back((new AnnotationEntry)
 				->DecodeEntry(buffer, classFile));
 	}
 
-	return entry;
+	return this;
 }
 
 RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
@@ -382,8 +379,8 @@ RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Parameter Annotation %u :\n", idx);
-		parameter_annotations.push_back(
-				decodeParameterAnnotationsEntry(classFile, buffer));
+		parameter_annotations.push_back((new ParameterAnnotationsEntry)
+				->DecodeEntry(buffer, classFile));
 	}
 
 	return this;
@@ -397,22 +394,24 @@ AnnotationDefaultAttribute *AnnotationDefaultAttribute
 	return this;
 }
 
-BootstrapMethodEntry *decodeBootstrapMethodEntry(ClassFile *classFile, ClassBuffer *buffer) {
-	unsigned int idx, length;
-	BootstrapMethodEntry *entry = new BootstrapMethodEntry;
+BootstrapMethodEntry *BootstrapMethodEntry
+		::DecodeEntry(ClassBuffer *buffer, ClassFile *classFile) {
+	uint16_t index, length;
 
 	debug_printf(level3, "Decoding Bootstrap Method Entry.\n");
 
+	index = buffer->NextShort();
+	bootstrap_method_ref = static_cast<ConstantMethodHandleInfo *>(
+			classFile->constant_pool[index]);
+
 	// Bootstrap Method Parameters Table
 	length = buffer->NextShort();
-	entry->bootstrap_arguments = createList();
-
-	for(idx = 0; idx < length; idx++) {
+	for(unsigned idx = 0; idx < length; idx++) {
 		uint16_t index = buffer->NextShort();
-		listAdd(entry->bootstrap_arguments, classFile->constant_pool[index]);
+		bootstrap_arguments.push_back(classFile->constant_pool[index]);
 	}
 
-	return entry;
+	return this;
 }
 
 BootstrapMethodsAttribute *BootstrapMethodsAttribute
@@ -424,18 +423,19 @@ BootstrapMethodsAttribute *BootstrapMethodsAttribute
 	// Bootstrap Method Table
 	length = buffer->NextShort();
 	for(unsigned idx = 0; idx < length; idx++) {
-		bootstrap_methods.push_back(decodeBootstrapMethodEntry(classFile, buffer));
+		bootstrap_methods.push_back((new BootstrapMethodEntry)
+				->DecodeEntry(buffer, classFile));
 	}
 
 	return this;
 }
 
 AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
+	size_t initpos = buffer->Position();
 	uint16_t name_index = buffer->NextShort();
 	uint32_t attribute_length = buffer->NextInt();
 	ConstantUtf8Info *name = static_cast<ConstantUtf8Info *>(
 			classFile->constant_pool[name_index]);
-	unsigned long int initpos = bufferPos(buffer);
 
 	if(name == NULL) {
 		fprintf(stderr, "Error : Attribute with no name entry!\n");
@@ -543,7 +543,7 @@ AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 				->DecodeAttribute(buffer, classFile);
 	} else {
 		debug_printf(level2, "Unknown Attribute type : %s; Skipping.\n", name->bytes);
-		while(bufferPos(buffer) - initpos < attribute_length) {
+		while(buffer->Position() - initpos < attribute_length) {
 			// TODO : Implement a skip operation
 			buffer->NextByte();
 		}

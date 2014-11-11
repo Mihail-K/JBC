@@ -1,19 +1,14 @@
 
-# include <string.h>
-
 # include "Debug.h"
-# include "Defines.h"
-
 # include "ClassFile.h"
 # include "AttributeInfo.h"
-
-# define ignore_unused(x) ((void)x)
 
 ConstantValueAttribute *ConstantValueAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
 	debug_printf(level3, "Encoding Constant Value Attribute.\n");
 
 	builder->NextShort(constant_value->index);
+
 	return this;
 }
 
@@ -277,20 +272,20 @@ RuntimeAnnotationsAttribute *RuntimeAnnotationsAttribute
 	return 0;
 }
 
-int encodeParameterAnnotationsEntry(
-		ClassFile *classFile, ClassBuilder *builder, ParameterAnnotationsEntry *entry) {
+ParameterAnnotationsEntry *ParameterAnnotationsEntry
+		::EncodeEntry(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
 
 	debug_printf(level3, "Encoding Parameter Annotations Entry.\n");
 
-	length = entry->annotations.size();
+	length = annotations.size();
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		entry->annotations[idx]->EncodeEntry(builder, classFile);
+		annotations[idx]->EncodeEntry(builder, classFile);
 	}
 
-	return 0;
+	return this;
 }
 
 RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
@@ -303,7 +298,7 @@ RuntimeParameterAnnotationsAttribute *RuntimeParameterAnnotationsAttribute
 	builder->NextByte(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeParameterAnnotationsEntry(classFile, builder, parameter_annotations[idx]);
+		parameter_annotations[idx]->EncodeEntry(builder, classFile);
 	}
 
 	return this;
@@ -318,24 +313,23 @@ AnnotationDefaultAttribute *AnnotationDefaultAttribute
 	return this;
 }
 
-int encodeBootstrapMethodEntry(
-		ClassFile *classFile, ClassBuilder *builder, BootstrapMethodEntry *entry) {
-	unsigned int idx, length;
+BootstrapMethodEntry *BootstrapMethodEntry
+		::EncodeEntry(ClassBuilder *builder, ClassFile *) {
+	uint16_t length;
 
 	debug_printf(level3, "Encoding Bootstrap Method Entry.\n");
 
-	builder->NextShort(entry->bootstrap_method_ref->index);
-	length = listSize(entry->bootstrap_arguments);
+	builder->NextShort(bootstrap_method_ref == NULL ? 0 :
+			bootstrap_method_ref->index);
+	length = bootstrap_arguments.size();
 	builder->NextShort(length);
 
-	for(idx = 0; idx < length; idx++) {
-		ConstantInfo *info = static_cast<ConstantInfo *>(
-				listGet(entry->bootstrap_arguments, idx));
-		builder->NextShort(info->index);
+	for(unsigned idx = 0; idx < length; idx++) {
+		ConstantInfo *info = bootstrap_arguments[idx];
+		builder->NextShort(info == NULL ? 0 : info->index);
 	}
 
-	ignore_unused(classFile);
-	return 0;
+	return this;
 }
 
 BootstrapMethodsAttribute *BootstrapMethodsAttribute
@@ -348,10 +342,10 @@ BootstrapMethodsAttribute *BootstrapMethodsAttribute
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeBootstrapMethodEntry(classFile, builder, bootstrap_methods[idx]);
+		bootstrap_methods[idx]->EncodeEntry(builder, classFile);
 	}
 
-	return 0;
+	return this;
 }
 
 int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info) {

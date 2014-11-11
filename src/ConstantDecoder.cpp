@@ -157,7 +157,7 @@ ConstantInfo *decodeConstant(ClassBuffer *buffer) {
 			throw ConstantError("Unexpected end of file.\n");
 		default:
 			char message[256];
-			sprintf(message, "Unknown tag : %d (%zu).\n", tag, bufferPos(buffer));
+			sprintf(message, "Unknown tag : %d (%zu).\n", tag, buffer->Position());
 			throw ConstantError(message);
 	}
 }
