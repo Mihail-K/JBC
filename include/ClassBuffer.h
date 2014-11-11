@@ -17,10 +17,17 @@ struct BufferError {
 class ClassBuffer {
 private:
 	FILE *input;
+	unsigned reads;
 
 public:
 	ClassBuffer(FILE *input);
 	~ClassBuffer();
+
+public:
+	inline
+	unsigned GetReads() {
+		return reads;
+	}
 
 public:
 	size_t Position();

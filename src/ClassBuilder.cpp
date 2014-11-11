@@ -6,7 +6,7 @@
 # include "ClassBuilder.h"
 
 ClassBuilder::ClassBuilder(FILE *output)
-		: output(output) {
+		: output(output), writes(0) {
 	if(output == NULL) {
 		throw BuilderError("Invalid input file.");
 	}
@@ -60,6 +60,7 @@ uint32_t ToBigEndian(uint32_t l) {
 ClassBuilder *ClassBuilder::NextByte(uint8_t byte) {
 	size_t wrote;
 
+	writes++;
 	if((wrote = fwrite(&byte, 1, sizeof(uint8_t), output))
 			!= sizeof(uint8_t))
 		throw BuilderError(strerror(errno));
@@ -69,6 +70,7 @@ ClassBuilder *ClassBuilder::NextByte(uint8_t byte) {
 ClassBuilder *ClassBuilder::NextShort(uint16_t word) {
 	size_t wrote;
 
+	writes++;
 	word = ToBigEndian(word);
 	if((wrote = fwrite(&word, 1, sizeof(uint16_t), output))
 			!= sizeof(uint16_t))
@@ -79,6 +81,7 @@ ClassBuilder *ClassBuilder::NextShort(uint16_t word) {
 ClassBuilder *ClassBuilder::NextInt(uint32_t dword) {
 	size_t wrote;
 
+	writes++;
 	dword = ToBigEndian(dword);
 	if((wrote = fwrite(&dword, 1, sizeof(uint32_t), output))
 			!= sizeof(uint32_t))

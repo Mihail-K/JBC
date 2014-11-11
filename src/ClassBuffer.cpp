@@ -6,7 +6,7 @@
 # include "ClassBuffer.h"
 
 ClassBuffer::ClassBuffer(FILE *input)
-		: input(input) {
+		: input(input), reads(0) {
 	if(input == NULL) {
 		throw BufferError("Invalid input file.");
 	}
@@ -60,6 +60,7 @@ uint8_t ClassBuffer::NextByte() {
 	size_t read;
 	uint8_t value = 0;
 
+	reads++;
 	if((read = fread(&value, 1, sizeof(uint8_t), input))
 			!= sizeof(uint8_t))
 		throw BufferError(strerror(errno));
@@ -70,6 +71,7 @@ uint16_t ClassBuffer::NextShort() {
 	size_t read;
 	uint16_t value = 0;
 
+	reads++;
 	if((read = fread(&value, 1, sizeof(uint16_t), input))
 			!= sizeof(uint16_t))
 		throw BufferError(strerror(errno));
@@ -80,6 +82,7 @@ uint32_t ClassBuffer::NextInt() {
 	size_t read;
 	uint32_t value = 0;
 
+	reads++;
 	if((read = fread(&value, 1, sizeof(uint32_t), input))
 			!= sizeof(uint32_t))
 		throw BufferError(strerror(errno));

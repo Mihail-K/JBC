@@ -17,10 +17,17 @@ struct BuilderError {
 class ClassBuilder {
 private:
 	FILE *output;
+	unsigned writes;
 
 public:
 	ClassBuilder(FILE *output);
 	~ClassBuilder();
+
+public:
+	inline
+	unsigned GetWrites() {
+		return writes;
+	}
 
 public:
 	size_t Position();
