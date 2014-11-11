@@ -2,8 +2,6 @@
 # include <string.h>
 
 # include "Debug.h"
-# include "Defines.h"
-
 # include "ClassFile.h"
 # include "AttributeInfo.h"
 
