@@ -226,20 +226,18 @@ SourceDebugExtensionAttribute *SourceDebugExtensionAttribute
 	return this;
 }
 
-LineNumberTableEntry *decodeLineNumberTableEntry(ClassFile *classFile, ClassBuffer *buffer) {
-	LineNumberTableEntry *entry = new LineNumberTableEntry;
-
+LineNumberTableEntry *LineNumberTableEntry
+		::DecodeEntry(ClassBuffer *buffer) {
 	debug_printf(level3, "Decoding Line Number Table Entry.\n");
 
-	entry->start_pc = buffer->NextShort();
-	entry->line_number = buffer->NextShort();
+	start_pc = buffer->NextShort();
+	line_number = buffer->NextShort();
 
-	ignore_unused(classFile);
-	return entry;
+	return this;
 }
 
 LineNumberTableAttribute *LineNumberTableAttribute
-		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
+		::DecodeAttribute(ClassBuffer *buffer, ClassFile *) {
 	uint16_t length;
 
 	debug_printf(level3, "Decoding Line Number Table Attribute.\n");
@@ -247,11 +245,10 @@ LineNumberTableAttribute *LineNumberTableAttribute
 	// Line Number Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Line Number Table length : %hu.\n", length);
-	line_number_table = createList();
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		listAdd(line_number_table,
-				decodeLineNumberTableEntry(classFile, buffer));
+		line_number_table.push_back((new LineNumberTableEntry)
+				->DecodeEntry(buffer));
 	}
 
 	return this;

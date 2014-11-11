@@ -172,30 +172,28 @@ SourceDebugExtensionAttribute *SourceDebugExtensionAttribute
 	return this;
 }
 
-int encodeLineNumberTableEntry(
-		ClassFile *classFile, ClassBuilder *builder, LineNumberTableEntry *entry) {
+LineNumberTableEntry *LineNumberTableEntry
+		::EncodeEntry(ClassBuilder *builder) {
 	debug_printf(level3, "Encoding Line Number Table Entry.\n");
 
-	builder->NextShort(entry->start_pc);
-	builder->NextShort(entry->line_number);
+	builder->NextShort(start_pc);
+	builder->NextShort(line_number);
 
-	ignore_unused(classFile);
-	return 0;
+	return this;
 }
 
 LineNumberTableAttribute *LineNumberTableAttribute
-		::EncodeAttribute(ClassBuilder *builder, ClassFile *classFile) {
+		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
 	uint16_t length;
 
 	debug_printf(level3, "Encoding Line Number Table Attribute.\n");
 
-	length = listSize(line_number_table);
+	length = line_number_table.size();
 	debug_printf(level2, "Line Number Table length : %hu.\n", length);
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeLineNumberTableEntry(classFile, builder, static_cast<
-				LineNumberTableEntry *>(listGet(line_number_table, idx)));
+		line_number_table[idx]->EncodeEntry(builder);
 	}
 
 	return this;

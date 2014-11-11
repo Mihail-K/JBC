@@ -66,8 +66,12 @@ SourceDebugExtensionAttribute::~SourceDebugExtensionAttribute() {
 
 LineNumberTableAttribute::~LineNumberTableAttribute() {
 	debug_printf(level3, "Deleting Line Number Table Attribute.\n");
-	if(line_number_table != NULL) {
-		deleteList(line_number_table, free);
+
+	if(!line_number_table.empty()) {
+		for(std::vector<LineNumberTableEntry *>::iterator itr = line_number_table.begin();
+				itr != line_number_table.end(); itr++) {
+			delete *itr;
+		}
 	}
 }
 

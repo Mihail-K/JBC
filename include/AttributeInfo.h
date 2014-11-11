@@ -315,12 +315,16 @@ struct LineNumberTableEntry {
 
 	LineNumberTableEntry() {
 	}
+
+	LineNumberTableEntry *DecodeEntry(ClassBuffer *buffer);
+
+	LineNumberTableEntry *EncodeEntry(ClassBuilder *builder);
 };
 
 struct LineNumberTableAttribute
 		: public AttributeInfo {
 	// Line Number Table
-	List		*line_number_table;
+	std::vector<LineNumberTableEntry *> line_number_table;
 
 	LineNumberTableAttribute() {
 	}
