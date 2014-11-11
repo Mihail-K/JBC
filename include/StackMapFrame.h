@@ -3,7 +3,6 @@
 
 # include <stdint.h>
 
-# include "List.h"
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
 # include "ConstantInfo.h"

@@ -1,7 +1,6 @@
 # ifndef __ATTRIBUTEINFO_H__
 # define __ATTRIBUTEINFO_H__
 
-# include "List.h"
 # include <vector>
 
 # include "ClassBuffer.h"

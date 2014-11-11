@@ -4,8 +4,6 @@
 # include <string>
 # include <stdint.h>
 
-# include "Defines.h"
-
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
 
