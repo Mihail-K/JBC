@@ -97,35 +97,6 @@ LocalVariableTypeTableAttribute::~LocalVariableTypeTableAttribute() {
 	}
 }
 
-void deleteElementValue(ElementValue *value) {
-	extern void deleteAnnotationEntry(AnnotationEntry *);
-
-	switch(value->tag) {
-		case '@':
-			deleteAnnotationEntry(value->value.annotation_value);
-			break;
-		case '[':
-			if(value->value.array_values != NULL)
-				deleteList(value->value.array_values, (void(*)(void *))
-						deleteElementValue);
-			break;
-	}
-	delete value;
-}
-
-void deleteElementValuePairsEntry(ElementValuePairsEntry *entry) {
-	if(entry->value != NULL)
-		deleteElementValue(entry->value);
-	delete entry;
-}
-
-void deleteAnnotationEntry(AnnotationEntry *entry) {
-	if(entry->element_value_pairs != NULL)
-		deleteList(entry->element_value_pairs, (void(*)(void *))
-				deleteElementValuePairsEntry);
-	delete entry;
-}
-
 RuntimeAnnotationsAttribute::~RuntimeAnnotationsAttribute() {
 	debug_printf(level3, "Deleting Runtime Annotations Attribute.\n");
 
@@ -161,8 +132,9 @@ RuntimeParameterAnnotationsAttribute::~RuntimeParameterAnnotationsAttribute() {
 
 AnnotationDefaultAttribute::~AnnotationDefaultAttribute() {
 	debug_printf(level3, "Deleting Annotation Default Attribute.\n");
+
 	if(default_value != NULL) {
-		deleteElementValue(default_value);
+		delete default_value;
 	}
 }
 

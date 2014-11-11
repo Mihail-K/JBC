@@ -97,6 +97,8 @@ struct AnnotationElementValue
 		: ElementValue(tag) {
 	}
 
+	~AnnotationElementValue();
+
 	AnnotationElementValue *DecodeValue(ClassBuffer *buffer, ClassFile *classFile);
 
 	AnnotationElementValue *EncodeValue(ClassBuilder *builder, ClassFile *classFile);
@@ -114,6 +116,8 @@ struct ArrayElementValue
 		: ElementValue(tag) {
 	}
 
+	~ArrayElementValue();
+
 	ArrayElementValue *DecodeValue(ClassBuffer *buffer, ClassFile *classFile);
 
 	ArrayElementValue *EncodeValue(ClassBuilder *builder, ClassFile *classFile);
@@ -129,6 +133,8 @@ struct ElementValuePairsEntry {
 	ElementValuePairsEntry() {
 	}
 
+	~ElementValuePairsEntry();
+
 	ElementValuePairsEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
 
 	ElementValuePairsEntry *EncodeEntry(ClassBuilder *builder, ClassFile *classFile);
@@ -143,6 +149,8 @@ struct AnnotationEntry {
 
 	AnnotationEntry() {
 	}
+
+	~AnnotationEntry();
 
 	AnnotationEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
 

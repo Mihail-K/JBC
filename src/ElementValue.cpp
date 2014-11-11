@@ -168,6 +168,23 @@ void EncodeElementValue(ClassBuilder *builder, ClassFile *classFile, ElementValu
 	value->EncodeValue(builder, classFile);
 }
 
+/* Element Value Destructors */
+
+AnnotationElementValue::~AnnotationElementValue() {
+	if(annotation_value != NULL) {
+		delete annotation_value;
+	}
+}
+
+ArrayElementValue::~ArrayElementValue() {
+	if(!array_values.empty()) {
+		for(std::vector<ElementValue *>::iterator itr = array_values.begin();
+				itr != array_values.end(); itr++) {
+			delete *itr;
+		}
+	}
+}
+
 /* Element Value Pairs Entry */
 
 ElementValuePairsEntry *ElementValuePairsEntry
@@ -193,6 +210,12 @@ ElementValuePairsEntry *ElementValuePairsEntry
 	EncodeElementValue(builder, classFile, value);
 
 	return this;
+}
+
+ElementValuePairsEntry::~ElementValuePairsEntry() {
+	if(value != NULL) {
+		delete value;
+	}
 }
 
 /* Annotation Entry */
@@ -231,4 +254,13 @@ AnnotationEntry *AnnotationEntry
 	}
 
 	return this;
+}
+
+AnnotationEntry::~AnnotationEntry() {
+	if(!element_value_pairs.empty()) {
+		for(std::vector<ElementValuePairsEntry *>::iterator itr = element_value_pairs
+				.begin(); itr != element_value_pairs.end(); itr++) {
+			delete *itr;
+		}
+	}
 }
