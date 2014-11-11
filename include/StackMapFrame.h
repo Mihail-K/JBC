@@ -197,9 +197,9 @@ struct StackMapFullFrame
 	StackMapFullFrame *EncodeFrame(ClassBuilder *builder, ClassFile *classFile);
 };
 
-StackMapFrame *decodeStackMapFrame(ClassBuffer *buffer, ClassFile *classFile);
+StackMapFrame *DecodeStackMapFrame(ClassBuffer *buffer, ClassFile *classFile);
 
-int encodeStackMapFrame(ClassBuilder *builder, ClassFile *classFile, StackMapFrame *frame);
+void EncodeStackMapFrame(ClassBuilder *builder, ClassFile *classFile, StackMapFrame *frame);
 
 } /* JBC */
 

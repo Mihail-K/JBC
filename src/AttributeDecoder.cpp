@@ -84,7 +84,7 @@ StackMapTableAttribute *StackMapTableAttribute
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Stack Map Frame %d :\n", idx);
-		entries.push_back(decodeStackMapFrame(buffer, classFile));
+		entries.push_back(DecodeStackMapFrame(buffer, classFile));
 	}
 
 	debug_printf(level2, "Finished StackMapTable.\n");

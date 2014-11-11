@@ -132,7 +132,7 @@ StackMapFullFrame *StackMapFullFrame
 	return this;
 }
 
-StackMapFrame *decodeStackMapFrame(ClassBuffer *buffer, ClassFile *classFile) {
+StackMapFrame *DecodeStackMapFrame(ClassBuffer *buffer, ClassFile *classFile) {
 	uint8_t tag = buffer->NextByte();
 
 	debug_printf(level3, "Decoding Stack Frame type : %d.\n", tag);
@@ -236,7 +236,7 @@ StackMapFullFrame *StackMapFullFrame
 	return this;
 }
 
-int encodeStackMapFrame(
+void EncodeStackMapFrame(
 		ClassBuilder *builder, ClassFile *classFile, StackMapFrame *frame) {
 	builder->NextByte(frame->tag);
 
@@ -279,8 +279,6 @@ int encodeStackMapFrame(
 		debug_printf(level3, "Stack Map full frame.\n");
 		frame->EncodeFrame(builder, classFile);
 	}
-
-	return 0;
 }
 
 /* Stack Map Frame destructors */

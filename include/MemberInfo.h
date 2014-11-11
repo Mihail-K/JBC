@@ -38,10 +38,6 @@ public:
 	MemberInfo *EncodeMember(ClassBuilder *builder, ClassFile *classFile);
 };
 
-MemberInfo *createMember();
-
-void deleteMember(MemberInfo *member);
-
 } /* JBC */
 
 # endif /* MemberInfo.h */

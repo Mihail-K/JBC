@@ -72,7 +72,7 @@ StackMapTableAttribute *StackMapTableAttribute
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeStackMapFrame(builder, classFile, entries[idx]);
+		EncodeStackMapFrame(builder, classFile, entries[idx]);
 	}
 
 	return this;
