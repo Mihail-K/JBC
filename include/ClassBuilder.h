@@ -1,16 +1,16 @@
 # ifndef __CLASSBUILDER_H__
 # define __CLASSBUILDER_H__
 
-# include <string>
 # include <stdio.h>
 # include <stdint.h>
 
-struct BuilderError {
-	const std::string msg;
+# include "ErrorTypes.h"
 
+struct BuilderError
+		: public EncodeError {
 	inline
 	BuilderError(const char *msg)
-		: msg(std::string(msg)) {
+		: EncodeError(msg) {
 	}
 };
 

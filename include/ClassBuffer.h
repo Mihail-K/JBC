@@ -1,16 +1,16 @@
 # ifndef __CLASSBUFFER_H__
 # define __CLASSBUFFER_H__
 
-# include <string>
 # include <stdio.h>
 # include <stdint.h>
 
-struct BufferError {
-	const std::string msg;
+# include "ErrorTypes.h"
 
+struct BufferError
+		: public DecodeError {
 	inline
 	BufferError(const char *msg)
-		: msg(std::string(msg)) {
+		: DecodeError(msg) {
 	}
 };
 
