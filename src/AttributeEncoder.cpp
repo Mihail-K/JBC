@@ -41,6 +41,7 @@ CodeAttribute *CodeAttribute
 
 	// Code
 	builder->NextInt(code_length);
+	debug_printf(level3, "Code length : %u.\n", code_length);
 	for(unsigned idx = 0; idx < code_length; idx++) {
 		builder->NextByte(code[idx]);
 	}
@@ -48,15 +49,19 @@ CodeAttribute *CodeAttribute
 	// Exception Table
 	length = exception_table.size();
 	builder->NextShort(length);
+	debug_printf(level3, "Code Exception table length : %hu.\n", length);
 	for(unsigned idx = 0; idx < length; idx++) {
+		debug_printf(level2, "Code Exception table entry %u :\n", idx);
 		exception_table[idx]->EncodeEntry(builder);
 	}
 
 	// Attribute Table
 	length = attributes.size();
 	builder->NextShort(length);
+	debug_printf(level3, "Code Attributes count : %hu.\n", length);
 	for(unsigned idx = 0; idx < length; idx++) {
-		attributes[idx]->EncodeAttribute(builder, classFile);
+		debug_printf(level2, "Code Attribute %u :\n", idx);
+		encodeAttribute(classFile, builder, attributes[idx]);
 	}
 
 	return this;
@@ -148,7 +153,12 @@ SourceFileAttribute *SourceFileAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
 	debug_printf(level3, "Encoding Souce File Attribute.\n");
 
-	builder->NextShort(source_file->index);
+	if(source_file != NULL) {
+		builder->NextShort(source_file->index);
+		debug_printf(level3, "Source file name : %s.\n", source_file->bytes);
+	} else {
+		builder->NextShort(0);
+	}
 
 	return this;
 }
@@ -182,6 +192,7 @@ LineNumberTableAttribute *LineNumberTableAttribute
 	debug_printf(level3, "Encoding Line Number Table Attribute.\n");
 
 	length = listSize(line_number_table);
+	debug_printf(level2, "Line Number Table length : %hu.\n", length);
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {

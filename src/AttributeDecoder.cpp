@@ -13,6 +13,8 @@ ConstantValueAttribute *ConstantValueAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
 
+	debug_printf(level3, "Decoding Constant Value Attribute.\n");
+
 	// Constant Value
 	index = buffer->NextShort();
 	constant_value = classFile->constant_pool[index];
@@ -22,6 +24,8 @@ ConstantValueAttribute *ConstantValueAttribute
 
 ExceptionTableEntry *ExceptionTableEntry
 		::DecodeEntry(ClassBuffer *buffer) {
+	debug_printf(level3, "Decoding Exception Table Entry.\n");
+
 	start_pc = buffer->NextShort();
 	end_pc = buffer->NextShort();
 	handler_pc = buffer->NextShort();
@@ -34,13 +38,15 @@ CodeAttribute *CodeAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t length;
 
+	debug_printf(level3, "Decoding Code Attribute.\n");
+
 	// Maximums
 	max_stack = buffer->NextShort();
 	max_locals = buffer->NextShort();
 
 	// Code
 	code_length = buffer->NextInt();
-	debug_printf(level2, "Code length : %d.\n", code_length);
+	debug_printf(level2, "Code length : %u.\n", code_length);
 
 	code = new uint8_t[code_length];
 	for(unsigned idx = 0; idx < code_length; idx++) {
@@ -50,19 +56,19 @@ CodeAttribute *CodeAttribute
 
 	// Exception Table
 	length = buffer->NextShort();
-	debug_printf(level2, "Code Exception table length : %d.\n", length);
+	debug_printf(level2, "Code Exception table length : %hu.\n", length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		debug_printf(level2, "Code Exception table entry %d :\n", idx);
+		debug_printf(level2, "Code Exception table entry %u :\n", idx);
 		exception_table.push_back((new ExceptionTableEntry)->DecodeEntry(buffer));
 	}
 
 	// Attributes Table
 	length = buffer->NextShort();
-	debug_printf(level2, "Code Attributes count : %d.\n", length);
+	debug_printf(level2, "Code Attributes count : %hu.\n", length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		debug_printf(level2, "Code Attribute %d :\n", idx);
+		debug_printf(level2, "Code Attribute %u :\n", idx);
 		attributes.push_back(decodeAttribute(classFile, buffer));
 	}
 
@@ -73,7 +79,7 @@ StackMapTableAttribute *StackMapTableAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t length;
 
-	debug_printf(level2, "Decoding StackMapTable.\n");
+	debug_printf(level2, "Decoding Stack Map Table Attribute.\n");
 
 	// Stack Map Table
 	length = buffer->NextShort();
@@ -93,6 +99,8 @@ ExceptionsAttribute *ExceptionsAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t length;
 
+	debug_printf(level3, "Decoding Exceptions Attribute.\n");
+
 	// Exceptions Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Exceptions count : %d.\n", length);
@@ -109,6 +117,8 @@ ExceptionsAttribute *ExceptionsAttribute
 InnerClassEntry *decodeInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
 	InnerClassEntry *entry = new InnerClassEntry;
+
+	debug_printf(level3, "Decoding Inner Class Entry.\n");
 
 	// Inner Class Info
 	index = buffer->NextShort();
@@ -140,6 +150,8 @@ InnerClassesAttribute *InnerClassesAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t length;
 
+	debug_printf(level3, "Decoding Inner Classes Attribute.\n");
+
 	// Inner Classes Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Inner classes count : %d.\n", length);
@@ -157,6 +169,8 @@ EnclosingMethodAttribute *EnclosingMethodAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
 
+	debug_printf(level3, "Decoding Enclosing Method Attribute.\n");
+
 	// Enclosing Class
 	index = buffer->NextShort();
 	enclosing_class = static_cast<ConstantClassInfo *>(
@@ -173,6 +187,8 @@ EnclosingMethodAttribute *EnclosingMethodAttribute
 SignatureAttribute *SignatureAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
+
+	debug_printf(level3, "Decoding Signature Attribute.\n");
 
 	// Signature
 	index = buffer->NextShort();
@@ -198,6 +214,8 @@ SourceFileAttribute *SourceFileAttribute
 
 SourceDebugExtensionAttribute *SourceDebugExtensionAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *) {
+	debug_printf(level3, "Decoding Source Debug Extension Attribute.\n");
+
 	// Debug Extension
 	debug_extension = new uint8_t[attribute_length];
 
@@ -212,6 +230,8 @@ SourceDebugExtensionAttribute *SourceDebugExtensionAttribute
 LineNumberTableEntry *decodeLineNumberTableEntry(ClassFile *classFile, ClassBuffer *buffer) {
 	LineNumberTableEntry *entry = new LineNumberTableEntry;
 
+	debug_printf(level3, "Decoding Line Number Table Entry.\n");
+
 	entry->start_pc = buffer->NextShort();
 	entry->line_number = buffer->NextShort();
 
@@ -223,9 +243,11 @@ LineNumberTableAttribute *LineNumberTableAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t length;
 
+	debug_printf(level3, "Decoding Line Number Table Attribute.\n");
+
 	// Line Number Table
 	length = buffer->NextShort();
-	debug_printf(level2, "Line Number Table length : %d.\n", length);
+	debug_printf(level2, "Line Number Table length : %hu.\n", length);
 	line_number_table = createList();
 
 	for(unsigned idx = 0; idx < length; idx++) {
@@ -240,6 +262,8 @@ LocalVariableTableEntry *decodeLocalVariableTableEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
 	LocalVariableTableEntry *entry = new LocalVariableTableEntry;
+
+	debug_printf(level3, "Decoding Local Variable Table Entry.\n");
 
 	entry->start_pc = buffer->NextShort();
 	entry->length = buffer->NextShort();
@@ -265,6 +289,8 @@ LocalVariableTableAttribute *LocalVariableTableAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t length;
 
+	debug_printf(level3, "Decoding Variable Table Attribute.\n");
+
 	// Local Variable Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Local Variable Table length : %d.\n", length);
@@ -283,6 +309,8 @@ LocalVariableTypeTableEntry *decodeLocalVariableTypeTableEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;
 	LocalVariableTypeTableEntry *entry = new LocalVariableTypeTableEntry;
+
+	debug_printf(level3, "Decoding Local Variable Type Table Entry.\n");
 
 	entry->start_pc = buffer->NextShort();
 	entry->length = buffer->NextShort();
@@ -307,6 +335,8 @@ LocalVariableTypeTableEntry *decodeLocalVariableTypeTableEntry(
 LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t length;
+
+	debug_printf(level3, "Decoding Local Variable Type Table Attribute.\n");
 
 	// Local Variable Type Table
 	length = buffer->NextShort();
@@ -525,6 +555,8 @@ BootstrapMethodEntry *decodeBootstrapMethodEntry(ClassFile *classFile, ClassBuff
 	unsigned int idx, length;
 	BootstrapMethodEntry *entry = new BootstrapMethodEntry;
 
+	debug_printf(level3, "Decoding Bootstrap Method Entry.\n");
+
 	// Bootstrap Method Parameters Table
 	length = buffer->NextShort();
 	entry->bootstrap_arguments = createList();
@@ -540,6 +572,8 @@ BootstrapMethodEntry *decodeBootstrapMethodEntry(ClassFile *classFile, ClassBuff
 BootstrapMethodsAttribute *BootstrapMethodsAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t length;
+
+	debug_printf(level3, "Decoding Bootstrap Methods Attribute.\n");
 
 	// Bootstrap Method Table
 	length = buffer->NextShort();
