@@ -340,13 +340,6 @@ LocalVariableTypeTableAttribute *LocalVariableTypeTableAttribute
 	return this;
 }
 
-ElementValue *decodeElementValue(ClassFile *classFile, ClassBuffer *buffer) {
-	ElementValue *value;
-
-	value->tag = tag;
-	return value;
-}
-
 ElementValuePairsEntry *decodeElementValuePairsEntry(
 		ClassFile *classFile, ClassBuffer *buffer) {
 	uint16_t index;

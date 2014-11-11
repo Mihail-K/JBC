@@ -63,7 +63,7 @@ ArrayElementValue *ArrayElementValue
 	// Array Value Table
 	length = buffer->NextShort();
 	for(idx = 0; idx < length; idx++) {
-		array_values.push_back(decodeElementValue(classFile, buffer));
+		array_values.push_back(DecodeElementValue(buffer, classFile));
 	}
 
 	return this;
@@ -96,4 +96,64 @@ ElementValue *DecodeElementValue(ClassBuffer *buffer, ClassFile *classFile) {
 			debug_printf(level3, "Array Element Value.\n");
 			return (new ArrayElementValue(tag))->DecodeValue(buffer, classFile);
 	}
+}
+
+/* Element Value Encoders */
+
+ConstantElementValue *ConstantElementValue
+		::EncodeValue(ClassBuilder *builder, ClassFile *) {
+	debug_printf(level3, "Encoding Constant Element Value.\n");
+
+	builder->NextShort(const_value == NULL ? 0 : const_value->index);
+
+	return this;
+}
+
+EnumConstantElementValue *EnumConstantElementValue
+		::EncodeValue(ClassBuilder *builder, ClassFile *) {
+	debug_printf(level3, "Encoding Enum Constant Element Value.\n");
+
+	builder->NextShort(type_name == NULL ? 0 : type_name->index);
+	builder->NextShort(const_name == NULL ? 0 : const_name->index);
+
+	return this;
+}
+
+ClassElementValue *ClassElementValue
+		::EncodeValue(ClassBuilder *builder, ClassFile *) {
+	debug_printf(level3, "Encoding Constant Element Value.\n");
+
+	builder->NextShort(class_info == NULL ? 0 : class_info->index);
+
+	return this;
+}
+
+AnnotationElementValue *AnnotationElementValue
+		::EncodeValue(ClassBuilder *builder, ClassFile *) {
+	debug_printf(level3, "Encoding Annotation Element Value.\n");
+
+	encodeAnnotationEntry(classFile, builder, annotation_value);
+
+	return this;
+}
+
+ArrayElementValue *ArrayElementValue
+		::EncodeValue(ClassBuilder *builder, ClassFile *) {
+	uint16_t length;
+
+	debug_printf(level3, "Encoding Array Element Value.\n");
+
+	length = array_values.size();
+	builder->NextShort(length);
+
+	for(unsigned idx = 0; idx < length; idx++) {
+		encodeElementValue(builder, classFile, array_values[idx]);
+	}
+
+	return this;
+}
+
+void EncodeElementValue(ClassBuilder *builder, ClassFile *classFile, ElementValue *value) {
+	builder->NextByte(value->tag);
+	value->EncodeValue(builder, classFile);
 }

@@ -148,6 +148,6 @@ struct AnnotationEntry {
 
 ElementValue *DecodeElementValue(ClassBuffer *buffer, ClassFile *classFile);
 
-ElementValue *EncodeElementValue(ClassBuilder *builder, ClassFile *classFile);
+void EncodeElementValue(ClassBuilder *builder, ClassFile *classFile, ElementValue *value);
 
 # endif /* ElementValue.h */
