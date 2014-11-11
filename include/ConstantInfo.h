@@ -30,17 +30,6 @@ enum ConstantType {
 	CONSTANT_INVOKE_DYNAMIC			= 18
 };
 
-struct ConstantError {
-
-	const std::string msg;
-
-	inline
-	ConstantError(const char *msg)
-		: msg(std::string(msg)) {
-	}
-
-};
-
 /* Constant Info */
 
 struct ConstantInfo {
@@ -225,11 +214,7 @@ struct ConstantUtf8Info
 		: ConstantInfo(CONSTANT_UTF8) {
 	}
 
-	~ConstantUtf8Info() {
-		if(bytes != NULL) {
-			delete bytes;
-		}
-	}
+	~ConstantUtf8Info();
 
 	ConstantUtf8Info *DecodeConstant(ClassBuffer *buffer);
 
@@ -276,6 +261,14 @@ struct ConstantInvokeDynamicInfo
 
 	ConstantInvokeDynamicInfo *EncodeConstant(ClassBuilder *builder);
 };
+
+/* Constant Producers */
+
+typedef ConstantInfo *(* ConstantProducer)(uint8_t tag, ClassBuffer *);
+
+void RegisterProducer(uint8_t tag, ConstantProducer);
+
+/* Encode and Decode */
 
 ConstantInfo *DecodeConstant(ClassBuffer *buffer);
 

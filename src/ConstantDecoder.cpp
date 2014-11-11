@@ -1,8 +1,21 @@
 
+# include <map>
+
 # include "Debug.h"
 # include "ConstantInfo.h"
 
 namespace JBC {
+
+/* Constant Producers */
+
+static
+std::map<uint8_t, ConstantProducer> producer_map;
+
+void RegisterProducer(uint8_t tag, ConstantProducer producer) {
+	producer_map[tag] = producer;
+}
+
+/* Constant Decoders */
 
 ConstantUtf8Info *ConstantUtf8Info
 		::DecodeConstant(ClassBuffer *buffer) {
@@ -149,12 +162,19 @@ ConstantInfo *DecodeConstant(ClassBuffer *buffer) {
 		case CONSTANT_INVOKE_DYNAMIC:
 			debug_printf(level2, "Constant Invoke Dynamic.\n");
 			return (new ConstantInvokeDynamicInfo)->DecodeConstant(buffer);
-		case (uint8_t)-1:
-			throw ConstantError("Unexpected end of file.\n");
-		default:
-			char message[256];
-			sprintf(message, "Unknown tag : %d (%zu).\n", tag, buffer->Position());
-			throw ConstantError(message);
+		default: {
+			ConstantProducer producer = producer_map[tag];
+
+			// Create a Constant from a Producer
+			if(producer != NULL) {
+				debug_printf(level2, "Custom Constant from Producer (%hhu).\n", tag);
+				return producer(tag, buffer);
+			} else {
+				char message[64];
+				sprintf(message, "Unknown tag : %d (%zu).\n", tag, buffer->Position());
+				throw DecodeError(message);
+			}
+		}
 	}
 }
 
