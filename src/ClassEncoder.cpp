@@ -10,7 +10,7 @@
 void ClassFile::EncodeConstants(ClassBuilder *builder) {
 	uint16_t length;
 
-	buildNextShort(builder, length = constant_pool.size());
+	builder->NextShort(length = constant_pool.size());
 	debug_printf(level1, "Constant Pool Count : %zu.\n", length);
 
 	// 0 is a NULL constant.
@@ -31,22 +31,22 @@ void ClassFile::EncodeClasses(ClassBuilder *builder) {
 	if(this_class != NULL) {
 		uint16_t index =  this_class->index;
 		debug_printf(level3, "This Class : %d.\n", index);
-		buildNextShort(builder, index);
+		builder->NextShort(index);
 	} else {
 		// No ThisClass Entry
 		debug_printf(level2, "This Class : <NULL>.\n");
-		buildNextShort(builder, 0);
+		builder->NextShort(0);
 	}
 
 	// Super class
 	if(super_class != NULL) {
 		uint16_t index =  super_class->index;
 		debug_printf(level3, "Super Class : %d.\n", index);
-		buildNextShort(builder, index);
+		builder->NextShort(index);
 	} else {
 		// No SuperClass Entry
 		debug_printf(level2, "Super Class : <NULL>.\n");
-		buildNextShort(builder, 0);
+		builder->NextShort(0);
 	}
 }
 
@@ -55,11 +55,11 @@ void ClassFile::EncodeInterfaces(ClassBuilder *builder) {
 
 	length = interfaces.size();
 	debug_printf(level1, "Interfaces Count : %d.\n", length);
-	buildNextShort(builder, length);
+	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Interface %d : %d.\n", idx, interfaces[idx]->index);
-		buildNextShort(builder, interfaces[idx]->index);
+		builder->NextShort(interfaces[idx]->index);
 	}
 }
 
@@ -69,7 +69,7 @@ void ClassFile::EncodeFields(ClassBuilder *builder) {
 	// Fields Table
 	length = fields.size();
 	debug_printf(level1, "Fields Count : %d.\n", length);
-	buildNextShort(builder, length);
+	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Field %d :\n", idx);
@@ -83,7 +83,7 @@ void ClassFile::EncodeMethods(ClassBuilder *builder) {
 	// Methods Table
 	length = methods.size();
 	debug_printf(level1, "Methods Count : %d.\n", length);
-	buildNextShort(builder, length);
+	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Method %d :\n", idx);
@@ -97,7 +97,7 @@ void ClassFile::EncodeAttributes(ClassBuilder *builder) {
 	// Attributes Table
 	length = attributes.size();
 	debug_printf(level1, "Attributes Count : %d.\n", length);
-	buildNextShort(builder, length);
+	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Attribute %d :\n", idx);
@@ -110,14 +110,14 @@ void ClassFile::EncodeClassFile(ClassBuilder *builder) {
 	debug_printf(level0, "Major Version : %d.\n", major_version);
 	debug_printf(level0, "Minor Version : %d.\n", minor_version);
 
-	buildNextInt(builder, magic);
-	buildNextShort(builder, major_version);
-	buildNextShort(builder, minor_version);
+	builder->NextInt(magic);
+	builder->NextShort(major_version);
+	builder->NextShort(minor_version);
 
 	EncodeConstants(builder);
 
 	debug_printf(level3, "Access Flags : %#X.\n", access_flags);
-	buildNextShort(builder, access_flags);
+	builder->NextShort(access_flags);
 
 	EncodeClasses(builder);
 	EncodeInterfaces(builder);

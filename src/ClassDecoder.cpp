@@ -10,7 +10,7 @@
 void ClassFile::DecodeConstants(ClassBuffer *buffer) {
 	uint16_t length;
 
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level1, "Constant Pool Count : %d.\n", length);
 
 	// 0 is a NULL index.
@@ -35,12 +35,12 @@ void ClassFile::DecodeClasses(ClassBuffer *buffer) {
 	uint16_t index;
 
 	// This class
-	index = bufferNextShort(buffer);
+	index = buffer->NextShort();
 	debug_printf(level3, "This Class : %d.\n", index);
 	this_class = static_cast<ConstantClassInfo *>(constant_pool[index]);
 
 	// Super class
-	index = bufferNextShort(buffer);
+	index = buffer->NextShort();
 	debug_printf(level3, "Super Class : %d.\n", index);
 	super_class = static_cast<ConstantClassInfo *>(constant_pool[index]);
 }
@@ -48,11 +48,11 @@ void ClassFile::DecodeClasses(ClassBuffer *buffer) {
 void ClassFile::DecodeInterfaces(ClassBuffer *buffer) {
 	uint16_t length;
 
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level1, "Interfaces Count : %d.\n", length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		uint16_t index = bufferNextShort(buffer);
+		uint16_t index = buffer->NextShort();
 		debug_printf(level2, "Interface %d : %d.\n", idx, index);
 		interfaces.push_back((ConstantClassInfo *)constant_pool[index]);
 	}
@@ -62,7 +62,7 @@ void ClassFile::DecodeFields(ClassBuffer *buffer) {
 	uint16_t length;
 
 	// Fields Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level1, "Fields Count : %d.\n", length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
@@ -75,7 +75,7 @@ void ClassFile::DecodeMethods(ClassBuffer *buffer) {
 	uint16_t length;
 
 	// Methods Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level1, "Methods Count : %d.\n", length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
@@ -88,7 +88,7 @@ void ClassFile::DecodeAttributes(ClassBuffer *buffer) {
 	uint16_t length;
 
 	// Attributes Table
-	length = bufferNextShort(buffer);
+	length = buffer->NextShort();
 	debug_printf(level1, "Attributes Count : %d.\n", length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
@@ -98,9 +98,9 @@ void ClassFile::DecodeAttributes(ClassBuffer *buffer) {
 }
 
 void ClassFile::DecodeClassFile(ClassBuffer *buffer) {
-	magic = bufferNextInt(buffer);
-	major_version = bufferNextShort(buffer);
-	minor_version = bufferNextShort(buffer);
+	magic = buffer->NextInt();
+	major_version = buffer->NextShort();
+	minor_version = buffer->NextShort();
 
 	debug_printf(level0, "Magic : %#X.\n", magic);
 	debug_printf(level0, "Major Version : %d.\n", major_version);
@@ -108,7 +108,7 @@ void ClassFile::DecodeClassFile(ClassBuffer *buffer) {
 
 	DecodeConstants(buffer);
 
-	access_flags = bufferNextShort(buffer);
+	access_flags = buffer->NextShort();
 	debug_printf(level3, "Access Flags : %#X.\n", access_flags);
 
 	DecodeClasses(buffer);
