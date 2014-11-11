@@ -439,52 +439,6 @@ struct DeprecatedAttribute
 	}
 };
 
-/* Declare types ahead of time */
-typedef struct sElementValue ElementValue;
-typedef struct sAnnotationEntry AnnotationEntry;
-
-struct sElementValue {
-	uint8_t		tag;
-	union {
-		// Constant Value
-		ConstantInfo *const_value;
-
-		// Enum Constant Value
-		struct {
-			// Type Name
-			ConstantUtf8Info *type_name;
-
-			// Constant Name
-			ConstantUtf8Info *const_name;
-		} enum_const_value;
-
-		// Class Info Value
-		ConstantClassInfo *class_info;
-
-		// Annotation Value
-		AnnotationEntry *annotation_value;
-
-		// Array Value
-		List		*array_values;
-	} value;
-};
-
-typedef struct {
-	// Name
-	ConstantUtf8Info *element_name;
-
-	// Element Value
-	ElementValue *value;
-} ElementValuePairsEntry;
-
-struct sAnnotationEntry {
-	// Type
-	ConstantUtf8Info *type;
-
-	// Element-Value Pairs Table
-	List		*element_value_pairs;
-};
-
 struct RuntimeAnnotationsAttribute
 		: public AttributeInfo {
 	// Annotations Table
