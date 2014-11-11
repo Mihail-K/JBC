@@ -100,17 +100,16 @@ ExceptionsAttribute *ExceptionsAttribute
 	return this;
 }
 
-int encodeInnerClassEntry(
-		ClassFile *classFile, ClassBuilder *builder, InnerClassEntry *entry) {
+InnerClassEntry *InnerClassEntry
+		::EncodeEntry(ClassBuilder *builder, ClassFile *) {
 	debug_printf(level3, "Encoding Inner Class Entry.\n");
 
-	builder->NextShort(entry->inner_class_info->index);
-	builder->NextShort(entry->outer_class_info->index);
-	builder->NextShort(entry->inner_class_name->index);
-	builder->NextShort(entry->inner_class_access_flags);
+	builder->NextShort(inner_class_info == NULL ? 0 : inner_class_info->index);
+	builder->NextShort(outer_class_info == NULL ? 0 : outer_class_info->index);
+	builder->NextShort(inner_class_name == NULL ? 0 : inner_class_name->index);
+	builder->NextShort(inner_class_access_flags);
 
-	ignore_unused(classFile);
-	return 0;
+	return this;
 }
 
 InnerClassesAttribute *InnerClassesAttribute
@@ -119,12 +118,11 @@ InnerClassesAttribute *InnerClassesAttribute
 
 	debug_printf(level3, "Encoding Inner Classes Attribute.\n");
 
-	length = listSize(classes);
+	length = classes.size();
 	builder->NextShort(length);
 
 	for(unsigned idx = 0; idx < length; idx++) {
-		encodeInnerClassEntry(classFile, builder, static_cast<
-				InnerClassEntry *>(listGet(classes, idx)));
+		classes[idx]->EncodeEntry(builder, classFile);
 	}
 
 	return this;

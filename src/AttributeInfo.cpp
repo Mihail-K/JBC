@@ -29,6 +29,7 @@ CodeAttribute::~CodeAttribute() {
 
 StackMapTableAttribute::~StackMapTableAttribute() {
 	debug_printf(level3, "Deleting Stack Map Table Attribute.\n");
+
 	if(!entries.empty()) {
 		for(std::vector<StackMapFrame *>::iterator itr = entries.begin();
 				itr != entries.end(); itr++) {
@@ -39,18 +40,25 @@ StackMapTableAttribute::~StackMapTableAttribute() {
 
 ExceptionsAttribute::~ExceptionsAttribute() {
 	debug_printf(level3, "Deleting Exceptions Attribute.\n");
+
+	// ConstantInfo entries are deallocated elsewhere.
 	exception_table.clear();
 }
 
 InnerClassesAttribute::~InnerClassesAttribute() {
 	debug_printf(level3, "Deleting Inner Classes Attribute.\n");
-	if(classes != NULL) {
-		deleteList(classes, free);
+
+	if(!classes.empty()) {
+		for(std::vector<InnerClassEntry *>::iterator itr = classes.begin();
+				itr != classes.end(); itr++) {
+			delete *itr;
+		}
 	}
 }
 
 SourceDebugExtensionAttribute::~SourceDebugExtensionAttribute() {
 	debug_printf(level3, "Deleting Source Debug Extension Attribute.\n");
+
 	if(debug_extension != NULL) {
 		delete debug_extension;
 	}

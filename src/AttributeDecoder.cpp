@@ -114,36 +114,36 @@ ExceptionsAttribute *ExceptionsAttribute
 	return this;
 }
 
-InnerClassEntry *decodeInnerClassEntry(ClassFile *classFile, ClassBuffer *buffer) {
+InnerClassEntry *InnerClassEntry
+		::DecodeEntry(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
-	InnerClassEntry *entry = new InnerClassEntry;
 
 	debug_printf(level3, "Decoding Inner Class Entry.\n");
 
 	// Inner Class Info
 	index = buffer->NextShort();
-	entry->inner_class_info = static_cast<ConstantClassInfo *>(
+	inner_class_info = static_cast<ConstantClassInfo *>(
 			classFile->constant_pool[index]);
 
 	// Outer Class Info
 	index = buffer->NextShort();
-	entry->outer_class_info = static_cast<ConstantClassInfo *>(
+	outer_class_info = dynamic_cast<ConstantClassInfo *>(
 			classFile->constant_pool[index]);
 
 	// Inner Class Name
 	index = buffer->NextShort();
-	entry->inner_class_name = static_cast<ConstantUtf8Info *>(
+	inner_class_name = static_cast<ConstantUtf8Info *>(
 			classFile->constant_pool[index]);
 
 	debug_printf(level2, "Inner class name : %s.\n",
-			(index != 0 ? (char *)entry->inner_class_name->bytes
+			(index != 0 ? (char *)inner_class_name->bytes
 			: "<anonymous class>"));
 
 	// Inner Class Flags
 	index = buffer->NextShort();
-	entry->inner_class_access_flags = index;
+	inner_class_access_flags = index;
 
-	return entry;
+	return this;
 }
 
 InnerClassesAttribute *InnerClassesAttribute
@@ -155,11 +155,10 @@ InnerClassesAttribute *InnerClassesAttribute
 	// Inner Classes Table
 	length = buffer->NextShort();
 	debug_printf(level2, "Inner classes count : %d.\n", length);
-	classes = createList();
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Inner class %d :\n", idx);
-		listAdd(classes, decodeInnerClassEntry(classFile, buffer));
+		classes.push_back((new InnerClassEntry)->DecodeEntry(buffer, classFile));
 	}
 
 	return this;

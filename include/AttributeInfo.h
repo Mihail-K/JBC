@@ -190,12 +190,16 @@ struct InnerClassEntry {
 
 	InnerClassEntry() {
 	}
+
+	InnerClassEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
+
+	InnerClassEntry *EncodeEntry(ClassBuilder *builder, ClassFile *classFile);
 };
 
 struct InnerClassesAttribute
 		: public AttributeInfo {
 	// Inner Classes
-	List		*classes;
+	std::vector<InnerClassEntry *> classes;
 
 	InnerClassesAttribute() {
 	}
