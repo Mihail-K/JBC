@@ -1,6 +1,7 @@
 
 # include "Debug.h"
 # include "ClassFile.h"
+# include "ErrorTypes.h"
 # include "StackMapFrame.h"
 
 namespace JBC {
@@ -53,8 +54,9 @@ VariableInfo *DecodeVariableInfo(ClassBuffer *buffer, ClassFile *classFile) {
 			debug_printf(level3, "Uninitialized variable info.\n");
 			return (new UninitializedVariableInfo(tag))->DecodeInfo(buffer, classFile);
 		default:
-			fprintf(stderr, "Unknown verification type (ID : %d)!\n", tag);
-			exit(EXIT_FAILURE);
+			char tmp[64];
+			sprintf(tmp, "Unknown verification type (ID : %d)!\n", tag);
+			throw DecodeError(tmp);
 	}
 }
 
@@ -149,8 +151,9 @@ StackMapFrame *DecodeStackMapFrame(ClassBuffer *buffer, ClassFile *classFile) {
 	} else
 	// Reserved Values
 	if(tag >= 128 && tag <= 246) {
-		fprintf(stderr, "Stack Frame tag (ID : %d) is reveserved!\n", tag);
-		exit(EXIT_FAILURE);
+		char tmp[64];
+		sprintf(tmp, "Stack Frame tag (ID : %d) is reveserved!\n", tag);
+		throw DecodeError(tmp);
 	} else
 	// Stack Map Same Locals 1 Extended
 	if(tag == 247) {
@@ -239,46 +242,7 @@ StackMapFullFrame *StackMapFullFrame
 void EncodeStackMapFrame(
 		ClassBuilder *builder, ClassFile *classFile, StackMapFrame *frame) {
 	builder->NextByte(frame->tag);
-
-	// Stack Map Same Frame
-	if(frame->tag <= 63) {
-		debug_printf(level3, "Stack Map same frame.\n");
-	} else
-	// Stack Map Same Locals 1
-	if(frame->tag <= 127) {
-		debug_printf(level3, "Stack Map same locals.\n");
-		frame->EncodeFrame(builder, classFile);
-	} else
-	// Reserved Values
-	if(frame->tag <= 246) {
-		fprintf(stderr, "Stack Frame tag (ID : %d) is reveserved!\n", frame->tag);
-		exit(EXIT_FAILURE);
-	} else
-	// Stack Map Same Locals 1 Extended
-	if(frame->tag == 247) {
-		debug_printf(level3, "Stack Map same locals extended.\n");
-		frame->EncodeFrame(builder, classFile);
-	} else
-	// Stack Map Chop Frame
-	if(frame->tag <= 250) {
-		debug_printf(level3, "Stack Map chop frame.\n");
-		frame->EncodeFrame(builder, classFile);
-	} else
-	// Stack Map Same Frame Extended
-	if(frame->tag == 251) {
-		debug_printf(level3, "Stack Map same frame extended.\n");
-		frame->EncodeFrame(builder, classFile);
-	} else
-	// Stack Map Append Frame
-	if(frame->tag <= 254) {
-		debug_printf(level3, "Stack Map append frame.\n");
-		frame->EncodeFrame(builder, classFile);
-	}
-	// Stack Map Full Frame
-	else {
-		debug_printf(level3, "Stack Map full frame.\n");
-		frame->EncodeFrame(builder, classFile);
-	}
+	frame->EncodeFrame(builder, classFile);
 }
 
 /* Stack Map Frame destructors */
