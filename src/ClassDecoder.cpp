@@ -7,6 +7,8 @@
 # include "ConstantInfo.h"
 # include "AttributeInfo.h"
 
+namespace JBC {
+
 void ClassFile::DecodeConstants(ClassBuffer *buffer) {
 	uint16_t length;
 
@@ -23,7 +25,7 @@ void ClassFile::DecodeConstants(ClassBuffer *buffer) {
 
 		constant_pool.push_back(info);
 
-		if(isLongConstant(info)) {
+		if(info->IsLongConstant()) {
 			debug_printf(level2, "Long Constant; Skipping index.\n");
 			constant_pool.push_back(NULL);
 			idx++;
@@ -129,3 +131,5 @@ ClassFile *decodeClassFile(FILE *source) {
 	delete buffer;
 	return classFile;
 }
+
+} /* JBC */

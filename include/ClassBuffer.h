@@ -6,6 +6,8 @@
 
 # include "ErrorTypes.h"
 
+namespace JBC {
+
 struct BufferError
 		: public DecodeError {
 	inline
@@ -42,5 +44,7 @@ public:
 
 	uint32_t NextInt();
 };
+
+} /* JBC */
 
 # endif /* ClassBuffer.h */

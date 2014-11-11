@@ -2,6 +2,8 @@
 # include "Debug.h"
 # include "ElementValue.h"
 
+namespace JBC {
+
 /* Element Value Decoders */
 
 ConstantElementValue *ConstantElementValue
@@ -264,3 +266,5 @@ AnnotationEntry::~AnnotationEntry() {
 		}
 	}
 }
+
+} /* JBC */

@@ -7,6 +7,8 @@
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
 
+namespace JBC {
+
 // Forward Declarations.
 class ClassFile;
 struct AttributeInfo;
@@ -39,5 +41,7 @@ public:
 MemberInfo *createMember();
 
 void deleteMember(MemberInfo *member);
+
+} /* JBC */
 
 # endif /* MemberInfo.h */

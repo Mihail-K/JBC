@@ -5,6 +5,8 @@
 
 # include "ClassBuilder.h"
 
+namespace JBC {
+
 ClassBuilder::ClassBuilder(FILE *output)
 		: output(output), writes(0) {
 	if(output == NULL) {
@@ -105,3 +107,5 @@ ClassBuilder *ClassBuilder::NextInt(uint32_t dword) {
 		throw BuilderError(strerror(errno));
 	return this;
 }
+
+} /* JBC */

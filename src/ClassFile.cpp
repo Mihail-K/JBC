@@ -10,6 +10,8 @@
 # include "ConstantInfo.h"
 # include "AttributeInfo.h"
 
+namespace JBC {
+
 ClassFile::ClassFile()
 	: magic(0), major_version(0), minor_version(0),
 		access_flags(0), this_class(NULL), super_class(NULL) {
@@ -58,3 +60,5 @@ ClassFile::~ClassFile() {
 		constant_pool.clear();
 	}
 }
+
+} /* JBC */

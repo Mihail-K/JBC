@@ -8,6 +8,8 @@
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
 
+namespace JBC {
+
 struct ConstantInfo;
 struct ConstantClassInfo;
 
@@ -80,15 +82,6 @@ ClassFile *decodeClassFile(FILE *source);
 
 int encodeClassFile(FILE *target, ClassFile *classFile);
 
-static inline
-void *getConstant(ClassFile *classFile, unsigned int idx) {
-	if(idx > (unsigned int)classFile->constant_pool.size()) {
-		fprintf(stderr, "Constant not found. (ID : %d/%zu)\n", idx,
-				classFile->constant_pool.size());
-		exit(EXIT_FAILURE);
-	}
-
-	return (void *)classFile->constant_pool[idx];
-}
+} /* JBC */
 
 # endif /* ClassFile.h */

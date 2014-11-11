@@ -3,6 +3,8 @@
 
 # include <string>
 
+namespace JBC {
+
 struct JBCError {
 	const std::string msg;
 
@@ -27,5 +29,7 @@ struct EncodeError
 		: JBCError(msg) {
 	}
 };
+
+} /* JBC */
 
 # endif /* ErrorTypes.h */

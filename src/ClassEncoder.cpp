@@ -6,6 +6,8 @@
 # include "ConstantInfo.h"
 # include "AttributeInfo.h"
 
+namespace JBC {
+
 void ClassFile::EncodeConstants(ClassBuilder *builder) {
 	uint16_t length;
 
@@ -18,7 +20,7 @@ void ClassFile::EncodeConstants(ClassBuilder *builder) {
 		debug_printf(level2, "Constant %d :\n", idx);
 
 		encodeConstant(builder, info);
-		if(isLongConstant(info)) {
+		if(info->IsLongConstant()) {
 			debug_printf(level2, "Long Constant; Skipping index.\n");
 			idx++;
 		}
@@ -136,3 +138,5 @@ int encodeClassFile(FILE *source, ClassFile *classFile) {
 	delete builder;
 	return 0;
 }
+
+} /* JBC */

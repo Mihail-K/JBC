@@ -3,6 +3,8 @@
 # include "ClassFile.h"
 # include "StackMapFrame.h"
 
+namespace JBC {
+
 /* Stack Map Frame encode */
 
 ObjectVariableInfo *ObjectVariableInfo
@@ -326,3 +328,5 @@ StackMapFullFrame::~StackMapFullFrame() {
 		}
 	}
 }
+
+} /* JBC */

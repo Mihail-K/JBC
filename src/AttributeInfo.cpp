@@ -3,9 +3,10 @@
 # include <string.h>
 
 # include "Debug.h"
-# include "Defines.h"
 # include "ClassFile.h"
 # include "AttributeInfo.h"
+
+namespace JBC {
 
 CodeAttribute::~CodeAttribute() {
 	debug_printf(level3, "Deleting Code Attribute.\n");
@@ -158,3 +159,5 @@ BootstrapMethodsAttribute::~BootstrapMethodsAttribute() {
 		}
 	}
 }
+
+} /* JBC */

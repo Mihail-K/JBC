@@ -5,6 +5,8 @@
 
 # include "ClassFile.h"
 
+using namespace JBC;
+
 int main(int argc, char **argv) {
 	FILE *input, *output;
 	ClassFile *classFile;

@@ -7,6 +7,8 @@
 # include "ClassFile.h"
 # include "AttributeInfo.h"
 
+namespace JBC {
+
 ConstantValueAttribute *ConstantValueAttribute
 		::DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile) {
 	uint16_t index;
@@ -545,3 +547,5 @@ AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer) {
 
 	return NULL;
 }
+
+} /* JBC */

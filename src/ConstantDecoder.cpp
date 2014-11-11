@@ -2,6 +2,8 @@
 # include "Debug.h"
 # include "ConstantInfo.h"
 
+namespace JBC {
+
 ConstantUtf8Info *ConstantUtf8Info
 		::DecodeConstant(ClassBuffer *buffer) {
 	length = buffer->NextShort();
@@ -155,3 +157,5 @@ ConstantInfo *decodeConstant(ClassBuffer *buffer) {
 			throw ConstantError(message);
 	}
 }
+
+} /* JBC */

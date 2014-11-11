@@ -5,6 +5,8 @@
 # include "MemberInfo.h"
 # include "AttributeInfo.h"
 
+namespace JBC {
+
 MemberInfo::MemberInfo() {
 }
 
@@ -20,3 +22,5 @@ MemberInfo::~MemberInfo() {
 		}
 	}
 }
+
+} /* JBC */

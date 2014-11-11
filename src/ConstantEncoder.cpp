@@ -4,6 +4,8 @@
 # include "Debug.h"
 # include "ConstantInfo.h"
 
+namespace JBC {
+
 ConstantUtf8Info *ConstantUtf8Info
 		::EncodeConstant(ClassBuilder *builder) {
 	debug_printf(level2, "Encoding Constant UTF8.\n");
@@ -158,3 +160,5 @@ int encodeConstant(ClassBuilder *builder, ConstantInfo *info) {
 	info->EncodeConstant(builder);
 	return 0;
 }
+
+} /* JBC */

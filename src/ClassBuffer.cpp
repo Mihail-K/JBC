@@ -5,6 +5,8 @@
 
 # include "ClassBuffer.h"
 
+namespace JBC {
+
 ClassBuffer::ClassBuffer(FILE *input)
 		: input(input), reads(0) {
 	if(input == NULL) {
@@ -103,3 +105,5 @@ uint32_t ClassBuffer::NextInt() {
 		throw BufferError(strerror(errno));
 	return FromBigEndian(value);
 }
+
+} /* JBC */

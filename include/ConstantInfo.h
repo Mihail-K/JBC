@@ -7,6 +7,8 @@
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
 
+namespace JBC {
+
 enum ConstantType {
 	CONSTANT_UTF8					= 1,
 	CONSTANT_UNUSED0,
@@ -279,10 +281,6 @@ int encodeConstant(ClassBuilder *builder, ConstantInfo *info);
 
 ConstantInfo *decodeConstant(ClassBuffer *buffer);
 
-static inline
-int isLongConstant(ConstantInfo *info) {
-	if(info == NULL) return 0;
-	return info->IsLongConstant();
-}
+} /* JBC */
 
 # endif /* ConstantInfo.h */

@@ -6,6 +6,8 @@
 # include "ConstantInfo.h"
 # include "AttributeInfo.h"
 
+namespace JBC {
+
 MemberInfo *MemberInfo::EncodeMember(ClassBuilder *builder, ClassFile *classFile) {
 	uint16_t length;
 
@@ -30,3 +32,5 @@ MemberInfo *MemberInfo::EncodeMember(ClassBuilder *builder, ClassFile *classFile
 
 	return this;
 }
+
+} /* JBC */

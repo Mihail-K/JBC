@@ -8,6 +8,8 @@
 # include "ClassBuilder.h"
 # include "ConstantInfo.h"
 
+namespace JBC {
+
 struct AnnotationEntry;
 
 struct ElementValue {
@@ -160,5 +162,7 @@ struct AnnotationEntry {
 ElementValue *DecodeElementValue(ClassBuffer *buffer, ClassFile *classFile);
 
 void EncodeElementValue(ClassBuilder *builder, ClassFile *classFile, ElementValue *value);
+
+} /* JBC */
 
 # endif /* ElementValue.h */

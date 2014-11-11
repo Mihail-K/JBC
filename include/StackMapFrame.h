@@ -7,6 +7,8 @@
 # include "ClassBuilder.h"
 # include "ConstantInfo.h"
 
+namespace JBC {
+
 struct VariableInfo {
 	uint8_t		tag;
 
@@ -198,5 +200,7 @@ struct StackMapFullFrame
 StackMapFrame *decodeStackMapFrame(ClassBuffer *buffer, ClassFile *classFile);
 
 int encodeStackMapFrame(ClassBuilder *builder, ClassFile *classFile, StackMapFrame *frame);
+
+} /* JBC */
 
 # endif /* StackMapFrame.h */

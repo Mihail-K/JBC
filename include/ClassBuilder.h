@@ -6,6 +6,8 @@
 
 # include "ErrorTypes.h"
 
+namespace JBC {
+
 struct BuilderError
 		: public EncodeError {
 	inline
@@ -42,5 +44,7 @@ public:
 
 	ClassBuilder *NextInt(uint32_t dword);
 };
+
+} /* JBC */
 
 # endif /* ClassBuilder.h */

@@ -3,6 +3,8 @@
 # include "ClassFile.h"
 # include "AttributeInfo.h"
 
+namespace JBC {
+
 ConstantValueAttribute *ConstantValueAttribute
 		::EncodeAttribute(ClassBuilder *builder, ClassFile *) {
 	debug_printf(level3, "Encoding Constant Value Attribute.\n");
@@ -349,3 +351,4 @@ int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *
 	return 0;
 }
 
+} /* JBC */

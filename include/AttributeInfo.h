@@ -10,6 +10,8 @@
 # include "ElementValue.h"
 # include "StackMapFrame.h"
 
+namespace JBC {
+
 /* Access Flags */
 
 enum FieldAccessFlags {
@@ -591,5 +593,7 @@ struct BootstrapMethodsAttribute
 int encodeAttribute(ClassFile *classFile, ClassBuilder *builder, AttributeInfo *info);
 
 AttributeInfo *decodeAttribute(ClassFile *classFile, ClassBuffer *buffer);
+
+} /* JBC */
 
 # endif /* AttributeInfo.h */
