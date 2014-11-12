@@ -26,8 +26,8 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-	classFile = decodeClassFile(input);
-	encodeClassFile(output, classFile);
+	classFile = DecodeClassFile(input);
+	EncodeClassFile(output, classFile);
 	delete classFile;
 
 	printf("Done!\n");

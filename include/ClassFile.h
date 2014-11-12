@@ -46,11 +46,11 @@ public:
 
 	// Constants Table
 	/**
-	 * A table containing the various constant values defined within the
-	 * class file, and referenced by other sections for information
-	 * such as class, method, and field names, and constant values
-	 * of various sorts. The first element in this pool should always
-	 * be NULL, thus the first usuable element is found a index 1.
+	 * @brief A table containing constatnt values defined in the class file.
+	 *
+	 * This include constants such as class, method, and field names.
+	 * The first element in this pool should always be NULL, thus the first
+	 * usuable element may be found at index 1.
 	 *
 	 * This table corresponds to both the constant_pool_count item and
 	 * the constant_pool item in the file format.
@@ -115,9 +115,9 @@ public:
 	 * - SourceFileAttribute
 	 * - SourceDebugExtensionAttribute
 	 * - DeprecatedAttribute
-	 * - RuntimeVisibleAnnotations
-	 * - RuntimeInvisibleAnnotations
-	 * - BootstrapMethodAnnotations
+	 * - RuntimeVisibleAnnotationsAttribute
+	 * - RuntimeInvisibleAnnotationsAttribute
+	 * - BootstrapMethodsAttribute
 	 **/
 	std::vector<AttributeInfo *> attributes;
 
@@ -139,10 +139,32 @@ public:
 	 **/
 	ClassFile(ClassBuffer *buffer);
 
+	/**
+	 * @brief Destructor for the class file type.
+	 **/
 	~ClassFile();
 
 public:
+	/**
+	 * @brief Decoding function for the class file.
+	 *
+	 * Decodes information from a ClassBuffer, populating fields
+	 * and subfields of the class file, and builds and resolves
+	 * values in, as well as references to the constant pool.
+	 *
+	 * @param buffer The ClassBuffer to decode data from.
+	 **/
 	void DecodeClassFile(ClassBuffer *buffer);
+
+	/**
+	 * @brief Encoding function for the class file.
+	 *
+	 * Encodes information into a ClassBuilder, traversing the
+	 * class file tree and writing it as a set of flat tables,
+	 * as per the Java class file format.
+	 *
+	 * @param builder The ClassBuilder to encode data into.
+	 **/
 	void EncodeClassFile(ClassBuilder *builder);
 
 private:
@@ -165,9 +187,31 @@ private:
 	void EncodeAttributes(ClassBuilder *builder);
 };
 
+/**
+ * @brief Reads and creates a class file from an input file.
+ *
+ * Decoder helper funciton. Creates a ClassBuffer object from
+ * the input file, and uses it to populate a new ClassFile object,
+ * which is returned if the operation is successful.
+ * In all cases, the input file is closed when the method exits.
+ *
+ * @param source The file to create the ClassBuffer from.
+ * @return The class file representation of the input file.
+ **/
 ClassFile *DecodeClassFile(FILE *source);
 
-int EncodeClassFile(FILE *target, ClassFile *classFile);
+/**
+ * @brief Writes a class file into an output file.
+ *
+ * Encoder helper funciton. Creates a ClassBuilder object from
+ * the output file, and uses it to write information for the
+ * ClassFile.
+ * The output file is closed when the method exits.
+ *
+ * @param source The file to create the ClassBuilder from.
+ * @param classFile The class file to be writtten.
+ **/
+void EncodeClassFile(FILE *target, ClassFile *classFile);
 
 } /* JBC */
 

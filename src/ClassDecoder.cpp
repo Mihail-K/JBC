@@ -1,8 +1,7 @@
 
 # include "Debug.h"
 # include "ClassFile.h"
-# include "ClassBuffer.h"
-
+# include "ErrorTypes.h"
 # include "MemberInfo.h"
 # include "ConstantInfo.h"
 # include "AttributeInfo.h"
@@ -121,15 +120,28 @@ void ClassFile::DecodeClassFile(ClassBuffer *buffer) {
 	DecodeAttributes(buffer);
 }
 
-ClassFile *decodeClassFile(FILE *source) {
-	debug_printf(level0, "Creating Class buffer.\n");
-	ClassBuffer *buffer = new ClassBuffer(source);
-	debug_printf(level0, "Decoding Class file :\n");
-	ClassFile *classFile = new ClassFile(buffer);
-	debug_printf(level0, "Finished Class file.\n");
-	debug_printf(level3, "Reads made : %u.\n", buffer->GetReads());
-	delete buffer;
-	return classFile;
+ClassFile *DecodeClassFile(FILE *source) {
+	ClassBuffer *buffer;
+
+	try {
+		ClassFile *classFile;
+
+		debug_printf(level0, "Creating Class buffer.\n");
+		buffer = new ClassBuffer(source);
+
+		debug_printf(level0, "Decoding Class file :\n");
+		classFile = new ClassFile(buffer);
+
+		debug_printf(level0, "Finished Class file.\n");
+		debug_printf(level3, "Reads made : %u.\n", buffer->GetReads());
+
+		delete buffer;
+		return classFile;
+	} catch(DecodeError &ex) {
+		// Rethrow after closing input.
+		delete buffer;
+		throw;
+	}
 }
 
 } /* JBC */

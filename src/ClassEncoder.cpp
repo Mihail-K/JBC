@@ -1,7 +1,7 @@
 
 # include "Debug.h"
 # include "ClassFile.h"
-
+# include "ErrorTypes.h"
 # include "MemberInfo.h"
 # include "ConstantInfo.h"
 # include "AttributeInfo.h"
@@ -128,15 +128,25 @@ void ClassFile::EncodeClassFile(ClassBuilder *builder) {
 	EncodeAttributes(builder);
 }
 
-int encodeClassFile(FILE *source, ClassFile *classFile) {
-	debug_printf(level0, "Creating Class builder.\n");
-	ClassBuilder *builder = new ClassBuilder(source);
-	debug_printf(level0, "Encoding Class file :\n");
-	classFile->EncodeClassFile(builder);
-	debug_printf(level0, "Finished Class file.\n");
-	debug_printf(level3, "Writes made : %u.\n", builder->GetWrites());
-	delete builder;
-	return 0;
+void EncodeClassFile(FILE *source, ClassFile *classFile) {
+	ClassBuilder *builder;
+
+	try {
+		debug_printf(level0, "Creating Class builder.\n");
+		builder = new ClassBuilder(source);
+
+		debug_printf(level0, "Encoding Class file :\n");
+		classFile->EncodeClassFile(builder);
+
+		debug_printf(level0, "Finished Class file.\n");
+		debug_printf(level3, "Writes made : %u.\n", builder->GetWrites());
+
+		delete builder;
+	} catch(EncodeError &ex) {
+		// Rethrow after closing output.
+		delete builder;
+		throw;
+	}
 }
 
 } /* JBC */
