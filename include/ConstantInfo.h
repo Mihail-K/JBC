@@ -18,7 +18,6 @@
 namespace JBC {
 
 /**
- * @file ConstantInfo.h
  * @enum ConstantType
  * @brief An enumeration of the constant types found in Java class files.
  **/
@@ -82,6 +81,8 @@ struct ConstantInfo {
 	 * Creates an instance of ConstantInfo, populating its tag field with the
 	 * value given to this function. The constant pool index is initialized
 	 * to 0.
+	 * Children should use this constructor to identify their constant type
+	 * upon instantiation.
 	 *
 	 * @param tag The value for the constant's identifier tag.
 	 **/
@@ -116,6 +117,7 @@ struct ConstantInfo {
 	 * @brief Used to decode constant information from a ClassBuffer.
 	 *
 	 * @param buffer The ClassBuffer to be read.
+	 * @return This instance of ConstantInfo.
 	 **/
 	virtual
 	ConstantInfo *DecodeConstant(ClassBuffer *buffer) = 0;
@@ -124,15 +126,31 @@ struct ConstantInfo {
 	 * @brief Used to encode constant information into a ClassBuilder.
 	 *
 	 * @param builder The ClassBuilder to be written to.
+	 * @return This instance of ConstantInfo.
 	 **/
 	virtual
 	ConstantInfo *EncodeConstant(ClassBuilder *buider) = 0;
 };
 
+/**
+ * @struct ConstantClassInfo
+ * @brief A ConstantInfo type for Java class constants.
+ **/
 struct ConstantClassInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The constant pool index of the class name.
+	 *
+	 * References a ConstantUtf8Info object.
+	 **/
 	uint16_t	name_index;
 
+	/**
+	 * @brief Constructor for ConstantClassInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_CLASS.
+	 **/
 	ConstantClassInfo()
 		: ConstantInfo(CONSTANT_CLASS) {
 	}
@@ -142,11 +160,31 @@ struct ConstantClassInfo
 	ConstantClassInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantFieldRefInfo
+ * @brief A ConstantInfo type for Java field constants.
+ **/
 struct ConstantFieldRefInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The constant pool index of the class that declares this field.
+	 *
+	 * References a ConstantClassInfo object.
+	 **/
 	uint16_t	class_index;
+	/**
+	 * @brief Type constant pool index of the name and type of this field.
+	 *
+	 * References a ConstantNameAndTypeInfo object.
+	 **/
 	uint16_t	name_and_type_index;
 
+	/**
+	 * @brief Constructor for ConstantFieldRefInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_FIELD_REF.
+	 **/
 	ConstantFieldRefInfo()
 		: ConstantInfo(CONSTANT_FIELD_REF) {
 	}
@@ -156,11 +194,31 @@ struct ConstantFieldRefInfo
 	ConstantFieldRefInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantMethodRefInfo
+ * @brief A ConstantInfo type for Java method constants.
+ **/
 struct ConstantMethodRefInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The constant pool index of the class that declares this method.
+	 *
+	 * References a ConstantClassInfo object.
+	 **/
 	uint16_t	class_index;
+	/**
+	 * @brief Type constant pool index of the name and type of this method.
+	 *
+	 * References a ConstantNameAndTypeInfo object.
+	 **/
 	uint16_t	name_and_type_index;
 
+	/**
+	 * @brief Constructor for ConstantMethodRefInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_METHOD_REF.
+	 **/
 	ConstantMethodRefInfo()
 		: ConstantInfo(CONSTANT_METHOD_REF) {
 	}
@@ -170,11 +228,31 @@ struct ConstantMethodRefInfo
 	ConstantMethodRefInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantInterfaceMethodRefInfo
+ * @brief A ConstantInfo type for Java interface method constants.
+ **/
 struct ConstantInterfaceMethodRefInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The constant pool index of the interface that declares this method.
+	 *
+	 * References a ConstantClassInfo object.
+	 **/
 	uint16_t	class_index;
+	/**
+	 * @brief Type constant pool index of the name and type of this method.
+	 *
+	 * References a ConstantNameAndTypeInfo object.
+	 **/
 	uint16_t	name_and_type_index;
 
+	/**
+	 * @brief Constructor for ConstantInterfaceMethodRefInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_INTERFACE_METHOD_REF.
+	 **/
 	ConstantInterfaceMethodRefInfo()
 		: ConstantInfo(CONSTANT_INTERFACE_METHOD_REF) {
 	}
