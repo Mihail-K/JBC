@@ -2,7 +2,7 @@
  * @file ConstantInfo.h
  * @author Mihail K
  * @date November, 2014
- * @version 0.42
+ * @version 0.32
  *
  * @brief Defines all standard ConstantInfo types.
  **/
@@ -16,7 +16,7 @@
 # include "ClassBuilder.h"
 
 /**
- * @addtogroup JBC
+ * @addtogroup ConstantInfo
  * @{
  **/
  

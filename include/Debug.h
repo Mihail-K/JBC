@@ -2,7 +2,7 @@
  * @file ConstantInfo.h
  * @author Mihail K
  * @date November, 2014
- * @version 0.42
+ * @version 0.32
  *
  * @brief Defines all debug logging functions.
  **/
@@ -13,7 +13,7 @@
 # include <stdarg.h>
 
 /**
- * @addtogroup JBC
+ * @addtogroup Debug
  * @{
  **/
 namespace JBC {

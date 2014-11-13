@@ -2,7 +2,7 @@
  * @file ClassFile.h
  * @author Mihail K
  * @date November, 2014
- * @version 0.42
+ * @version 0.32
  **/
 # ifndef __CLASSFILE_H__
 # define __CLASSFILE_H__
@@ -15,7 +15,7 @@
 # include "ClassBuilder.h"
 
 /**
- * @addtogroup JBC
+ * @addtogroup ClassFile
  * @{
  **/
 
