@@ -155,10 +155,9 @@ ConstantInvokeDynamicInfo *ConstantInvokeDynamicInfo
 	return this;
 }
 
-int EncodeConstant(ClassBuilder *builder, ConstantInfo *info) {
-	if(builder == NULL || info == NULL) return -1;
-	info->EncodeConstant(builder);
-	return 0;
+void EncodeConstant(ClassBuilder *builder, ConstantInfo *constant) {
+	if(builder == NULL || constant == NULL) return;
+	constant->EncodeConstant(builder);
 }
 
 } /* JBC */

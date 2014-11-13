@@ -1,3 +1,9 @@
+/**
+ * @file ClassFile.h
+ * @author Mihail K
+ * @date November, 2014
+ * @version 0.42
+ **/
 # ifndef __CLASSFILE_H__
 # define __CLASSFILE_H__
 
@@ -17,13 +23,7 @@ class MemberInfo;
 struct AttributeInfo;
 
 /**
- * @file
- * @author Mihail K
- * @version 0.42
- *
- * @section DESCRIPTION
  * @class ClassFile
- *
  * @brief An object representation of a Java class file.
  **/
 class ClassFile {

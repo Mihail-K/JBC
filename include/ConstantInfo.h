@@ -1,3 +1,11 @@
+/**
+ * @file ConstantInfo.h
+ * @author Mihail K
+ * @date November, 2014
+ * @version 0.42
+ *
+ * @brief Defines all ConstantInfo types.
+ **/
 # ifndef __CONSTANTINFO_H__
 # define __CONSTANTINFO_H__
 
@@ -32,29 +40,86 @@ enum ConstantType {
 
 /* Constant Info */
 
+/**
+ * @struct ConstantInfo
+ * @brief The parent type to all constant values.
+ *
+ * ConstantInfo represents a common type between all constant values,
+ * including the definition of their identifier tag, and the position
+ * of the constant in the constant pool (which is used when encoding).
+ **/
 struct ConstantInfo {
+	/**
+	 * @brief The identifier tag, used to differenciate constant types.
+	 **/
 	uint8_t		tag;
+	/**
+	 * @brief The position of the constant in the constant pool.
+	 *
+	 * The index into the constant pool is used when encoding the constant
+	 * into a file, as all references to constants are made using this value.
+	 **/
 	uint16_t	index;
 
-	ConstantInfo() {
+	/**
+	 * @brief Blank constructor for the ConstantInfo type.
+	 *
+	 * Creates a empty instance of ConstantInfo, with all fields initialized
+	 * to 0.
+	 **/
+	ConstantInfo()
+		: tag(0), index(0) {
 	}
 
+	/**
+	 * @brief Tagged constructor for the ConstantInfo type.
+	 *
+	 * Creates an instance of ConstantInfo, populating its tag field with the
+	 * value given to this function. The constant pool index is initialized
+	 * to 0.
+	 *
+	 * @param tag The value for the constant's identifier tag.
+	 **/
 	ConstantInfo(uint8_t tag)
-		: tag(tag) {
+		: tag(tag), index(0) {
 	}
 
+	/**
+	 * @brief Virtual desctructor for the ConstantInfo type.
+	 **/
 	virtual
 	~ConstantInfo() {
 	}
 
+	/**
+	 * @brief Used to determine is this is a 'long' constant.
+	 *
+	 * This function is used to determine whether a constant is defined as a
+	 * long constant. Long constants take up two indexes within the constant
+	 * pool, the second of which is always NULL.
+	 * By default, only LongConstantInfo and DoubleConstantInfo have this
+	 * type of behavior.
+	 *
+	 * @return true if this is a 'long' constant.
+	 **/
 	virtual
 	bool IsLongConstant() {
 		return false;
 	}
 
+	/**
+	 * @brief Used to decode constant information from a ClassBuffer.
+	 *
+	 * @param buffer The ClassBuffer to be read.
+	 **/
 	virtual
 	ConstantInfo *DecodeConstant(ClassBuffer *buffer) = 0;
 
+	/**
+	 * @brief Used to encode constant information into a ClassBuilder.
+	 *
+	 * @param builder The ClassBuilder to be written to.
+	 **/
 	virtual
 	ConstantInfo *EncodeConstant(ClassBuilder *buider) = 0;
 };
@@ -270,9 +335,28 @@ void RegisterProducer(uint8_t tag, ConstantProducer);
 
 /* Encode and Decode */
 
+/**
+ * @brief Reads and creates a constant from a ClassBuffer.
+ *
+ * Decoder helper function. Creates a ConstantInfo object by reading
+ * from a ClassBuffer, identifying and creating the necessary object
+ * type, if able.
+ *
+ * @param buffer The ClassBuffer to be read from.
+ * @return The newly read constant.
+ **/
 ConstantInfo *DecodeConstant(ClassBuffer *buffer);
 
-int EncodeConstant(ClassBuilder *builder, ConstantInfo *info);
+/**
+ * @brief Writes a constant info a ClassBuilder.
+ *
+ * Encoder helper function. Encodes and writes a ConstantInfo object
+ * into a ClassBuilder.
+ *
+ * @param builder The ClassBuilder to be written to.
+ * @param constant The ConstantInfo object to encode.
+ **/
+void EncodeConstant(ClassBuilder *builder, ConstantInfo *constant);
 
 } /* JBC */
 
