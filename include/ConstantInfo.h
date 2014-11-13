@@ -252,7 +252,7 @@ struct ConstantInterfaceMethodRefInfo
 	 **/
 	uint16_t	class_index;
 	/**
-	 * @brief Type constant pool index of the name and type of this method.
+	 * @brief The constant pool index of the name and type of this method.
 	 *
 	 * References a ConstantNameAndTypeInfo object.
 	 **/
@@ -280,7 +280,7 @@ struct ConstantInterfaceMethodRefInfo
 struct ConstantStringInfo
 		: public ConstantInfo {
 	/**
-	 * @brief Type constant pool index of the value of this string.
+	 * @brief The constant pool index of the value of this string.
 	 *
 	 * References a ConstantUtf8Info object.
 	 **/
@@ -429,11 +429,31 @@ struct ConstantDoubleInfo
 	ConstantDoubleInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantNameAndTypeInfo
+ * @brief A ConstantInfo type for Name and Type pairs.
+ **/
 struct ConstantNameAndTypeInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The constant pool index of the name half of this constant.
+	 *
+	 * References a ConstantUtf8Info object.
+	 **/
 	uint16_t	name_index;
+	/**
+	 * @brief The constant pool index of the type half of this constant.
+	 *
+	 * References a ConstantUtf8Info object.
+	 **/
 	uint16_t	descriptor_index;
 
+	/**
+	 * @brief Constructor for ConstantNameAndTypeInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_NAME_AND_TYPE.
+	 **/
 	ConstantNameAndTypeInfo()
 		: ConstantInfo(CONSTANT_NAME_AND_TYPE) {
 	}
@@ -443,15 +463,39 @@ struct ConstantNameAndTypeInfo
 	ConstantNameAndTypeInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantUtf8Info
+ * @brief A ConstantInfo type for UTF-8 encoded string values.
+ **/
 struct ConstantUtf8Info
 		: public ConstantInfo {
+	/**
+	 * @brief The length of the string value, sans the null-terminator.
+	 **/
 	uint16_t	length;
+	/**
+	 * @brief The UTF-8 encoded string, in a null-terminated form.
+	 *
+	 * This field is null-terminated for convinience and simplicity. This value
+	 * is stored without the null-terminator in its encoded form.
+	 **/
 	uint8_t		*bytes;
 
+	/**
+	 * @brief Constructor for ConstantUtf8Info.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_UTF8_INFO.
+	 **/
 	ConstantUtf8Info()
 		: ConstantInfo(CONSTANT_UTF8) {
 	}
 
+	/**
+	 * @brief Destructor for ConstantUtf8Info.
+	 *
+	 * Deletes the the UTF-8 encoded string from memory.
+	 **/
 	~ConstantUtf8Info();
 
 	ConstantUtf8Info *DecodeConstant(ClassBuffer *buffer);
@@ -459,11 +503,32 @@ struct ConstantUtf8Info
 	ConstantUtf8Info *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantMethodHandleInfo
+ * @brief A ConstantInfo type representing a Java method handle.
+ **/
 struct ConstantMethodHandleInfo
 		: public ConstantInfo {
+	/**
+	 * @brief Denotes the type of method handle, which controls bytecode behaviour.
+	 **/
 	uint8_t		reference_kind;
+	/**
+	 * @brief The constant pool index of the reference info constant for this handle.
+	 *
+	 * References one of the following ConstantInfo types:
+	 *	- ConstantFieldRefInfo
+	 *	- ConstantMethodRefInfo
+	 *	- ConstantInterfaceMethodRefInfo
+	 **/
 	uint16_t	reference_index;
 
+	/**
+	 * @brief Constructor for ConstantMethodHandleInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_METHOD_HANDLE.
+	 **/
 	ConstantMethodHandleInfo()
 		: ConstantInfo(CONSTANT_METHOD_HANDLE) {
 	}
@@ -473,10 +538,25 @@ struct ConstantMethodHandleInfo
 	ConstantMethodHandleInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantMethodTypeInfo
+ * @brief A ConstantInfo type representing a Java method type.
+ **/
 struct ConstantMethodTypeInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The constant pool index of the method type descriptor.
+	 *
+	 * References a ConstantUtf8Info object.
+	 **/
 	uint16_t	descriptor_index;
 
+	/**
+	 * @brief Constructor for ConstantMethodTypeInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_METHOD_TYPE.
+	 **/
 	ConstantMethodTypeInfo()
 		: ConstantInfo(CONSTANT_METHOD_TYPE) {
 	}
@@ -486,11 +566,31 @@ struct ConstantMethodTypeInfo
 	ConstantMethodTypeInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantInvokeDynamicInfo
+ * @brief A ConstantInfo type denoting a dynamic invocation name.
+ **/
 struct ConstantInvokeDynamicInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The index of the bootstrap method in this class's bootstrap method table.
+	 *
+	 * @see BootstrapMethodsAttribute
+	 **/
 	uint16_t	bootstrap_method_attr_index;
+	/**
+	 * @brief Type constant pool index of the name and type of this bootstrap method.
+	 *
+	 * References a ConstantNameAndTypeInfo object.
+	 **/
 	uint16_t	name_and_type_index;
 
+	/**
+	 * @brief Constructor for ConstantInvokeDynamicInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_INVOKE_DYNAMIC.
+	 **/
 	ConstantInvokeDynamicInfo()
 		: ConstantInfo(CONSTANT_INVOKE_DYNAMIC) {
 	}
