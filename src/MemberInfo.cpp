@@ -7,7 +7,8 @@
 
 namespace JBC {
 
-MemberInfo::MemberInfo() {
+MemberInfo::MemberInfo()
+	: access_flags(0), name(NULL), descriptor(NULL) {
 }
 
 MemberInfo::~MemberInfo() {

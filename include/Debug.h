@@ -1,5 +1,5 @@
 /**
- * @file ConstantInfo.h
+ * @file Debug.h
  * @author Mihail K
  * @date November, 2014
  * @version 0.32
