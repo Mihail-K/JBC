@@ -17,25 +17,30 @@
 
 namespace JBC {
 
+/**
+ * @file ConstantInfo.h
+ * @enum ConstantType
+ * @brief An enumeration of the constant types found in Java class files.
+ **/
 enum ConstantType {
-	CONSTANT_UTF8					= 1,
-	CONSTANT_UNUSED0,
-	CONSTANT_INTEGER				= 3,
-	CONSTANT_FLOAT					= 4,
-	CONSTANT_LONG					= 5,
-	CONSTANT_DOUBLE					= 6,
-	CONSTANT_CLASS					= 7,
-	CONSTANT_STRING					= 8,
-	CONSTANT_FIELD_REF				= 9,
-	CONSTANT_METHOD_REF				= 10,
-	CONSTANT_INTERFACE_METHOD_REF	= 11,
-	CONSTANT_NAME_AND_TYPE			= 12,
-	CONSTANT_UNUSED1,
-	CONSTANT_UNUSED2,
-	CONSTANT_METHOD_HANDLE			= 15,
-	CONSTANT_METHOD_TYPE			= 16,
-	CONSTANT_UNUSED3,
-	CONSTANT_INVOKE_DYNAMIC			= 18
+	CONSTANT_UTF8					= 1,  /**< A UTF-8 encoded string constant.					*/
+	CONSTANT_UNUSED0,					  /**< Unused											*/
+	CONSTANT_INTEGER				= 3,  /**< A 32-bit integer value constant.					*/
+	CONSTANT_FLOAT					= 4,  /**< A 32-bit float value constant.					*/
+	CONSTANT_LONG					= 5,  /**< A 64-bit integer value constant					*/
+	CONSTANT_DOUBLE					= 6,  /**< A 64-bit float value constant.					*/
+	CONSTANT_CLASS					= 7,  /**< A Java Class constant.							*/
+	CONSTANT_STRING					= 8,  /**< A Java String constant.							*/
+	CONSTANT_FIELD_REF				= 9,  /**< A constant referencing a Java field.				*/
+	CONSTANT_METHOD_REF				= 10, /**< A constant referencing a Java method.			*/
+	CONSTANT_INTERFACE_METHOD_REF	= 11, /**< A constant referencing an interface method.		*/
+	CONSTANT_NAME_AND_TYPE			= 12, /**< A constant defining a Name and Type pair.		*/
+	CONSTANT_UNUSED1,					  /**< Unused											*/
+	CONSTANT_UNUSED2,					  /**< Unused											*/
+	CONSTANT_METHOD_HANDLE			= 15, /**< A constant defining a Java method handle.		*/
+	CONSTANT_METHOD_TYPE			= 16, /**< A constant defining a method descriptor.			*/
+	CONSTANT_UNUSED3,					  /**< Unused											*/
+	CONSTANT_INVOKE_DYNAMIC			= 18  /**< A constant specifying a dynamic invocation name.	*/
 };
 
 /* Constant Info */
