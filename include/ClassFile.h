@@ -14,6 +14,11 @@
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
 
+/**
+ * @addtogroup JBC
+ * @{
+ **/
+
 namespace JBC {
 
 struct ConstantInfo;
@@ -228,5 +233,9 @@ ClassFile *DecodeClassFile(FILE *source);
 void EncodeClassFile(FILE *target, ClassFile *classFile);
 
 } /* JBC */
+
+/**
+ * }@
+ **/
 
 # endif /* ClassFile.h */

@@ -4,7 +4,7 @@
  * @date November, 2014
  * @version 0.42
  *
- * @brief Defines all ConstantInfo types.
+ * @brief Defines all standard ConstantInfo types.
  **/
 # ifndef __CONSTANTINFO_H__
 # define __CONSTANTINFO_H__
@@ -15,11 +15,22 @@
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
 
+/**
+ * @addtogroup JBC
+ * @{
+ **/
+ 
+/**
+ * @brief The JBC namespace of types and functions.
+ **/
 namespace JBC {
 
 /**
  * @enum ConstantType
  * @brief An enumeration of the constant types found in Java class files.
+ *
+ * These values are used to determine which type of ConstantInfo object should
+ * be produces when decoding, and are written during encoding.
  **/
 enum ConstantType {
 	CONSTANT_UTF8					= 1,  /**< A UTF-8 encoded string constant.					*/
@@ -102,11 +113,11 @@ struct ConstantInfo {
 	 *
 	 * This function is used to determine whether a constant is defined as a
 	 * long constant. Long constants take up two indexes within the constant
-	 * pool, the second of which is always NULL.
+	 * pool, the second of which is always @c NULL.
 	 * By default, only LongConstantInfo and DoubleConstantInfo have this
 	 * type of behavior.
 	 *
-	 * @return true if this is a 'long' constant.
+	 * @return @c true if this is a 'long' constant.
 	 **/
 	virtual
 	bool IsLongConstant() {
@@ -251,7 +262,7 @@ struct ConstantInterfaceMethodRefInfo
 	 * @brief Constructor for ConstantInterfaceMethodRefInfo.
 	 *
 	 * Initializes the inheritted tag field to the enumerated value
-	 * of CONSTANT_INTERFACE_METHOD_REF.
+	 * of ConstantType::CONSTANT_INTERFACE_METHOD_REF.
 	 **/
 	ConstantInterfaceMethodRefInfo()
 		: ConstantInfo(CONSTANT_INTERFACE_METHOD_REF) {
@@ -262,10 +273,25 @@ struct ConstantInterfaceMethodRefInfo
 	ConstantInterfaceMethodRefInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantStringInfo
+ * @brief A ConstantInfo type for Java string constants.
+ **/
 struct ConstantStringInfo
 		: public ConstantInfo {
+	/**
+	 * @brief Type constant pool index of the value of this string.
+	 *
+	 * References a ConstantUtf8Info object.
+	 **/
 	uint16_t	string_index;
 
+	/**
+	 * @brief Constructor for ConstantStringInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_STRING.
+	 **/
 	ConstantStringInfo()
 		: ConstantInfo(CONSTANT_STRING) {
 	}
@@ -275,10 +301,23 @@ struct ConstantStringInfo
 	ConstantStringInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantIntegerInfo
+ * @brief A ConstantInfo type for 32-bit integer constants.
+ **/
 struct ConstantIntegerInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The integer value of the constant.
+	 **/
 	uint32_t bytes;
 
+	/**
+	 * @brief Constructor for ConstantIntegerInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_INTEGER.
+	 **/
 	ConstantIntegerInfo()
 		: ConstantInfo(CONSTANT_INTEGER) {
 	}
@@ -288,10 +327,23 @@ struct ConstantIntegerInfo
 	ConstantIntegerInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantFloatInfo
+ * @brief A ConstantInfo type for 32-bit float constants.
+ **/
 struct ConstantFloatInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The value of the constant, stored in a 32-bit integer.
+	 **/
 	uint32_t bytes;
 
+	/**
+	 * @brief Constructor for ConstantFloatInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_FLOAT.
+	 **/
 	ConstantFloatInfo()
 		: ConstantInfo(CONSTANT_FLOAT) {
 	}
@@ -301,11 +353,30 @@ struct ConstantFloatInfo
 	ConstantFloatInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantLongInfo
+ * @brief A ConstantInfo type for 64-bit integer constants.
+ *
+ * This type is a 'long' constant.
+ * @see ConstantInfo::IsLongConstant()
+ **/
 struct ConstantLongInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The upper half of the value of the constant.
+	 **/
 	uint32_t	high_bytes;
+	/**
+	 * @brief The lower half of the value of the constant.
+	 **/
 	uint32_t	low_bytes;
 
+	/**
+	 * @brief Constructor for ConstantLongInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_LONG.
+	 **/
 	ConstantLongInfo()
 		: ConstantInfo(CONSTANT_LONG) {
 	}
@@ -320,11 +391,30 @@ struct ConstantLongInfo
 	ConstantLongInfo *EncodeConstant(ClassBuilder *builder);
 };
 
+/**
+ * @struct ConstantDoubleInfo
+ * @brief A ConstantInfo type for 64-bit float constants.
+ *
+ * This type is a 'long' constant.
+ * @see ConstantInfo::IsLongConstant()
+ **/
 struct ConstantDoubleInfo
 		: public ConstantInfo {
+	/**
+	 * @brief The upper half of the value of the constant, stored in an integer.
+	 **/
 	uint32_t	high_bytes;
+	/**
+	 * @brief The lower half of the value of the constant, stored in an integer.
+	 **/
 	uint32_t	low_bytes;
 
+	/**
+	 * @brief Constructor for ConstantDoubleInfo.
+	 *
+	 * Initializes the inheritted tag field to the enumerated value
+	 * of CONSTANT_DOUBLE.
+	 **/
 	ConstantDoubleInfo()
 		: ConstantInfo(CONSTANT_DOUBLE) {
 	}
@@ -412,9 +502,40 @@ struct ConstantInvokeDynamicInfo
 
 /* Constant Producers */
 
+/**
+ * @brief A ConstantInfo producer function type.
+ *
+ * A function type definiton for ConstantInfo producers, registered to
+ * decode ConstantInfo object with non-standard types.
+ *
+ * @see RegisterProducer(uint8_t, ConstantProducer)
+ **/
 typedef ConstantInfo *(* ConstantProducer)(uint8_t tag, ClassBuffer *);
 
-void RegisterProducer(uint8_t tag, ConstantProducer);
+/**
+ * @brief Hooks a ConstantProducer to the Decoder,
+ *			for reading nonstandard Constant types.
+ *
+ * ConstantProducers registered with this fuction can be unhooked by
+ * registering @c NULL to the same tag index.
+ *
+ * @code{.cpp}
+ *	ConstantInfo *MyConstantProducer(uint8_t, ClassBuffer *buffer) {
+ *		// Decode my custom ConstantInfo type.
+ *		return (new MyConstantInfo)->DecodeBuffer(buffer);
+ *	}
+ *	. . .
+ *	void RegisterMyProducers() {
+ *		// Register my new producer with the Decoder.
+ *		RegisterProducer(MyConstantTag, MyConstantProducer);
+ *	}
+ * @endcode
+ *
+ * @param tag The tag index to register the ConstantProducer with.
+ * @param producer The producer being hooked to the Decoder.
+ * @see ConstantProducer
+ **/
+void RegisterProducer(uint8_t tag, ConstantProducer producer);
 
 /* Encode and Decode */
 
@@ -442,5 +563,9 @@ ConstantInfo *DecodeConstant(ClassBuffer *buffer);
 void EncodeConstant(ClassBuilder *builder, ConstantInfo *constant);
 
 } /* JBC */
+
+/**
+ * }@
+ **/
 
 # endif /* ConstantInfo.h */
