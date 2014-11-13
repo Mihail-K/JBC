@@ -19,16 +19,18 @@ struct AttributeInfo;
 /**
  * @file
  * @author Mihail K
- * @version 1.0
+ * @version 0.42
  *
  * @section DESCRIPTION
  * @class ClassFile
  *
- * @brief A representation of binary values within a class file.
+ * @brief An object representation of a Java class file.
  **/
 class ClassFile {
 public:
 	/**
+	 * @brief The magic number.
+	 *
 	 * A magic number serving to identify the class file format,
 	 * typically with a value of 0xCAFEBABE in Java class files.
 	 **/
@@ -58,6 +60,8 @@ public:
 	std::vector<ConstantInfo *> constant_pool;
 
 	/**
+	 * @brief Access permissions and property flags.
+	 *
 	 * A set of flags denoting various access permissions and properties
 	 * for this class file.
 	 **/
@@ -65,6 +69,8 @@ public:
 
 	// This Class
 	/**
+	 * @brief The local type, declared in this ClassFile.
+	 *
 	 * A Constant class object, representing the local outermost type
 	 * within the class file.
 	 **/
@@ -72,9 +78,11 @@ public:
 
 	// Super Class
 	/**
+	 * @brief The parent type to this ClassFile, or NULL.
+	 *
 	 * A Constant class object, representing the direct supertype
 	 * to the type within the class file. If this item is NULL,
-	 * it is assumed to be the default supertype (usually Object).
+	 * it is assumed to be Object.
 	 **/
 	ConstantClassInfo *super_class;
 
@@ -86,6 +94,8 @@ public:
 
 	// Fields Table
 	/**
+	 * @brief The list of fields declared in this ClassFile.
+	 *
 	 * A list of MemberInfo items, represeting the table of fields present
 	 * within the local type. This list only contains fields declared
 	 * directly within the class, and not those inheritted from a parent type.
@@ -94,6 +104,8 @@ public:
 
 	// Methods Table
 	/**
+	 * @brief The list of methods declared in this ClassFile.
+	 *
 	 * A list of MemberInfo items, represeting the table of methods present
 	 * within the local type. This list only contains methods declared
 	 * directly within the class, and not those inheritted from a parent type.
@@ -103,6 +115,8 @@ public:
 
 	// Attributes Table
 	/**
+	 * @brief The AttributeInfo list for this ClassFile.
+	 *
 	 * A list of AttributeInfo items, representing the attributes table for
 	 * the class file.
 	 *
