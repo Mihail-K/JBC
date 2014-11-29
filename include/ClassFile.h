@@ -23,7 +23,7 @@ namespace JBC {
 
 /**
  * @def JAVA_MAGIC
- * @breif The default magic number for Java class files.
+ * @brief The default magic number for Java class files.
  **/
 # define JAVA_MAGIC 0xCAFEBABE
 
@@ -183,7 +183,7 @@ public:
 
 public:
 	/**
-	 * @breif Returns a reference to the magic number.
+	 * @brief Returns a reference to the magic number.
 	 **/
 	inline
 	uint32_t &Magic() {
@@ -191,7 +191,7 @@ public:
 	}
 
 	/**
-	 * @breif Returns a reference to the major version number.
+	 * @brief Returns a reference to the major version number.
 	 **/
 	inline
 	uint16_t &MajorVersion() {
@@ -199,7 +199,7 @@ public:
 	}
 
 	/**
-	 * @breif Returns a reference to the minor version number.
+	 * @brief Returns a reference to the minor version number.
 	 **/
 	inline
 	uint16_t &MinorVersion() {
@@ -207,7 +207,7 @@ public:
 	}
 
 	/**
-	 * @breif Adds a Constant to this Class File.
+	 * @brief Adds a Constant to this Class File.
 	 *
 	 * This also sets the index field of the attribute to its
 	 * position within the constant pool.
@@ -225,7 +225,7 @@ public:
 	}
 
 	/**
-	 * @breif Returns the state of a single flag.
+	 * @brief Returns the state of a single flag.
 	 *
 	 * @param flag The flag to check for.
 	 **/
@@ -281,7 +281,7 @@ public:
 	}
 
 	/**
-	 * @breif Adds an interface to this class.
+	 * @brief Adds an interface to this class.
 	 *
 	 * @param info The interface's Constant info.
 	 **/
@@ -301,7 +301,7 @@ public:
 	MemberInfo *&FindField(std::string &name);
 
 	/**
-	 * @breif Adds a method to this class.
+	 * @brief Adds a method to this class.
 	 **/
 	MemberInfo *&AddMethod(MemberInfo *method);
 
@@ -314,7 +314,7 @@ public:
 	MemberInfo *&FindMethod(std::string &name);
 
 	/**
-	 * @breif Attaches an Attribute to this class.
+	 * @brief Attaches an Attribute to this class.
 	 * 
 	 * This function also optionally validate that this Attribute
 	 * is allowed to be attached to Class Files.
