@@ -27,7 +27,8 @@ struct AttributeInfo {
 	ConstantUtf8Info *name;
 	uint32_t	attribute_length;
 
-	AttributeInfo() {
+	AttributeInfo()
+		: name(NULL), attribute_length(0) {
 	}
 
 	AttributeInfo(ConstantUtf8Info *name, uint32_t length)
@@ -50,11 +51,13 @@ struct ConstantValueAttribute
 	// Constant Value
 	ConstantInfo *constant_value;
 
-	ConstantValueAttribute() {
+	ConstantValueAttribute()
+		: constant_value(NULL) {
 	}
 
 	ConstantValueAttribute(ConstantUtf8Info *name, uint32_t length)
-		: AttributeInfo(name, length) {
+		: AttributeInfo(name, length),
+		  constant_value(NULL) {
 	}
 
 	ConstantValueAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
@@ -68,7 +71,9 @@ struct ExceptionTableEntry {
 	uint16_t	handler_pc;
 	uint16_t	catch_type;
 
-	ExceptionTableEntry() {
+	ExceptionTableEntry()
+		: start_pc(0), end_pc(0),
+		  handler_pc(0), catch_type(0) {
 	}
 
 	ExceptionTableEntry *DecodeEntry(ClassBuffer *buffer);
@@ -92,11 +97,15 @@ struct CodeAttribute
 	// Attribute Table
 	std::vector<AttributeInfo *> attributes;
 
-	CodeAttribute() {
+	CodeAttribute()
+		: max_stack(0), max_locals(0),
+		  code_length(0), code(NULL) {
 	}
 
 	CodeAttribute(ConstantUtf8Info *name, uint32_t length)
-		: AttributeInfo(name, length) {
+		: AttributeInfo(name, length),
+		  max_stack(0), max_locals(0),
+		  code_length(0), code(NULL) {
 	}
 
 	~CodeAttribute();
@@ -170,7 +179,9 @@ struct InnerClassEntry {
 	// Inner Class Flags
 	uint16_t	inner_class_access_flags;
 
-	InnerClassEntry() {
+	InnerClassEntry()
+		: inner_class_info(NULL), outer_class_info(NULL),
+		  inner_class_name(NULL), inner_class_access_flags(0) {
 	}
 
 	/**
@@ -233,11 +244,13 @@ struct EnclosingMethodAttribute
 	// Enclosing Method
 	ConstantNameAndTypeInfo *enclosing_method;
 
-	EnclosingMethodAttribute() {
+	EnclosingMethodAttribute()
+		: enclosing_class(NULL), enclosing_method(NULL) {
 	}
 
 	EnclosingMethodAttribute(ConstantUtf8Info *name, uint32_t length)
-		: AttributeInfo(name, length) {
+		: AttributeInfo(name, length), enclosing_class(NULL),
+		  enclosing_method(NULL) {
 	}
 
 	EnclosingMethodAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
@@ -271,11 +284,12 @@ struct SignatureAttribute
 	// Signature
 	ConstantUtf8Info *signature;
 
-	SignatureAttribute() {
+	SignatureAttribute()
+		: signature(NULL) {
 	}
 
 	SignatureAttribute(ConstantUtf8Info *name, uint32_t length)
-		: AttributeInfo(name, length) {
+		: AttributeInfo(name, length), signature(NULL) {
 	}
 
 	SignatureAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
@@ -288,11 +302,12 @@ struct SourceFileAttribute
 	// Source File
 	ConstantUtf8Info *source_file;
 
-	SourceFileAttribute() {
+	SourceFileAttribute()
+		: source_file(NULL) {
 	}
 
 	SourceFileAttribute(ConstantUtf8Info *name, uint32_t length)
-		: AttributeInfo(name, length) {
+		: AttributeInfo(name, length), source_file(NULL) {
 	}
 
 	SourceFileAttribute *DecodeAttribute(ClassBuffer *buffer, ClassFile *classFile);
@@ -305,11 +320,12 @@ struct SourceDebugExtensionAttribute
 	// Debug Extension
 	uint8_t		*debug_extension;
 
-	SourceDebugExtensionAttribute() {
+	SourceDebugExtensionAttribute()
+		: debug_extension(NULL) {
 	}
 
 	SourceDebugExtensionAttribute(ConstantUtf8Info *name, uint32_t length)
-		: AttributeInfo(name, length) {
+		: AttributeInfo(name, length), debug_extension(NULL) {
 	}
 
 	~SourceDebugExtensionAttribute();
@@ -323,7 +339,8 @@ struct LineNumberTableEntry {
 	uint16_t	start_pc;
 	uint16_t	line_number;
 
-	LineNumberTableEntry() {
+	LineNumberTableEntry()
+		: start_pc(0), line_number(0) {
 	}
 
 	LineNumberTableEntry *DecodeEntry(ClassBuffer *buffer);
@@ -362,7 +379,9 @@ struct LocalVariableTableEntry {
 
 	uint16_t	index;
 
-	LocalVariableTableEntry() {
+	LocalVariableTableEntry()
+		: start_pc(0), length(0), name(NULL),
+		  descriptor(NULL), index(0) {
 	}
 
 	LocalVariableTableEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
@@ -401,7 +420,9 @@ struct LocalVariableTypeTableEntry {
 
 	uint16_t	index;
 
-	LocalVariableTypeTableEntry() {
+	LocalVariableTypeTableEntry()
+		: start_pc(0), length(0), name(NULL),
+		  signature(NULL), index(0) {
 	}
 
 	LocalVariableTypeTableEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
@@ -496,6 +517,9 @@ struct ParameterAnnotationsEntry {
 	// Annotations Table
 	std::vector<AnnotationEntry *> annotations;
 
+	ParameterAnnotationsEntry() {
+	}
+
 	~ParameterAnnotationsEntry();
 
 	ParameterAnnotationsEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
@@ -571,6 +595,10 @@ struct BootstrapMethodEntry {
 
 	// Bootstrap Argument Table
 	std::vector<ConstantInfo *> bootstrap_arguments;
+
+	BootstrapMethodEntry()
+		: bootstrap_method_ref(NULL) {
+	}
 
 	~BootstrapMethodEntry();
 

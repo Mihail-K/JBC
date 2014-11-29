@@ -62,7 +62,7 @@ uint32_t ToBigEndian(uint32_t l) {
 ClassBuilder *ClassBuilder::Skip(size_t count) {
 	writes += count;
 	if(fseek(output, count, SEEK_CUR) == EOF) {
-		throw BufferError(strerror(errno));
+		throw BuilderError(strerror(errno));
 	}
 
 	return this;

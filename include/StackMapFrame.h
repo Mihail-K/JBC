@@ -200,12 +200,11 @@ struct StackMapFullFrame
 	std::vector<VariableInfo *> stack;
 
 	StackMapFullFrame()
-		: offset_delta(0), locals(NULL), stack(NULL) {
+		: offset_delta(0) {
 	}
 
 	StackMapFullFrame(uint8_t tag)
-		: StackMapFrame(tag), offset_delta(0),
-		  locals(NULL), stack(NULL) {
+		: StackMapFrame(tag), offset_delta(0) {
 	}
 
 	~StackMapFullFrame();
