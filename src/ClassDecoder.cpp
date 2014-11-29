@@ -99,7 +99,14 @@ void ClassFile::DecodeAttributes(ClassBuffer *buffer) {
 }
 
 void ClassFile::DecodeClassFile(ClassBuffer *buffer) {
-	magic = buffer->NextInt();
+	uint32_t magic = buffer->NextInt();
+	if(this->magic && this->magic != magic) {
+		char tmp[64];
+		sprintf(tmp, "Magic number mismatch; expected %#010X, got %#010X.",
+				this->magic, magic);
+		throw DecodeError(tmp);
+	}
+
 	major_version = buffer->NextShort();
 	minor_version = buffer->NextShort();
 
@@ -120,7 +127,7 @@ void ClassFile::DecodeClassFile(ClassBuffer *buffer) {
 	DecodeAttributes(buffer);
 }
 
-ClassFile *DecodeClassFile(FILE *source) {
+ClassFile *DecodeClassFile(FILE *source, uint32_t magic) {
 	ClassBuffer *buffer;
 
 	try {
@@ -130,7 +137,7 @@ ClassFile *DecodeClassFile(FILE *source) {
 		buffer = new ClassBuffer(source);
 
 		debug_printf(level0, "Decoding Class file :\n");
-		classFile = new ClassFile(buffer);
+		classFile = new ClassFile(buffer, magic);
 
 		debug_printf(level0, "Finished Class file.\n");
 		debug_printf(level3, "Reads made : %u.\n", buffer->GetReads());

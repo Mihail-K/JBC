@@ -155,8 +155,9 @@ public:
 	 * @endcode
 	 *
 	 * @param buffer The ClassBuffer to decode data from.
+	 * @param magic The magic number to check for when decoding.
 	 **/
-	ClassFile(ClassBuffer *buffer);
+	ClassFile(ClassBuffer *buffer, uint32_t magic = 0xCAFEBABE);
 
 	/**
 	 * @brief Destructor for the class file type.
@@ -260,9 +261,10 @@ private:
  * In all cases, the input file is closed when the method exits.
  *
  * @param source The file to create the ClassBuffer from.
+ * @param magic The magic number to check for when decoding.
  * @return The class file representation of the input file.
  **/
-ClassFile *DecodeClassFile(FILE *source);
+ClassFile *DecodeClassFile(FILE *source, uint32_t magic = 0xCAFEBABE);
 
 /**
  * @brief Writes a class file into an output file.

@@ -17,8 +17,8 @@ ClassFile::ClassFile()
 		access_flags(0), this_class(NULL), super_class(NULL) {
 }
 
-ClassFile::ClassFile(ClassBuffer *buffer)
-	: magic(0), major_version(0), minor_version(0),
+ClassFile::ClassFile(ClassBuffer *buffer, uint32_t magic)
+	: magic(magic), major_version(0), minor_version(0),
 		access_flags(0), this_class(NULL), super_class(NULL) {
 	this->DecodeClassFile(buffer);
 }
