@@ -15,6 +15,8 @@
 # include "ClassBuffer.h"
 # include "ClassBuilder.h"
 
+# include "ConstantInfo.h"
+
 /**
  * @addtogroup MemberInfo
  * @{
@@ -24,7 +26,6 @@ namespace JBC {
 // Forward Declarations.
 class ClassFile;
 struct AttributeInfo;
-struct ConstantUtf8Info;
 
 /* Field/Method Info */
 
@@ -70,6 +71,27 @@ public:
 	 * @brief Destructor for MemberInfo.
 	 **/
 	~MemberInfo();
+
+public:
+	/**
+	 * @brief Returns this member's name.
+	 *
+	 * @return The name of this member.
+	 **/
+	std::string Name() {
+		if(name == NULL) return NULL;
+		return reinterpret_cast<char *>(name->bytes);
+	}
+
+	/**
+	 * @brief Returns this member's descriptor descriptor.
+	 *
+	 * @return The descriptor for this member.
+	 **/
+	std::string Descriptor() {
+		if(descriptor == NULL) return NULL;
+		return reinterpret_cast<char *>(descriptor->bytes);
+	}
 
 public:
 	MemberInfo *DecodeMember(ClassBuffer *buffer, ClassFile *classFile);
