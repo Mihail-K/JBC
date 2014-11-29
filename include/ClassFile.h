@@ -165,6 +165,51 @@ public:
 
 public:
 	/**
+	 * @breif Adds a Constant to this Class File.
+	 *
+	 * @return A refernce to the Constant.
+	 */
+	ConstantInfo *&AddConstant(ConstantInfo *info);
+
+	/**
+	 * @brief Returns this class's name.
+	 *
+	 * @return The name of this class.
+	 **/
+	std::string ThisName() {
+		if(this_class == NULL) return NULL;
+		return reinterpret_cast<char *>(this_class);
+	}
+
+	/**
+	 * @brief Returns this class's Constant Info.
+	 **/
+	inline
+	ConstantClassInfo *&ThisClass() {
+		return this_class;
+	}
+
+	/**
+	 * @brief Returns the parent class's name.
+	 *
+	 * @return The name of the super class.
+	 **/
+	std::string SuperName() {
+		if(super_class == NULL) return NULL;
+		return reinterpret_cast<char *>(super_class);
+	}
+
+
+	/**
+	 * @brief Returns the parent class's Constant Info.
+	 **/
+	inline
+	ConstantClassInfo *&SuperClass() {
+		return super_class;
+	}
+
+public:
+	/**
 	 * @brief Decoding function for the class file.
 	 *
 	 * Decodes information from a ClassBuffer, populating fields

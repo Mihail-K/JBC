@@ -63,4 +63,12 @@ ClassFile::~ClassFile() {
 	}
 }
 
+ConstantInfo *&ClassFile::AddConstant(ConstantInfo *info) {
+	uint16_t index = constant_pool.size();
+	constant_pool.push_back(info);
+	info->index = index;
+
+	return constant_pool.back();
+}
+
 } /* JBC */
