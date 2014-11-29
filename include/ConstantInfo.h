@@ -2,7 +2,7 @@
  * @file ConstantInfo.h
  * @author Mihail K
  * @date November, 2014
- * @version 0.32
+ * @version 0.38
  *
  * @brief Defines all standard ConstantInfo types.
  **/
@@ -163,7 +163,7 @@ struct ConstantClassInfo
 	 * of CONSTANT_CLASS.
 	 **/
 	ConstantClassInfo()
-		: ConstantInfo(CONSTANT_CLASS) {
+		: ConstantInfo(CONSTANT_CLASS), name_index(0) {
 	}
 
 	ConstantClassInfo *DecodeConstant(ClassBuffer *buffer);
@@ -197,7 +197,8 @@ struct ConstantFieldRefInfo
 	 * of CONSTANT_FIELD_REF.
 	 **/
 	ConstantFieldRefInfo()
-		: ConstantInfo(CONSTANT_FIELD_REF) {
+		: ConstantInfo(CONSTANT_FIELD_REF), class_index(0),
+		  name_and_type_index(0) {
 	}
 
 	ConstantFieldRefInfo *DecodeConstant(ClassBuffer *buffer);
@@ -231,7 +232,8 @@ struct ConstantMethodRefInfo
 	 * of CONSTANT_METHOD_REF.
 	 **/
 	ConstantMethodRefInfo()
-		: ConstantInfo(CONSTANT_METHOD_REF) {
+		: ConstantInfo(CONSTANT_METHOD_REF), class_index(0),
+		  name_and_type_index(0) {
 	}
 
 	ConstantMethodRefInfo *DecodeConstant(ClassBuffer *buffer);
@@ -265,7 +267,8 @@ struct ConstantInterfaceMethodRefInfo
 	 * of ConstantType::CONSTANT_INTERFACE_METHOD_REF.
 	 **/
 	ConstantInterfaceMethodRefInfo()
-		: ConstantInfo(CONSTANT_INTERFACE_METHOD_REF) {
+		: ConstantInfo(CONSTANT_INTERFACE_METHOD_REF), class_index(0),
+		  name_and_type_index(0) {
 	}
 
 	ConstantInterfaceMethodRefInfo *DecodeConstant(ClassBuffer *buffer);
@@ -293,7 +296,7 @@ struct ConstantStringInfo
 	 * of CONSTANT_STRING.
 	 **/
 	ConstantStringInfo()
-		: ConstantInfo(CONSTANT_STRING) {
+		: ConstantInfo(CONSTANT_STRING), string_index(0) {
 	}
 
 	ConstantStringInfo *DecodeConstant(ClassBuffer *buffer);
@@ -319,7 +322,7 @@ struct ConstantIntegerInfo
 	 * of CONSTANT_INTEGER.
 	 **/
 	ConstantIntegerInfo()
-		: ConstantInfo(CONSTANT_INTEGER) {
+		: ConstantInfo(CONSTANT_INTEGER), bytes(0) {
 	}
 
 	ConstantIntegerInfo *DecodeConstant(ClassBuffer *buffer);
@@ -345,7 +348,7 @@ struct ConstantFloatInfo
 	 * of CONSTANT_FLOAT.
 	 **/
 	ConstantFloatInfo()
-		: ConstantInfo(CONSTANT_FLOAT) {
+		: ConstantInfo(CONSTANT_FLOAT), bytes(0) {
 	}
 
 	ConstantFloatInfo *DecodeConstant(ClassBuffer *buffer);
@@ -378,7 +381,7 @@ struct ConstantLongInfo
 	 * of CONSTANT_LONG.
 	 **/
 	ConstantLongInfo()
-		: ConstantInfo(CONSTANT_LONG) {
+		: ConstantInfo(CONSTANT_LONG), high_bytes(0), low_bytes(0) {
 	}
 
 	virtual
@@ -416,7 +419,7 @@ struct ConstantDoubleInfo
 	 * of CONSTANT_DOUBLE.
 	 **/
 	ConstantDoubleInfo()
-		: ConstantInfo(CONSTANT_DOUBLE) {
+		: ConstantInfo(CONSTANT_DOUBLE), high_bytes(0), low_bytes(0) {
 	}
 
 	virtual
@@ -455,7 +458,8 @@ struct ConstantNameAndTypeInfo
 	 * of CONSTANT_NAME_AND_TYPE.
 	 **/
 	ConstantNameAndTypeInfo()
-		: ConstantInfo(CONSTANT_NAME_AND_TYPE) {
+		: ConstantInfo(CONSTANT_NAME_AND_TYPE), name_index(0),
+		  descriptor_index(0) {
 	}
 
 	ConstantNameAndTypeInfo *DecodeConstant(ClassBuffer *buffer);
@@ -488,7 +492,7 @@ struct ConstantUtf8Info
 	 * of CONSTANT_UTF8_INFO.
 	 **/
 	ConstantUtf8Info()
-		: ConstantInfo(CONSTANT_UTF8) {
+		: ConstantInfo(CONSTANT_UTF8), length(0), bytes(NULL) {
 	}
 
 	/**
@@ -530,7 +534,8 @@ struct ConstantMethodHandleInfo
 	 * of CONSTANT_METHOD_HANDLE.
 	 **/
 	ConstantMethodHandleInfo()
-		: ConstantInfo(CONSTANT_METHOD_HANDLE) {
+		: ConstantInfo(CONSTANT_METHOD_HANDLE), reference_kind(0),
+		  reference_index(0) {
 	}
 
 	ConstantMethodHandleInfo *DecodeConstant(ClassBuffer *buffer);
@@ -558,7 +563,7 @@ struct ConstantMethodTypeInfo
 	 * of CONSTANT_METHOD_TYPE.
 	 **/
 	ConstantMethodTypeInfo()
-		: ConstantInfo(CONSTANT_METHOD_TYPE) {
+		: ConstantInfo(CONSTANT_METHOD_TYPE), descriptor_index(0) {
 	}
 
 	ConstantMethodTypeInfo *DecodeConstant(ClassBuffer *buffer);
@@ -592,7 +597,9 @@ struct ConstantInvokeDynamicInfo
 	 * of CONSTANT_INVOKE_DYNAMIC.
 	 **/
 	ConstantInvokeDynamicInfo()
-		: ConstantInfo(CONSTANT_INVOKE_DYNAMIC) {
+		: ConstantInfo(CONSTANT_INVOKE_DYNAMIC),
+		  bootstrap_method_attr_index(0),
+		  name_and_type_index(0) {
 	}
 
 	ConstantInvokeDynamicInfo *DecodeConstant(ClassBuffer *buffer);
