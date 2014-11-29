@@ -2,7 +2,7 @@
  * @file ErrorTypes.h
  * @author Mihail K
  * @date November, 2014
- * @version 0.33
+ * @version 0.36
  *
  * @brief Defines all common error types used by JBC.
  **/
@@ -70,6 +70,23 @@ struct EncodeError
 	 **/
 	inline
 	EncodeError(const char *msg)
+		: JBCError(msg) {
+	}
+};
+
+/**
+ * @struct NotFoundError
+ * @brief An error caused by a requested element not being present.
+ **/
+struct NotFoundError
+		: public JBCError {
+	/**
+	 * @brief Constructor for NotFoundError type.
+	 *
+	 * @param msg The error message.
+	 **/
+	inline
+	NotFoundError(const char *msg)
 		: JBCError(msg) {
 	}
 };

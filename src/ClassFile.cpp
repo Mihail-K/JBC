@@ -81,9 +81,37 @@ MemberInfo *&ClassFile::AddField(MemberInfo *field) {
 	return fields.back();
 }
 
+MemberInfo *&ClassFile::FindField(std::string &name) {
+	if(!fields.empty()) {
+		// TODO : Consider a more efficient way of going about this.
+		for(std::vector<MemberInfo *>::iterator itr = fields.begin();
+				itr != fields.end(); itr++) {
+			if((*itr)->Name() == name) {
+				return *itr;
+			}
+		}
+	}
+
+	throw NotFoundError("Requested field not found.");
+}
+
 MemberInfo *&ClassFile::AddMethod(MemberInfo *method) {
 	methods.push_back(method);
 	return methods.back();
+}
+
+MemberInfo *&ClassFile::FindMethod(std::string &name) {
+	if(!methods.empty()) {
+		// TODO : Consider a more efficient way of going about this.
+		for(std::vector<MemberInfo *>::iterator itr = methods.begin();
+				itr != methods.end(); itr++) {
+			if((*itr)->Name() == name) {
+				return *itr;
+			}
+		}
+	}
+
+	throw NotFoundError("Requested field not found.");
 }
 
 AttributeInfo *&ClassFile::AddAttribute(AttributeInfo *info, bool validate) {

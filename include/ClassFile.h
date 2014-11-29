@@ -287,9 +287,25 @@ public:
 	MemberInfo *&AddField(MemberInfo *field);
 
 	/**
+	 * @brief Looks up a field, by name.
+	 *
+	 * @param name The name of the field to find.
+	 * @return A reference to the named field, if found.
+	 **/
+	MemberInfo *&FindField(std::string &name);
+
+	/**
 	 * @breif Adds a method to this class.
 	 **/
 	MemberInfo *&AddMethod(MemberInfo *method);
+
+	/**
+	 * @brief Looks up a method, by name.
+	 *
+	 * @param name The name of the method to find.
+	 * @return A reference to the named method, if found.
+	 **/
+	MemberInfo *&FindMethod(std::string &name);
 
 	/**
 	 * @breif Attaches an Attribute to this class.
