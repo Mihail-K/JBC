@@ -2,7 +2,7 @@
  * @file ClassFile.h
  * @author Mihail K
  * @date November, 2014
- * @version 0.35
+ * @version 0.36
  **/
 # ifndef __CLASSFILE_H__
 # define __CLASSFILE_H__
@@ -26,6 +26,17 @@ struct ConstantClassInfo;
 
 class MemberInfo;
 struct AttributeInfo;
+
+enum ClassFlags {
+	CLASS_PUBLIC		= 0x0001,
+	CLASS_FINAL			= 0x0010,
+	CLASS_SUPER			= 0x0020,
+	CLASS_INTERFACE		= 0x0200,
+	CLASS_ABSTRACT		= 0x0400,
+	CLASS_SYNTHETIC		= 0x1000,
+	CLASS_ANNOTATION	= 0x2000,
+	CLASS_ENUM			= 0x4000
+};
 
 /**
  * @class ClassFile
@@ -195,6 +206,34 @@ public:
 	 * @return A refernce to the Constant.
 	 */
 	ConstantInfo *&AddConstant(ConstantInfo *info);
+
+	/**
+	 * @brief Returns a reference to this class's flags.
+	 **/
+	inline
+	uint16_t &Flags() {
+		return access_flags;
+	}
+
+	/**
+	 * @breif Returns the state of a single flag.
+	 *
+	 * @param flag The flag to check for.
+	 **/
+	bool GetFlag(ClassFlags flag) {
+		return !!(access_flags & flag);
+	}
+
+	/**
+	 * @brief Sets the state of a single flag.
+	 *
+	 * @param flag The flag to be modified.
+	 * @param state The new state for the flag.
+	 **/
+	void SetFlag(ClassFlags flag, bool state) {
+		if(state) access_flags |= flag;
+		else access_flags &= ~flag;
+	}
 
 	/**
 	 * @brief Returns this class's name.

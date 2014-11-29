@@ -1,3 +1,11 @@
+/**
+ * @file AttributeInfo.h
+ * @author Mihail K
+ * @date November, 2014
+ * @version 0.36
+ *
+ * @brief Defines all standard AttributeInfo types.
+ **/
 # ifndef __ATTRIBUTEINFO_H__
 # define __ATTRIBUTEINFO_H__
 
@@ -136,18 +144,18 @@ struct ExceptionsAttribute
 	ExceptionsAttribute *EncodeAttribute(ClassBuilder *builder, ClassFile *classFile);
 };
 
-typedef enum {
-//	ACC_PUBLIC		= 0x0001,
-//	ACC_PRIVATE		= 0x0002,
-//	ACC_PROTECTED	= 0x0004,
-//	ACC_STATIC		= 0x0008,
-//	ACC_FINAL		= 0x0010,
-	ACC_INTERFACE	= 0x0200,
-//	ACC_ABSTRACT	= 0x0400,
-//	ACC_SYNTHETIC	= 0x1000,
-	ACC_ANNOTATION	= 0x2000,
-//	ACC_ENUM		= 0x4000
-} InnerClassAccessFlags;
+enum InnerClassFlags {
+	INNER_CLASS_PUBLIC		= 0x0001,
+	INNER_CLASS_PRIVATE		= 0x0002,
+	INNER_CLASS_PROTECTED	= 0x0004,
+	INNER_CLASS_STATIC		= 0x0008,
+	INNER_CLASS_FINAL		= 0x0010,
+	INNER_CLASS_INTERFACE	= 0x0200,
+	INNER_CLASS_ABSTRACT	= 0x0400,
+	INNER_CLASS_SYNTHETIC	= 0x1000,
+	INNER_CLASS_ANNOTATION	= 0x2000,
+	INNER_CLASS_ENUM		= 0x4000
+};
 
 struct InnerClassEntry {
 	// Inner Class Info
@@ -163,6 +171,34 @@ struct InnerClassEntry {
 	uint16_t	inner_class_access_flags;
 
 	InnerClassEntry() {
+	}
+
+	/**
+	 * @brief Returns a reference to this inner class's flags.
+	 **/
+	inline
+	uint16_t &Flags() {
+		return inner_class_access_flags;
+	}
+
+	/**
+	 * @breif Returns the state of a single flag.
+	 *
+	 * @param flag The flag to check for.
+	 **/
+	bool GetFlag(InnerClassFlags flag) {
+		return !!(inner_class_access_flags & flag);
+	}
+
+	/**
+	 * @brief Sets the state of a single flag.
+	 *
+	 * @param flag The flag to be modified.
+	 * @param state The new state for the flag.
+	 **/
+	void SetFlag(InnerClassFlags flag, bool state) {
+		if(state) inner_class_access_flags |= flag;
+		else inner_class_access_flags &= ~flag;
 	}
 
 	InnerClassEntry *DecodeEntry(ClassBuffer *buffer, ClassFile *classFile);
