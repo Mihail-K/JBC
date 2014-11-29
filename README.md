@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
 	// List class methods.
 	ClassFile *clazz = DecodeClassFile(input);
 	for(auto itr = clazz->methods->begin(); itr != clazz->methods->end(); itr++) {
-		cout << "Method: " << (*itr)->name->bytes << "." << endl;
+		cout << "Method: " << (*itr)->Name() << "." << endl;
 	}
 	
 	// Done.
