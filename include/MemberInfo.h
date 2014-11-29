@@ -278,7 +278,6 @@ public:
 	 * This property is only meaningful for methods.
 	 **/
 	inline
-	inline
 	bool IsBridge() {
 		return GetFlag(METHOD_BRIDGE);
 	}
@@ -289,7 +288,6 @@ public:
 	 * Corresponds to methods declared with variable arguments.
 	 * This property is only meaningful for methods.
 	 **/
-	inline
 	inline
 	bool IsVarArgs() {
 		return GetFlag(METHOD_VARARGS);
@@ -302,7 +300,6 @@ public:
 	 * This property is only meaningful for methods.
 	 **/
 	inline
-	inline
 	bool IsNative() {
 		return GetFlag(METHOD_NATIVE);
 	}
@@ -313,7 +310,6 @@ public:
 	 * Corresponds to the @c abstract keyword.
 	 * This property is only meaningful for methods.
 	 **/
-	inline
 	inline
 	bool IsAbstract() {
 		return GetFlag(METHOD_ABSTRACT);
@@ -326,9 +322,8 @@ public:
 	 * This property is only meaningful for methods.
 	 **/
 	inline
-	inline
 	bool IsStrict() {
-		return GetFlag(METHOD_SCRICT);
+		return GetFlag(METHOD_STRICT);
 	}
 
 public:

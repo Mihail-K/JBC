@@ -21,6 +21,12 @@
 
 namespace JBC {
 
+/**
+ * @def JAVA_MAGIC
+ * @breif The default magic number for Java class files.
+ **/
+# define JAVA_MAGIC 0xCAFEBABE
+
 struct ConstantInfo;
 struct ConstantClassInfo;
 
@@ -168,7 +174,7 @@ public:
 	 * @param buffer The ClassBuffer to decode data from.
 	 * @param magic The magic number to check for when decoding.
 	 **/
-	ClassFile(ClassBuffer *buffer, uint32_t magic = 0xCAFEBABE);
+	ClassFile(ClassBuffer *buffer, uint32_t magic = JAVA_MAGIC);
 
 	/**
 	 * @brief Destructor for the class file type.
@@ -322,6 +328,71 @@ public:
 
 public:
 	/**
+	 * @brief Checks if this member is public.
+	 **/
+	inline
+	bool IsPublic() {
+		return GetFlag(CLASS_PUBLIC);
+	}
+
+	/**
+	 * @brief Checks if this member is final.
+	 **/
+	inline
+	bool IsFinal() {
+		return GetFlag(CLASS_FINAL);
+	}
+
+	/**
+	 * @brief Checks if this member is the object superclass.
+	 **/
+	inline
+	bool IsSuper() {
+		return GetFlag(CLASS_SUPER);
+	}
+
+	/**
+	 * @brief Checks if this member is an interface.
+	 **/
+	inline
+	bool IsInterface() {
+		return GetFlag(CLASS_INTERFACE);
+	}
+
+	/**
+	 * @brief Checks if this member is abstract.
+	 **/
+	inline
+	bool IsAbstract() {
+		return GetFlag(CLASS_ABSTRACT);
+	}
+
+	/**
+	 * @brief Checks if this member is synthetic.
+	 **/
+	inline
+	bool IsSynthetic() {
+		return GetFlag(CLASS_SYNTHETIC);
+	}
+
+	/**
+	 * @brief Checks if this member is an annotation
+	 **/
+	inline
+	bool IsAnnotation() {
+		return GetFlag(CLASS_ANNOTATION);
+	}
+
+	/**
+	 * @brief Checks if this member is an enum.
+	 **/
+	inline
+	bool IsEnum() {
+		return GetFlag(CLASS_ENUM);
+	}
+
+public:
+	/**
 	 * @brief Decoding function for the class file.
 	 *
 	 * Decodes information from a ClassBuffer, populating fields
@@ -375,7 +446,7 @@ private:
  * @param magic The magic number to check for when decoding.
  * @return The class file representation of the input file.
  **/
-ClassFile *DecodeClassFile(FILE *source, uint32_t magic = 0xCAFEBABE);
+ClassFile *DecodeClassFile(FILE *source, uint32_t magic = JAVA_MAGIC);
 
 /**
  * @brief Writes a class file into an output file.
