@@ -10,4 +10,5 @@ diff -q Test1.hex Test2.hex
 rc=$?
 
 rm Test1.hex Test2.hex Test2.class
+echo $rc
 exit $rc
