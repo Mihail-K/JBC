@@ -21,6 +21,7 @@ void ClassFile::DecodeConstants(ClassBuffer *buffer) {
 		debug_printf(level2, "Constant %d :\n", idx);
 		info = AddConstant(DecodeConstant(buffer));
 
+		// "Long" constants take up two indexes.
 		if(info->IsLongConstant()) {
 			debug_printf(level2, "Long Constant; Skipping index.\n");
 			constant_pool.push_back(NULL);
@@ -91,7 +92,7 @@ void ClassFile::DecodeAttributes(ClassBuffer *buffer) {
 
 	for(unsigned idx = 0; idx < length; idx++) {
 		debug_printf(level2, "Attribute %d :\n", idx);
-		attributes.push_back(DecodeAttribute(buffer, this));
+		AddAttribute(DecodeAttribute(buffer, this), false);
 	}
 }
 
