@@ -2,6 +2,8 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+
+# include <vector>
 # include <iostream>
 
 # include "ClassFile.h"
@@ -32,12 +34,14 @@ int main(int argc, char **argv) {
 		clazz = DecodeClassFile(input);
 
 		std::cout << "Listing Fields:" << std::endl;
-		for(auto itr = clazz->fields.begin(); itr != clazz->fields.end(); itr++) {
+		for(std::vector<MemberInfo *>::iterator itr = clazz->fields.begin();
+				itr != clazz->fields.end(); itr++) {
 			std::cout << "Field: " << (*itr)->Name() << "." << std::endl;
 		}
 
 		std::cout << "Listing Methods:" << std::endl;
-		for(auto itr = clazz->methods.begin(); itr != clazz->methods.end(); itr++) {
+		for(std::vector<MemberInfo *>::iterator itr = clazz->methods.begin();
+				itr != clazz->methods.end(); itr++) {
 			std::cout << "Method: " << (*itr)->Name() << "." << std::endl;
 		}
 
