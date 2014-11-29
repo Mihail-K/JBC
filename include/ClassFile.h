@@ -2,7 +2,7 @@
  * @file ClassFile.h
  * @author Mihail K
  * @date November, 2014
- * @version 0.36
+ * @version 0.40
  **/
 # ifndef __CLASSFILE_H__
 # define __CLASSFILE_H__
