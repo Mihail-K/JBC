@@ -76,6 +76,16 @@ ConstantClassInfo *&ClassFile::AddInterface(ConstantClassInfo *info) {
 	return interfaces.back();
 }
 
+MemberInfo *&ClassFile::AddField(MemberInfo *field) {
+	fields.push_back(field);
+	return fields.back();
+}
+
+MemberInfo *&ClassFile::AddMethod(MemberInfo *method) {
+	methods.push_back(method);
+	return methods.back();
+}
+
 AttributeInfo *&ClassFile::AddAttribute(AttributeInfo *info, bool validate) {
 	if(validate) {
 		// TODO

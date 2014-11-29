@@ -277,9 +277,19 @@ public:
 	/**
 	 * @breif Adds an interface to this class.
 	 *
-	 * @param info The inteerface's Constant info.
+	 * @param info The interface's Constant info.
 	 **/
 	ConstantClassInfo *&AddInterface(ConstantClassInfo *info);
+
+	/**
+	 * @brief Adds a field to this class.
+	 **/
+	MemberInfo *&AddField(MemberInfo *field);
+
+	/**
+	 * @breif Adds a method to this class.
+	 **/
+	MemberInfo *&AddMethod(MemberInfo *method);
 
 	/**
 	 * @breif Attaches an Attribute to this class.
