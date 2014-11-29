@@ -266,7 +266,6 @@ public:
 		return reinterpret_cast<char *>(super_class);
 	}
 
-
 	/**
 	 * @brief Returns the parent class's Constant Info.
 	 **/
@@ -274,6 +273,13 @@ public:
 	ConstantClassInfo *&SuperClass() {
 		return super_class;
 	}
+
+	/**
+	 * @breif Adds an interface to this class.
+	 *
+	 * @param info The inteerface's Constant info.
+	 **/
+	ConstantClassInfo *&AddInterface(ConstantClassInfo *info);
 
 	/**
 	 * @breif Attaches an Attribute to this class.

@@ -52,7 +52,7 @@ void ClassFile::DecodeInterfaces(ClassBuffer *buffer) {
 	for(unsigned idx = 0; idx < length; idx++) {
 		uint16_t index = buffer->NextShort();
 		debug_printf(level2, "Interface %d : %d.\n", idx, index);
-		interfaces.push_back((ConstantClassInfo *)constant_pool[index]);
+		AddInterface(static_cast<ConstantClassInfo *>(constant_pool[index]));
 	}
 }
 

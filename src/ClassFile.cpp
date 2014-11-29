@@ -71,6 +71,11 @@ ConstantInfo *&ClassFile::AddConstant(ConstantInfo *info) {
 	return constant_pool.back();
 }
 
+ConstantClassInfo *&ClassFile::AddInterface(ConstantClassInfo *info) {
+	interfaces.push_back(info);
+	return interfaces.back();
+}
+
 AttributeInfo *&ClassFile::AddAttribute(AttributeInfo *info, bool validate) {
 	if(validate) {
 		// TODO
