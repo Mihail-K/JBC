@@ -2,7 +2,7 @@
 JC = javac
 
 CFLAGS = -Werror -Wall -Wextra
-CPPFLAGS = -D _DEBUG=3 -I include/
+CPPFLAGS = -I include/
 
 objects = ClassBuffer.o ClassBuilder.o \
 	ClassFile.o ClassDecoder.o ClassEncoder.o \
