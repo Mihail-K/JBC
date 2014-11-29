@@ -2,7 +2,7 @@
  * @file MemberInfo.h
  * @author Mihail K
  * @date November, 2014
- * @version 0.36
+ * @version 0.40
  *
  * @brief Defines class member types and functions.
  **/
@@ -146,6 +146,160 @@ public:
 	std::string Descriptor() {
 		if(descriptor == NULL) return NULL;
 		return reinterpret_cast<char *>(descriptor->bytes);
+	}
+
+public:
+	/**
+	 * @breif Checks if this member is public.
+	 **/
+	inline
+	bool IsPublic() {
+		return GetFlag(FIELD_PUBLIC);
+	}
+
+	/**
+	 * @breif Checks if this member is protected.
+	 **/
+	inline
+	bool IsProtected() {
+		return GetFlag(FIELD_PROTECTED);
+	}
+
+	/**
+	 * @breif Checks if this member is private.
+	 **/
+	inline
+	bool IsPrivate() {
+		return GetFlag(FIELD_PRIVATE);
+	}
+
+	/**
+	 * @breif Checks if this member is package private (default).
+	 **/
+	inline
+	bool IsPackagePrivate() {
+		return !IsPublic() && !IsProtected()
+				&& !IsPrivate();
+	}
+
+	/**
+	 * @breif Checks if this member is static.
+	 **/
+	inline
+	bool IsStatic() {
+		return GetFlag(FIELD_STATIC);
+	}
+
+	/**
+	 * @breif Checks if this member is final.
+	 **/
+	inline
+	bool IsFinal() {
+		return GetFlag(FIELD_FINAL);
+	}
+
+	/**
+	 * @breif Checks if this member is volatile.
+	 *
+	 * This property is only meaningful for fields.
+	 **/
+	inline
+	bool IsVolatile() {
+		return GetFlag(FIELD_VOLATILE);
+	}
+
+	/**
+	 * @breif Checks if this member is transient.
+	 *
+	 * This property is only meaningful for fields.
+	 **/
+	inline
+	bool IsTransient() {
+		return GetFlag(FIELD_TRANSIENT);
+	}
+
+	/**
+	 * @breif Checks if this member is synthetic.
+	 **/
+	inline
+	bool IsSynthetic() {
+		return GetFlag(FIELD_SYNTHETIC);
+	}
+
+
+	/**
+	 * @breif Checks if this member is an enum constant.
+	 *
+	 * This property is only meaningful for fields.
+	 **/
+	inline
+	bool IsEnumConstant() {
+		return GetFlag(FIELD_ENUM);
+	}
+
+	/**
+	 * @breif Checks if this member is synchronzied.
+	 *
+	 * This property is only meaningful for methods.
+	 **/
+	inline
+	bool IsSynchronized() {
+		return GetFlag(METHOD_SYNCHRONIZED);
+	}
+	
+	/**
+	 * @breif Checks if this member is a bridge.
+	 *
+	 * This property is only meaningful for methods.
+	 **/
+	inline
+	inline
+	bool IsBridge() {
+		return GetFlag(METHOD_BRIDGE);
+	}
+
+	/**
+	 * @breif Checks if this member takes variable arguments.
+	 *
+	 * This property is only meaningful for methods.
+	 **/
+	inline
+	inline
+	bool IsVarArgs() {
+		return GetFlag(METHOD_VARARGS);
+	}
+
+	/**
+	 * @breif Checks if this member is native.
+	 *
+	 * This property is only meaningful for methods.
+	 **/
+	inline
+	inline
+	bool IsNative() {
+		return GetFlag(METHOD_NATIVE);
+	}
+
+	/**
+	 * @breif Checks if this member is abstract.
+	 *
+	 * This property is only meaningful for methods.
+	 **/
+	inline
+	inline
+	bool IsAbstract() {
+		return GetFlag(METHOD_ABSTRACT);
+	}
+
+	/**
+	 * @breif Checks if this member is in strict floating-point mode.
+	 *
+	 * This property is only meaningful for methods.
+	 **/
+	inline
+	inline
+	bool IsStrict() {
+		return GetFlag(METHOD_SCRICT);
 	}
 
 public:
