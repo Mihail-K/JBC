@@ -101,7 +101,7 @@ public:
 
 public:
 	/**
-	 * @breif Returns a reference to this member's flags.
+	 * @brief Returns a reference to this member's flags.
 	 **/
 	inline
 	uint16_t &Flags() {
@@ -109,7 +109,7 @@ public:
 	}
 
 	/**
-	 * @breif Returns the state of a single flag.
+	 * @brief Returns the state of a single flag.
 	 *
 	 * @param flag The flag to check for.
 	 **/
@@ -150,7 +150,7 @@ public:
 
 public:
 	/**
-	 * @breif Checks if this member is public.
+	 * @brief Checks if this member is public.
 	 **/
 	inline
 	bool IsPublic() {
@@ -158,7 +158,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is protected.
+	 * @brief Checks if this member is protected.
 	 **/
 	inline
 	bool IsProtected() {
@@ -166,7 +166,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is private.
+	 * @brief Checks if this member is private.
 	 **/
 	inline
 	bool IsPrivate() {
@@ -174,7 +174,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is package private (default).
+	 * @brief Checks if this member is package private (default).
 	 **/
 	inline
 	bool IsPackagePrivate() {
@@ -183,7 +183,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is static.
+	 * @brief Checks if this member is static.
 	 **/
 	inline
 	bool IsStatic() {
@@ -191,7 +191,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is final.
+	 * @brief Checks if this member is final.
 	 **/
 	inline
 	bool IsFinal() {
@@ -199,7 +199,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is volatile.
+	 * @brief Checks if this member is volatile.
 	 *
 	 * This property is only meaningful for fields.
 	 **/
@@ -209,7 +209,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is transient.
+	 * @brief Checks if this member is transient.
 	 *
 	 * This property is only meaningful for fields.
 	 **/
@@ -219,7 +219,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is synthetic.
+	 * @brief Checks if this member is synthetic.
 	 **/
 	inline
 	bool IsSynthetic() {
@@ -228,7 +228,7 @@ public:
 
 
 	/**
-	 * @breif Checks if this member is an enum constant.
+	 * @brief Checks if this member is an enum constant.
 	 *
 	 * This property is only meaningful for fields.
 	 **/
@@ -238,7 +238,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is synchronzied.
+	 * @brief Checks if this member is synchronzied.
 	 *
 	 * This property is only meaningful for methods.
 	 **/
@@ -248,7 +248,7 @@ public:
 	}
 	
 	/**
-	 * @breif Checks if this member is a bridge.
+	 * @brief Checks if this member is a bridge.
 	 *
 	 * This property is only meaningful for methods.
 	 **/
@@ -259,7 +259,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member takes variable arguments.
+	 * @brief Checks if this member takes variable arguments.
 	 *
 	 * This property is only meaningful for methods.
 	 **/
@@ -270,7 +270,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is native.
+	 * @brief Checks if this member is native.
 	 *
 	 * This property is only meaningful for methods.
 	 **/
@@ -281,7 +281,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is abstract.
+	 * @brief Checks if this member is abstract.
 	 *
 	 * This property is only meaningful for methods.
 	 **/
@@ -292,7 +292,7 @@ public:
 	}
 
 	/**
-	 * @breif Checks if this member is in strict floating-point mode.
+	 * @brief Checks if this member is in strict floating-point mode.
 	 *
 	 * This property is only meaningful for methods.
 	 **/
