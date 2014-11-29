@@ -1,3 +1,11 @@
+/**
+ * @file ElementValue.h
+ * @author Mihail K
+ * @date November, 2014
+ * @version 0.38
+ *
+ * @brief Defines all Element Value types.
+ **/
 # ifndef __ELEMENTVALUE_H__
 # define __ELEMENTVALUE_H__
 
@@ -15,7 +23,8 @@ struct AnnotationEntry;
 struct ElementValue {
 	uint8_t		tag;
 
-	ElementValue() {
+	ElementValue()
+		: tag(0) {
 	}
 
 	ElementValue(uint8_t tag)
@@ -38,11 +47,12 @@ struct ConstantElementValue
 	// Constant Value
 	ConstantInfo *const_value;
 
-	ConstantElementValue() {
+	ConstantElementValue()
+		: const_value(NULL) {
 	}
 
 	ConstantElementValue(uint8_t tag)
-		: ElementValue(tag) {
+		: ElementValue(tag), const_value(NULL) {
 	}
 
 	ConstantElementValue *DecodeValue(ClassBuffer *buffer, ClassFile *classFile);
@@ -58,11 +68,12 @@ struct EnumConstantElementValue
 	// Constant Name
 	ConstantUtf8Info *const_name;
 
-	EnumConstantElementValue() {
+	EnumConstantElementValue()
+		: type_name(NULL), const_name(NULL) {
 	}
 
 	EnumConstantElementValue(uint8_t tag)
-		: ElementValue(tag) {
+		: ElementValue(tag), type_name(NULL), const_name(NULL) {
 	}
 
 	EnumConstantElementValue *DecodeValue(ClassBuffer *buffer, ClassFile *classFile);
@@ -75,11 +86,12 @@ struct ClassElementValue
 	// Class Info Value
 	ConstantClassInfo *class_info;
 
-	ClassElementValue() {
+	ClassElementValue()
+		: class_info(NULL) {
 	}
 
 	ClassElementValue(uint8_t tag)
-		: ElementValue(tag) {
+		: ElementValue(tag), class_info(NULL) {
 	}
 
 	ClassElementValue *DecodeValue(ClassBuffer *buffer, ClassFile *classFile);
@@ -92,11 +104,12 @@ struct AnnotationElementValue
 	// Annotation Value
 	AnnotationEntry *annotation_value;
 
-	AnnotationElementValue() {
+	AnnotationElementValue()
+		: annotation_value(NULL) {
 	}
 
 	AnnotationElementValue(uint8_t tag)
-		: ElementValue(tag) {
+		: ElementValue(tag), annotation_value(NULL) {
 	}
 
 	~AnnotationElementValue();
@@ -132,7 +145,8 @@ struct ElementValuePairsEntry {
 	// Element Value
 	ElementValue *value;
 
-	ElementValuePairsEntry() {
+	ElementValuePairsEntry()
+		: element_name(NULL), value(NULL) {
 	}
 
 	~ElementValuePairsEntry();
@@ -149,7 +163,8 @@ struct AnnotationEntry {
 	// Element-Value Pairs Table
 	std::vector<ElementValuePairsEntry *> element_value_pairs;
 
-	AnnotationEntry() {
+	AnnotationEntry()
+		: type(NULL) {
 	}
 
 	~AnnotationEntry();

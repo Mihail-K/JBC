@@ -1,5 +1,5 @@
 /**
- * @file MemberInfo.h
+ * @file StackMapFrame.h
  * @author Mihail K
  * @date November, 2014
  * @version 0.37
