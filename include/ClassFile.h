@@ -203,6 +203,9 @@ public:
 	/**
 	 * @breif Adds a Constant to this Class File.
 	 *
+	 * This also sets the index field of the attribute to its
+	 * position within the constant pool.
+	 *
 	 * @return A refernce to the Constant.
 	 */
 	ConstantInfo *&AddConstant(ConstantInfo *info);
@@ -271,6 +274,19 @@ public:
 	ConstantClassInfo *&SuperClass() {
 		return super_class;
 	}
+
+	/**
+	 * @breif Attaches an Attribute to this class.
+	 * 
+	 * This function also optionally validate that this Attribute
+	 * is allowed to be attached to Class Files.
+	 * Validation is done through blacklisting, so nonstandard
+	 * Attributes will not cause an error.
+	 *
+	 * @param info The Attribute Info object to add.
+	 * @param validate Whether to validate that this Attribute.
+	 **/
+	AttributeInfo *&AddAttribute(AttributeInfo *info, bool validate = true);
 
 public:
 	/**
