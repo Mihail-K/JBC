@@ -2,7 +2,7 @@
  * @file MemberInfo.h
  * @author Mihail K
  * @date November, 2014
- * @version 0.33
+ * @version 0.35
  *
  * @brief Defines class member types and functions.
  **/

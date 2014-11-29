@@ -2,7 +2,7 @@
  * @file ClassFile.h
  * @author Mihail K
  * @date November, 2014
- * @version 0.32
+ * @version 0.35
  **/
 # ifndef __CLASSFILE_H__
 # define __CLASSFILE_H__
@@ -165,6 +165,30 @@ public:
 	~ClassFile();
 
 public:
+	/**
+	 * @breif Returns a reference to the magic number.
+	 **/
+	inline
+	uint32_t &Magic() {
+		return magic;
+	}
+
+	/**
+	 * @breif Returns a reference to the major version number.
+	 **/
+	inline
+	uint16_t &MajorVersion() {
+		return major_version;
+	}
+
+	/**
+	 * @breif Returns a reference to the minor version number.
+	 **/
+	inline
+	uint16_t &MinorVersion() {
+		return minor_version;
+	}
+
 	/**
 	 * @breif Adds a Constant to this Class File.
 	 *
