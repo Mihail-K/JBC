@@ -20,14 +20,14 @@ jbctest: test.o libjbc.a
 
 .PHONY: clean
 clean:
-	rm -f *.o *.exe *.a *.class *.hex
+	rm -f $(objects) *.exe *.a *.class *.hex
 
 Test.class : test/Test.java
 	$(JC) $(JFALGS) $<
 	mv test/*.class .
 
 test.o: test/Main.cpp include/*.h
-	$(CC) $(CFLAGS) $(CPPFLAGS) -std=c++11 $< -c -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) -std=gnu++11 $< -c -o $@
 
 %.o: src/%.cpp include/*.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
