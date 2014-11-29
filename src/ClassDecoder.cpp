@@ -19,10 +19,7 @@ void ClassFile::DecodeConstants(ClassBuffer *buffer) {
 	for(unsigned idx = 1; idx < length; idx++) {
 		ConstantInfo *info;
 		debug_printf(level2, "Constant %d :\n", idx);
-		info = DecodeConstant(buffer);
-		info->index = idx;
-
-		constant_pool.push_back(info);
+		info = AddConstant(DecodeConstant(buffer));
 
 		if(info->IsLongConstant()) {
 			debug_printf(level2, "Long Constant; Skipping index.\n");
