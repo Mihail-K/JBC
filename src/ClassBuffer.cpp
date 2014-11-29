@@ -60,7 +60,9 @@ uint32_t FromBigEndian(uint32_t l) {
 
 void ClassBuffer::Skip(size_t count) {
 	reads += count;
-	fseek(input, count, SEEK_CUR);
+	if(fseek(input, count, SEEK_CUR) == EOF) {
+		throw BufferError(strerror(errno));
+	}
 }
 
 uint8_t *ClassBuffer::Next(uint8_t *dst, size_t count) {

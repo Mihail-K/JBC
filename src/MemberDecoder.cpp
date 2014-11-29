@@ -16,12 +16,12 @@ MemberInfo *MemberInfo::DecodeMember(ClassBuffer *buffer, ClassFile *classFile) 
 
 	// Member Name
 	index = buffer->NextShort();
-	name = dynamic_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	name = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 	debug_printf(level1, "Member Name : %s.\n", name->bytes);
 
 	// Member Descriptor
 	index = buffer->NextShort();
-	descriptor = dynamic_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
+	descriptor = static_cast<ConstantUtf8Info *>(classFile->constant_pool[index]);
 	debug_printf(level1, "Member Descriptor : %s.\n", descriptor->bytes);
 
 	// Member Attributes Table
