@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 	cout << "Field descriptor for 'foo': " << field->Descriptor() << endl;
 
 	// List class methods.
-	for(auto itr = clazz->methods->begin(); itr != clazz->methods->end(); itr++) {
+	for(auto itr = clazz->methods.begin(); itr != clazz->methods.end(); itr++) {
 		cout << "Method: " << (*itr)->Name() << "." << endl;
 	}
 

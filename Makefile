@@ -27,7 +27,7 @@ Test.class : test/Test.java
 	mv test/*.class .
 
 test.o: test/Main.cpp include/*.h
-	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) -std=c++11 $< -c -o $@
 
 %.o: src/%.cpp include/*.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
