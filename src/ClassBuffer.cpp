@@ -81,8 +81,10 @@ uint8_t ClassBuffer::NextByte() {
 
 	reads++;
 	if((read = fread(&value, 1, sizeof(uint8_t), input))
-			!= sizeof(uint8_t))
+			!= sizeof(uint8_t)) {
 		throw BufferError(strerror(errno));
+	}
+
 	return value;
 }
 
@@ -92,8 +94,10 @@ uint16_t ClassBuffer::NextShort() {
 
 	reads++;
 	if((read = fread(&value, 1, sizeof(uint16_t), input))
-			!= sizeof(uint16_t))
+			!= sizeof(uint16_t)) {
 		throw BufferError(strerror(errno));
+	}
+
 	return FromBigEndian(value);
 }
 
@@ -103,8 +107,10 @@ uint32_t ClassBuffer::NextInt() {
 
 	reads++;
 	if((read = fread(&value, 1, sizeof(uint32_t), input))
-			!= sizeof(uint32_t))
+			!= sizeof(uint32_t)) {
 		throw BufferError(strerror(errno));
+	}
+
 	return FromBigEndian(value);
 }
 
