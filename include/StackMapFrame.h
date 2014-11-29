@@ -1,3 +1,11 @@
+/**
+ * @file MemberInfo.h
+ * @author Mihail K
+ * @date November, 2014
+ * @version 0.37
+ *
+ * @brief Defines stack map frame types.
+ **/
 # ifndef __STACKMAPFRAME_H__
 # define __STACKMAPFRAME_H__
 
@@ -12,7 +20,8 @@ namespace JBC {
 struct VariableInfo {
 	uint8_t		tag;
 
-	VariableInfo() {
+	VariableInfo()
+		: tag(0) {
 	}
 
 	VariableInfo(uint8_t tag)
@@ -40,11 +49,12 @@ struct ObjectVariableInfo
 		: public VariableInfo {
 	ConstantClassInfo *object;
 
-	ObjectVariableInfo() {
+	ObjectVariableInfo()
+		: object(NULL) {
 	}
 
 	ObjectVariableInfo(uint8_t tag)
-		: VariableInfo(tag) {
+		: VariableInfo(tag), object(NULL) {
 	}
 
 	ObjectVariableInfo *DecodeInfo(ClassBuffer *buffer, ClassFile *classFile);
@@ -56,11 +66,12 @@ struct UninitializedVariableInfo
 		: public VariableInfo {
 	uint16_t offset;
 
-	UninitializedVariableInfo() {
+	UninitializedVariableInfo()
+		: offset(0) {
 	}
 
 	UninitializedVariableInfo(uint8_t tag)
-		: VariableInfo(tag) {
+		: VariableInfo(tag), offset(0) {
 	}
 
 	UninitializedVariableInfo *DecodeInfo(ClassBuffer *buffer, ClassFile *classFile);
@@ -75,7 +86,8 @@ void EncodeVariableInfo(ClassBuilder *builder, ClassFile *classFile, VariableInf
 struct StackMapFrame {
 	uint8_t		tag;
 
-	StackMapFrame() {
+	StackMapFrame()
+		: tag(0) {
 	}
 
 	StackMapFrame(uint8_t tag)
@@ -100,11 +112,12 @@ struct StackMapOffFrame
 		: public StackMapFrame {
 	uint16_t	offset_delta;
 
-	StackMapOffFrame() {
+	StackMapOffFrame()
+		: offset_delta(0) {
 	}
 
 	StackMapOffFrame(uint8_t tag)
-		: StackMapFrame(tag) {
+		: StackMapFrame(tag), offset_delta(0) {
 	}
 
 	StackMapOffFrame *DecodeFrame(ClassBuffer *buffer, ClassFile *classFile);
@@ -117,11 +130,12 @@ struct StackMapItemFrame
 	// Stack Items
 	VariableInfo *stack;
 
-	StackMapItemFrame() {
+	StackMapItemFrame()
+		: stack(NULL) {
 	}
 
 	StackMapItemFrame(uint8_t tag)
-		: StackMapFrame(tag) {
+		: StackMapFrame(tag), stack(NULL) {
 	}
 
 	~StackMapItemFrame();
@@ -138,11 +152,12 @@ struct StackMapExtFrame
 	// Stack Items
 	VariableInfo *stack;
 
-	StackMapExtFrame() {
+	StackMapExtFrame()
+		: offset_delta(0), stack(NULL) {
 	}
 
 	StackMapExtFrame(uint8_t tag)
-		: StackMapFrame(tag) {
+		: StackMapFrame(tag), offset_delta(0), stack(NULL) {
 	}
 
 	~StackMapExtFrame();
@@ -159,11 +174,12 @@ struct StackMapListFrame
 	// Stack Item Table
 	VariableInfo **stack;
 
-	StackMapListFrame() {
+	StackMapListFrame()
+		: offset_delta(0), stack(NULL) {
 	}
 
 	StackMapListFrame(uint8_t tag)
-		: StackMapFrame(tag) {
+		: StackMapFrame(tag), offset_delta(0), stack(NULL) {
 	}
 
 	~StackMapListFrame();
@@ -183,11 +199,13 @@ struct StackMapFullFrame
 	// Stack Items
 	std::vector<VariableInfo *> stack;
 
-	StackMapFullFrame() {
+	StackMapFullFrame()
+		: offset_delta(0), locals(NULL), stack(NULL) {
 	}
 
 	StackMapFullFrame(uint8_t tag)
-		: StackMapFrame(tag) {
+		: StackMapFrame(tag), offset_delta(0),
+		  locals(NULL), stack(NULL) {
 	}
 
 	~StackMapFullFrame();
