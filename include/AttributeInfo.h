@@ -575,11 +575,12 @@ struct AnnotationDefaultAttribute
 	// Value
 	ElementValue *default_value;
 
-	AnnotationDefaultAttribute() {
+	AnnotationDefaultAttribute()
+		: default_value(NULL) {
 	}
 
 	AnnotationDefaultAttribute(ConstantUtf8Info *name, uint32_t length)
-		: AttributeInfo(name, length) {
+		: AttributeInfo(name, length), default_value(NULL) {
 	}
 
 	~AnnotationDefaultAttribute();
